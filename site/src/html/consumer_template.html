@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="Gras & et cetera - voor al uw Gramineae behoeften!" />
+    <meta name="keywords" content="gras, en, et, cetera, gramineae, poaceae, kopen" />
+    <meta name="author" content="MB & JD" />
+    <link rel="shortcut icon" type="image/x-icon" href="./src/img/favicon.ico" />
+    <link rel="stylesheet" type="text/css" href="./src/css/style.css" />
+    <!-- Google analytics javascript code hier -->
+    <title>Productenoverzicht - Gras &amp; et cetera</title>
+</head>
+<body>
+<div id="wrapper">
+    #$(message-container)$#
+    <div id="header">
+        <div class="logo">
+            <a href="./about.php"><img src="./src/img/logo.png" alt="Gras & et cetera"></a>
+        </div>
+        <div id="login">
+            <form method="POST" action="./login.php">
+                <table>
+                    <tr>
+                        <th class="tableheader" colspan="2">Login</th>
+                    </tr>
+                    <tr>
+                        <td>Gebruikersnaam:</td>
+                        <td><input type="email" name="username" placeholder="gerrygras12@hotmail.com" required /></td>
+                    </tr>
+                    <tr>
+                        <td>Wachtwoord:</td>
+                        <td><input type="password" name="password" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" required /></td>
+                    </tr>
+                    <tr>
+                        <td><label><input type="checkbox" name="rememberme" value="true" checked="checked" />Onthouden</label></td>
+                        <td><a href="./forgot.php" target="_self">Vergeten?</a>&nbsp;&nbsp;<a href="./register.html" target="_self">Registreren</a>&nbsp;&nbsp;<input type="submit" name="login" value="Inloggen" /></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+        <div id="menu">
+            <div id="menu-content">
+                <ul>
+                    <li><span><a href="./news.html">Nieuws</a></span></li>
+                    <li><span><a href="./deals.html">Acties</a></span></li>
+                    <li><span><a href="./about.php">Over ons</a></span></li>
+                    <li><span><a href="./jobs.html">Vacatures</a></span></li>
+                    <li>
+                        <span><a href="./index.php">Webshop</a></span>
+                        <div class="sub-menu">
+                            <ul>
+                                <li><a href="./index.php">Producten</a></li>
+                                <li><a href="./cart.html">Winkelwagen</a></li>
+                                <li><a href="./invoice.html">Afrekenen</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div id="content-container">
+        <div id="ad-container">
+            <div class="ad-notice">Advertentie</div>
+            <div class="ad">
+                <!-- Google advertenties javascript code hier -->
+                <a href="http://www.google.nl/adwords" target="_blank">
+                    <img src="./src/img/ad.png" alt="Advertentie" />
+                </a>
+            </div>
+            <div class="ad-notice">Advertentie</div>
+        </div>
+        <div id="content">
+            <div id="search">
+                <form method="GET" action="./index.php" id="searchform">
+                    <input type="search" name="searchterms" placeholder="Zoektermen ingeven" required />&nbsp;<input type="submit" name="searchsubmit" value="Zoeken" />
+                </form>
+            </div><br />
+            <div id="categories-wrapper">
+                <div id="categories">
+                    <a href="#">Categorie 1</a><br />
+                    <a href="#">Categorie 2</a><br />
+                    <a href="#">Categorie 3</a><br />
+                    <a href="#">Categorie 4</a><br />
+                    <a href="#">Categorie 5</a><br />
+                </div>
+            </div>
+            <div id="products-wrapper">
+                <div id="productpagecount-wrapper">
+					<span id="productpagecount"> 1367 producten | Toon 
+						<select name="productsshowncount" form="searchform" onchange="this.form.submit()">
+                            <option value="20">20</option>
+                            <option value="40">40</option>
+                            <option value="60">60</option>
+                            <option value="80">80</option>
+                            <option value="100">100</option>
+                        </select> per pagina
+					</span>
+                </div>
+                #$(content)$#
+            </div>
+        </div>
+    </div>
+    <div id="footer-container">
+        <div id="footer-content">
+            &copy; 2015-#$(date-year)$# Gras &amp; et cetera
+        </div>
+    </div>
+</div>
+</body>
+</html>

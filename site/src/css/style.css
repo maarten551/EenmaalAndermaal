@@ -1,0 +1,428 @@
+body {
+	background-color: #ffffff;
+	background-image: url("../img/background.jpg");
+	background-size: cover;
+	font: 12pt Arial, Sans-serif;
+}
+
+/*.label {
+	font: 12pt Arial, Sans-serif;
+}*/
+
+.labelbold {
+	font: bold 12pt Arial, Sans-serif;
+}
+
+.labelrequired {
+	color: #ff0000;
+}
+
+.labelsmall {
+	font: 10pt Arial, Sans-serif;
+}
+
+/*
+   Semi valid code, it works in Chrome but is not part of the official CSS specification,
+   so the CSS validator spits out an error... >:[
+*/
+@-webkit-keyframes sub-menu-animation {
+	0% { opacity: 0; display: none; }
+	1% { display: block; }
+	100% { opacity: 1; }
+}
+
+@keyframes sub-menu-animation {
+	0% { opacity: 0; display: none; }
+	1% { display: block; }
+	100% { opacity: 1; }
+}
+
+#wrapper {
+	margin: 0 auto;
+	width: 1200px;
+}
+
+#wrapper #message-container {
+	position:absolute;
+	width:100%;
+	max-width:800px;
+	margin:0 auto;
+	left:0px;
+	right:0px;
+}
+
+#wrapper #message-container .message {
+	width:100%;
+	float:left;
+	border:1px solid rgba(0, 0, 0, 0.5);
+	border-radius: 5px;
+	margin-bottom:5px;
+}
+
+#wrapper #message-container .message.message-alert {
+	background-color:rgba(255, 50, 50, 0.85);
+}
+
+#wrapper #message-container .message .message-alert-title {
+	padding:5px 0px 3px 20px;
+	color:white;
+	font-size:20px;
+	font-weight: bold;
+}
+
+#wrapper #message-container .message .message-alert-message {
+	padding:2px;
+	font-size:14px;
+	color:white;
+	font-weight: 600;
+}
+
+#wrapper #header .logo {
+	float: left;
+	padding-top: 25px;
+}
+
+#wrapper #header #login {
+	background-color: rgba(31, 166, 0, 0.5);
+	border: 1px solid #000000;
+	border-radius: 4px;
+	float: right;
+	margin-right: 62px;
+	margin-top: 8px;
+}
+
+#wrapper #header #login form {
+	margin-bottom: 5px;
+}
+
+#wrapper #header #login .tableheader {
+	font: 16pt Arial, Sans-serif;
+	text-align: left;
+}
+
+#wrapper #header #login .textfield {
+	width: 98%;
+}
+
+#wrapper #header #menu {
+	background-image: url("../img/menu-background.png");
+	clear:both;
+	height: 66px;
+	width: 100%;
+}
+
+#wrapper #header #menu #menu-content {
+	padding-left: 40px;
+	padding-top: 12px;
+}
+
+#wrapper #header #menu #menu-content ul {
+	list-style: none;
+}
+
+#wrapper #header #menu #menu-content > ul > li {
+	float: left;
+	height: 39px;
+	transition: 2s;
+	width: 180px;
+	-moz-transition: 2s;
+	-ms-transition: 2s;
+	-o-transition: 2s;
+	-webkit-transition: 2s;
+}
+
+#wrapper #header #menu #menu-content > ul > li span a {
+	color: #ffffff;
+	font-size: 20px;
+	font-weight: bold;
+	padding-right: 50px; /* For the ::after image */
+	position: relative;
+	text-decoration: none;
+	top: -10px;
+}
+
+#wrapper #header #menu #menu-content > ul > li::after {
+	content: url("../img/menu-split.png");
+}
+
+#wrapper #header #menu #menu-content > ul > li:last-child::after {
+	content: "";
+}
+
+#wrapper #header #menu #menu-content > ul > li:last-child span a {
+	top: 10px;
+}
+
+#wrapper #header #menu #menu-content ul li div.sub-menu {
+	background-color: rgba(28, 147, 0, 0.6);
+	border: 1px solid #000000;
+	border-bottom-left-radius: 5px;
+	border-bottom-right-radius: 5px;
+	border-top:none; /* Throws CSS validator warning */
+	display: none;
+	margin-top:12px;
+	min-width: 180px;
+	position: absolute;
+}
+
+#wrapper #header #menu #menu-content ul li:hover div.sub-menu,
+#wrapper #header #menu #menu-content ul li div.sub-menu:hover {
+	animation: sub-menu-animation 0.5s;
+	display: block;
+	opacity: 1;
+	-webkit-animation: sub-menu-animation 0.5s;
+}
+
+#wrapper #header #menu #menu-content ul li div.sub-menu ul {
+	padding: 5px 10px 0px 10px;
+}
+
+#wrapper #header #menu #menu-content ul li div.sub-menu ul li {
+	margin: 0px;
+	padding: 5px 0px;
+}
+
+#wrapper #header #menu #menu-content ul li div.sub-menu ul li a {
+	color: #ffffff;
+	cursor: pointer;
+	font-size: 18px;
+	text-decoration: none;
+	transition: 1s;
+}
+
+#wrapper #header #menu #menu-content ul li:hover div.sub-menu ul li a:hover {
+	text-shadow: 4px 4px 0.14em rgba(0,0,0,0.5);
+	transition: all 0.3s ease;
+}
+
+#wrapper #content-container {
+	background-color: rgba(255, 255, 255, 0.6);
+	border: 1px solid black;
+	border-radius: 5px;
+	margin-top: 35px;
+	min-height: 500px;
+	width: 100%;
+}
+
+#wrapper #content-container #content {
+	display: inline-block;
+	padding: 15px 35px;
+	width: 1130px; /* inline-block needs a width, this is 1200 - horizontal padding (35 * 2) */
+}
+
+#wrapper #content-container #content #content-title {
+	border-bottom: 1px solid #000000;
+	font-size: 26px;
+	font-weight: bold;
+	margin-bottom: 10px;
+	padding-bottom: 5px;
+	text-align: center;
+	width: 100%;
+}
+
+#wrapper #content-container #content .content-sub-title {
+	text-decoration: underline;
+	font-size: 18px;
+	font-weight: bold;
+}
+
+#wrapper #content-container #content .content-description {
+	clear: both;
+	float: left;
+	margin-bottom: 40px;
+	width: 100%;
+}
+
+#wrapper #content-container #content .content-description:last-child {
+	margin-bottom: 10px;
+}
+
+#wrapper #content-container #content .content-description .content-description-text {
+	float: left;
+	width: 500px;
+}
+
+#wrapper #content-container #content .content-description .content-description-image {
+	float: right;
+}
+
+#wrapper #content-container #content img {
+	border: 2px solid #000000;
+	border-radius: 3px;
+}
+
+#wrapper #content-container #content .content-description .content-description-image .content-image-description {
+	font-size: 10px;
+	font-weight: 300;
+	padding-top: 5px;
+	text-align: center;
+}
+
+#wrapper #content-container #content .content-product-description .content-product-description-image {
+	float: left;
+}
+
+#wrapper #content-container #content .content-product-description .content-product-description-text,
+#wrapper #content-container #content .content-product-description .content-product-description-properties {
+	float: right;
+	padding-bottom: 10px;
+	width: 700px;
+}
+
+#wrapper #content-container #content .content-product-description .content-product-description-properties {
+	font-size: 22px;
+	font-weight: 800;
+}
+
+#wrapper #content-container #content .content-product-add-to-cart {
+	clear: both;
+	display: inline-block;
+	float: right;
+	padding-bottom: 20px;
+}
+
+#wrapper #content-container #content .content-products-you-like {
+	border-top: 1px dashed #000000;
+	display: inline-block;
+}
+
+#wrapper #content-container #content .content-products-you-like ul {
+	list-style: none;
+	margin: 0px;
+	padding: 0px;
+}
+
+#wrapper #content-container #content .content-products-you-like ul li {
+	float: left;
+	padding: 10px;
+	width: 356px; /* ((1200 / 3) - this-class padding) - content-container padding */
+}
+
+#wrapper #content-container #content .content-products-you-like ul li .content-product-you-like-container {
+	border: 1px solid #000000;
+	border-radius: 5px;
+}
+
+#wrapper #content-container #content .content-products-you-like ul li .content-product-you-like-container .content-product-you-like-content {
+	padding: 10px;
+}
+
+#wrapper #content-container #content .content-products-you-like ul li .content-product-you-like-container .content-product-you-like-content .content-product-you-like-image {
+	text-align: center;
+}
+
+#wrapper #content-container #content .content-products-you-like ul li .content-product-you-like-container .content-product-you-like-content .content-product-you-like-image img {
+	height: 150px;
+	width: 75%;
+}
+
+#wrapper #content-container #content .content-products-you-like ul li .content-product-you-like-container .content-product-you-like-content .content-product-you-like-name {
+	font-size: 20px;
+	font-weight: 800;
+	padding-top: 20px;
+}
+
+#wrapper #content-container #content .content-products-you-like ul li .content-product-you-like-container .content-product-you-like-content .content-product-you-like-price {
+	display: inline;
+	font-size: 18px;
+	font-weight: 600;
+}
+
+#wrapper #content-container #content .content-products-you-like ul li .content-product-you-like-container .content-product-you-like-content button.content-product-you-like-go-to-page-button {
+	margin-left: 50px;
+}
+
+#wrapper #content-container #content #content-shop-cart table {
+	width: 100%;
+}
+
+#wrapper #content-container #content #content-shop-cart table tbody tr td, #wrapper #content-container #content #content-shop-cart table thead tr th {
+	background-color: rgba(255, 255, 255, 0.5);
+	border: 1px solid #000000;
+	border-radius: 4px;
+	text-align: center;
+}
+
+#wrapper #content-container #content #content-shop-cart table tbody tr td.content-shop-cart-product-image {
+	width: 260px;
+}
+
+#wrapper #content-container #content #content-shop-cart table tbody tr td img {
+	margin: 5px;
+	width: 250px;
+}
+
+#wrapper #content-container #content #content-shop-cart table tbody tr td #content-shop-cart-total-container {
+	float: right;
+	padding: 5px 20px;
+}
+
+#wrapper #content-container #content #content-shop-cart table tbody tr td #content-shop-cart-total-container span#content-shop-cart-total-text {
+	margin-right: 10px;
+	padding-right: 10px;
+}
+
+#wrapper #content-container #content #content-register .content-register-style {
+	background-color: rgba(255, 255, 255, 0.5);
+	border: 1px solid #000000;
+	border-radius: 4px;
+	vertical-align: top;
+}
+
+#wrapper #content-container #content #content-register table tbody tr td {
+	margin: 5px;
+	width: 250px;
+}
+
+#wrapper #content-container #content #search {
+	margin-left: 40%;
+}
+
+#wrapper #content-container #content #products-wrapper #products .content-products-you-like {
+	width: 995px;
+}
+
+#wrapper #content-container #content #products-wrapper #products .content-products-you-like li {
+	width: 228px;
+}
+
+#wrapper #content-container #content #products-wrapper #productpagecount-wrapper #productpagecount div {
+	margin: 5px;
+}
+
+#wrapper #content-container #content #categories-wrapper {
+	background-color: rgba(255, 255, 255, 0.5);
+	border: 1px solid #000000;
+	border-radius: 4px;
+	float: left;
+	margin: 30px 5px 5px 5px;
+	vertical-align: top;
+	width: 120px;
+}
+
+#wrapper #content-container #ad-container {
+	background-color: rgba(255, 255, 255, 0.6);
+	border: 1px solid #000000;
+	margin-left: 1225px;
+	position: absolute;
+	width: 158px;
+}
+
+#wrapper #content-container .ad-notice {
+	font: 10pt Arial, Sans-serif;
+	text-align: center;
+}
+
+#wrapper #footer-container {
+	background-color: rgba(255, 255, 255, 0.6);
+	border: 1px solid #000000;
+	border-radius: 5px;
+	height: 50px;
+	margin-top: 20px;
+	text-align: center;
+	width: 100%;
+}
+
+#wrapper #footer-container #footer-content {
+	padding: 16px;
+}
