@@ -27,15 +27,15 @@
 <body>
 <div id="contentvak">
     <div id = "push">
-    <?php
+        <?php
         require 'require/navbar.php';
         require 'require/menu.php';
-    ?>
+        ?>
     </div>
 
-<?php
+    <?php
     require 'require/footer.php'
-?>
+    ?>
 </div>
 </body>
 
