@@ -31,6 +31,20 @@
         require 'require/navbar.php';
         require 'require/menu.php';
         ?>
+        <ul class="list-group">
+            <li class="list-group-item">
+                <span class="badge">14</span>
+                Cras justo odio
+            </li>
+            <li class="list-group-item">
+                <span class="badge">14</span>
+                Cras justo odio
+            </li>
+            <li class="list-group-item">
+                <span class="badge">14</span>
+                Cras justo odio
+            </li>
+        </ul>
     </div>
 
     <?php

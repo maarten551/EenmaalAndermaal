@@ -15,7 +15,6 @@
     <link rel="stylesheet" type="text/css" href="../css/bootstrap-theme.min.css">
     <link rel="stylesheet" type="text/css" href="../css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="../css/standard_style.css">
-    <link rel="stylesheet" type="text/css" href="../css/homepage.css">
 
     <!-- het inladen van de javascripts -->
     <script src="../js/jquery-1.11.2.min.js"></script>
