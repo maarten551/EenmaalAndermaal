@@ -17,7 +17,7 @@
     <link rel="stylesheet" type="text/css" href="../css/standard_style.css">
     <link rel="stylesheet" type="text/css" href="../css/homepage.css">
 
-    <!-- het inladen van de javascripts -->
+    <!-- het inladen van de javascripts -->ghghghg
     <script src="../js/jquery-1.11.2.min.js"></script>
     <script src="../js/bootstrap.min.js"></script>
 
