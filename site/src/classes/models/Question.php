@@ -14,7 +14,8 @@ class Question extends Model {
         parent::__construct($databaseHelper);
         $this->tableName = "Question";
         $this->primaryKeyName = "id";
-        $this->databaseFields["required"][] = "questionText";
+        $this->hasIdentity = true;
+        $this->databaseFields["required"]["questionText"] = "quote";
         $this->setQuestionText("This is a test question");
     }
 

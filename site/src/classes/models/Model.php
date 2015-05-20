@@ -22,6 +22,10 @@ abstract class Model {
     /**
      * @var bool
      */
+    protected $hasIdentity;
+    /**
+     * @var bool
+     */
     private $isLoaded;
     /**
      * @var bool
@@ -30,10 +34,10 @@ abstract class Model {
     /**
      * @var DatabaseHelper
      */
-    private $datebaseHelper;
+    private $databaseHelper;
 
     public function __construct(DatabaseHelper $databaseHelper) {
-        $this->datebaseHelper = $databaseHelper;
+        $this->databaseHelper = $databaseHelper;
         $this->isDirty = false;
         $this->isLoaded = false;
     }
@@ -42,11 +46,51 @@ abstract class Model {
 
     }
 
+    public function save() {
+        if($this->isLoaded === false) {
+            $primaryKeyValue = $this->get($this->primaryKeyName);
+            if($primaryKeyValue === null && $this->hasIdentity === true) {
+                //TODO:Check if all the required fields aren't empty
+                $currentObjectDataFields = $this->getDatabaseFieldsWithValues();
+                $insertQuery = "INSERT INTO $this->tableName (".implode(", ", array_keys($currentObjectDataFields)).") VALUES (".implode(", ", $currentObjectDataFields)."); SELECT SCOPE_IDENTITY()";
+
+                $statement = sqlsrv_prepare($this->databaseHelper->getDatabaseConnection(), $insertQuery, array(
+                    implode(", ", array_keys($currentObjectDataFields)),
+                    implode(", ", $currentObjectDataFields)
+                ));
+
+                if(!sqlsrv_execute($statement)) {
+                    die(print_r(sqlsrv_errors()[0]["message"], true)); //Failed to insert
+                }
+
+                $primaryKeyName = $this->primaryKeyName;
+                $this->$primaryKeyName = $this->databaseHelper->getLastInsertedId($statement);
+
+
+
+                var_dump(implode(", ", $currentObjectDataFields));
+                var_dump(implode(", ", array_keys($currentObjectDataFields)));
+                var_dump($this);
+            } else if ($this->hasIdentity === false) {
+                //TODO: save while primary key is known
+            }
+        } else {
+            //TODO: Update code
+        }
+    }
+
+    /**
+     * @param $fieldName
+     * @param bool $ignoreIsLoaded
+     * @return mixed
+     */
     protected function get($fieldName, $ignoreIsLoaded = false) {
         if(property_exists($this, $fieldName)) {
-            echo "property exists: ".$this->$fieldName;
+            echo "Property '$fieldName' exists: ".$this->$fieldName."<br />";
+            return $this->$fieldName;
         } else {
-            echo "Property doesn't exists";
+            die("Property '$fieldName' doesn't exists in class '".get_class($this)."'");
+            return null;
         }
 
         if($fieldName !== $this->primaryKeyName && ($this->isFieldInDatabase($fieldName) || $ignoreIsLoaded === false)) {
@@ -68,5 +112,18 @@ abstract class Model {
         }
 
         return false;
+    }
+
+    private function getDatabaseFieldsWithValues() {
+        $databaseFieldsWithValues = array();
+        foreach ($this->databaseFields as $type) {
+            foreach ($type as $databaseField => $databaseType) {
+                /*$fieldValue = $this->databaseHelper->prepareString($this->get($databaseField));
+                $databaseFieldsWithValues[$databaseField] = ($databaseType === "quote") ? "'".$fieldValue."'" : $fieldValue;*/
+                $databaseFieldsWithValues[$databaseField] = $this->databaseHelper->prepareString($this->get($databaseField));
+            } //TODO: test this.
+        }
+
+        return $databaseFieldsWithValues; //Removes the last ', '
     }
 }

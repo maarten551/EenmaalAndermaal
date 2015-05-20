@@ -13,7 +13,8 @@ date_default_timezone_set("Europe/Amsterdam");
 
 $databaseHelper = new DatabaseHelper();
 $question = new Question($databaseHelper);
-echo $question->getQuestionText();
+$question->getQuestionText();
+$question->save();
 
 //$arguments = (isset($_GET['arg'])) ? $_GET['arg'] : "index";
 //$PageController = new PageController($arguments);

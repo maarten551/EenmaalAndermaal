@@ -35,6 +35,12 @@ class DatabaseHelper {
         return false;
     }
 
+    public function getLastInsertedId($queryStatement) {
+        sqlsrv_next_result($queryStatement);
+        sqlsrv_fetch($queryStatement);
+        return sqlsrv_get_field($queryStatement, 0);
+    }
+
     /**
      * @return Mixed
      */
@@ -45,8 +51,24 @@ class DatabaseHelper {
     public function prepareString($value) {
         $value = trim($value);
         $value = htmlentities($value);
-        $value = mysql_real_escape_string($value);
+        $value = $this->mssql_escape($value);
 
         return $value;
+    }
+
+    /**
+     * @param $data
+     * @return string
+     * @Source: http://stackoverflow.com/questions/574805/how-to-escape-strings-in-sql-server-using-php
+     *
+     * Transforms a string in a hexdecimal value, this value will be converted back by MSSQL once inserted or updated
+     */
+    private function mssql_escape($data)
+    {
+        if (is_numeric($data)) {
+            return $data;
+        }
+        $unpacked = unpack('H*hex', $data);
+        return '0x' . $unpacked['hex'];
     }
 }
