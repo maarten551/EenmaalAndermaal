@@ -1,5 +1,5 @@
 <?php
-namespace src\classes\models;
+namespace src\classes\Models;
 
 use src\classes\DatabaseHelper;
 
@@ -43,39 +43,68 @@ abstract class Model {
     }
 
     protected function load($primaryKeyValue) {
+        if($primaryKeyValue !== null) {
+            $databaseFields = $this->getDatabaseFieldsWithValues(); //We need to know the keys for selecting the columns
+            $selectQuery = "SELECT ".implode(', ', array_keys($databaseFields))."
+                FROM $this->tableName
+                WHERE $this->primaryKeyName = ?";
+            $statement = sqlsrv_prepare($this->databaseHelper->getDatabaseConnection(), $selectQuery, array(
+                &$primaryKeyValue
+            ));
+            echo $selectQuery;
 
+            if (!sqlsrv_execute($statement)) {
+                die(print_r(sqlsrv_errors()[0]["message"], true)); //Failed to select
+            }
+
+            if(sqlsrv_has_rows($statement)) {
+                $this->setPrimaryKeyField($primaryKeyValue);
+                $this->mergeQueryData(sqlsrv_fetch_array($statement, SQLSRV_FETCH_ASSOC));
+                $this->isLoaded = true;
+                var_dump($this);
+            }
+        }
     }
 
     public function save() {
-        if($this->isLoaded === false) {
-            $primaryKeyValue = $this->get($this->primaryKeyName);
-            if($primaryKeyValue === null && $this->hasIdentity === true) {
-                //TODO:Check if all the required fields aren't empty
-                $currentObjectDataFields = $this->getDatabaseFieldsWithValues();
-                $insertQuery = "INSERT INTO $this->tableName (".implode(", ", array_keys($currentObjectDataFields)).") VALUES (".implode(", ", $currentObjectDataFields)."); SELECT SCOPE_IDENTITY()";
+        if($this->isDirty === true) {
+            //TODO:Check if all the required fields aren't empty
+            $primaryKeyValue = $this->getPrimaryKeyField();
+            if ($this->isLoaded === false) {
+                if ($primaryKeyValue === null && $this->hasIdentity === true) {
+                    $currentObjectDataFields = $this->getDatabaseFieldsWithValues();
+                    $insertQuery = "INSERT INTO $this->tableName "
+                        . "(" . implode(", ", array_keys($currentObjectDataFields)) . ") "
+                        . "VALUES (" . implode(", ", $currentObjectDataFields) . ")"
+                        . "SELECT SCOPE_IDENTITY()"; //It seems you can't pass column names as a parameter
 
-                $statement = sqlsrv_prepare($this->databaseHelper->getDatabaseConnection(), $insertQuery, array(
-                    implode(", ", array_keys($currentObjectDataFields)),
-                    implode(", ", $currentObjectDataFields)
+                    $statement = sqlsrv_prepare($this->databaseHelper->getDatabaseConnection(), $insertQuery);
+
+                    if (!sqlsrv_execute($statement)) {
+                        die(print_r(sqlsrv_errors()[0]["message"], true)); //Failed to insert
+                    }
+
+                    $this->setPrimaryKeyField($this->databaseHelper->getLastInsertedId($statement));
+                    $this->isDirty = false;
+                    $this->isLoaded = true;
+
+                    var_dump($this);
+                } else if ($this->hasIdentity === false) {
+                    //TODO: save while primary key is known
+                }
+            } else {
+                $fieldUpdateInQuery = $this->prepareDatabaseFieldsForUpdate($this->getDatabaseFieldsWithValues());
+                $updateQuery = "UPDATE $this->tableName SET $fieldUpdateInQuery WHERE $this->primaryKeyName = ?";
+                $statement = sqlsrv_prepare($this->databaseHelper->getDatabaseConnection(), $updateQuery, array(
+                    &$primaryKeyValue
                 ));
 
-                if(!sqlsrv_execute($statement)) {
-                    die(print_r(sqlsrv_errors()[0]["message"], true)); //Failed to insert
+                if (!sqlsrv_execute($statement)) {
+                    die(print_r(sqlsrv_errors()[0]["message"], true)); //Failed to update
                 }
 
-                $primaryKeyName = $this->primaryKeyName;
-                $this->$primaryKeyName = $this->databaseHelper->getLastInsertedId($statement);
-
-
-
-                var_dump(implode(", ", $currentObjectDataFields));
-                var_dump(implode(", ", array_keys($currentObjectDataFields)));
-                var_dump($this);
-            } else if ($this->hasIdentity === false) {
-                //TODO: save while primary key is known
+                $this->isDirty = false;
             }
-        } else {
-            //TODO: Update code
         }
     }
 
@@ -86,15 +115,36 @@ abstract class Model {
      */
     protected function get($fieldName, $ignoreIsLoaded = false) {
         if(property_exists($this, $fieldName)) {
-            echo "Property '$fieldName' exists: ".$this->$fieldName."<br />";
+            echo "Property '$fieldName' exists: '".$this->$fieldName."''<br />";
+            $primaryKeyValue = $this->getPrimaryKeyField();
+            if($ignoreIsLoaded === false && $this->isLoaded === false && !empty($primaryKeyValue)) { //Enables lazy loading
+                if($fieldName !== $this->primaryKeyName && ($this->isFieldInDatabase($fieldName) || $ignoreIsLoaded === false)) {
+                    $this->load($primaryKeyValue);
+                    return $this->$fieldName;
+                }
+            } else {
+                return $this->$fieldName;
+            }
             return $this->$fieldName;
         } else {
             die("Property '$fieldName' doesn't exists in class '".get_class($this)."'");
-            return null;
         }
+    }
 
-        if($fieldName !== $this->primaryKeyName && ($this->isFieldInDatabase($fieldName) || $ignoreIsLoaded === false)) {
-            $this->load("test"); //TODO fix
+    /**
+     * @param $fieldName
+     * @param $value
+     * @return mixed
+     */
+    protected function set($fieldName, $value) {
+        if(property_exists($this, $fieldName)) {
+            echo "Property '$fieldName' exists: '".$this->$fieldName."' and is set with '$value'<br />";
+            if($value !== $this->$fieldName) {
+                $this->$fieldName = $value;
+                $this->isDirty = true;
+            }
+        } else {
+            die("Property '$fieldName' doesn't exists in class '".get_class($this)."'");
         }
     }
 
@@ -104,7 +154,7 @@ abstract class Model {
      */
     private function isFieldInDatabase($fieldName) {
         foreach ($this->databaseFields as $type) {
-            foreach ($type as $databaseField) {
+            foreach ($type as $databaseField => $databaseType) {
                 if($databaseField === $fieldName) {
                     return true;
                 }
@@ -118,12 +168,41 @@ abstract class Model {
         $databaseFieldsWithValues = array();
         foreach ($this->databaseFields as $type) {
             foreach ($type as $databaseField => $databaseType) {
-                /*$fieldValue = $this->databaseHelper->prepareString($this->get($databaseField));
-                $databaseFieldsWithValues[$databaseField] = ($databaseType === "quote") ? "'".$fieldValue."'" : $fieldValue;*/
-                $databaseFieldsWithValues[$databaseField] = $this->databaseHelper->prepareString($this->get($databaseField));
+                $databaseFieldsWithValues[$databaseField] = $this->databaseHelper->prepareString($this->get($databaseField, true));
             } //TODO: test this.
         }
 
         return $databaseFieldsWithValues; //Removes the last ', '
+    }
+
+    /**
+     * @param $databaseFields string
+     * @return null
+     */
+    private function prepareDatabaseFieldsForUpdate($databaseFields) {
+        $updateFormat = "";
+        foreach ($databaseFields as $key => $value) {
+            $updateFormat .= "$key = $value, ";
+        }
+
+        return substr($updateFormat, 0, -2);
+    }
+
+    private function setPrimaryKeyField($value) {
+        $primaryKeyName = $this->primaryKeyName;
+        $this->$primaryKeyName = $value;
+    }
+
+    private function getPrimaryKeyField() {
+        $primaryKeyName = $this->primaryKeyName;
+        return $this->$primaryKeyName;
+    }
+
+    private function mergeQueryData($assocQueryResultArray) {
+        foreach ($assocQueryResultArray as $key => $value) {
+            if($this->isFieldInDatabase($key) === true) {
+                $this->set($key, $value);
+            }
+        }
     }
 }

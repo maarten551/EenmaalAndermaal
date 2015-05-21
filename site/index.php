@@ -12,9 +12,14 @@ session_start();
 date_default_timezone_set("Europe/Amsterdam");
 
 $databaseHelper = new DatabaseHelper();
-$question = new Question($databaseHelper);
-$question->getQuestionText();
+$question = new Question($databaseHelper, 12);
+//$question->setQuestionText("Als dit een overval is, hoeveel vrienden zou je dan erbij roepen? Bewijs");
+echo $question->getQuestionText();
+//$question->save();
+/*$question->getQuestionText();
 $question->save();
+$question->setQuestionText($question->getQuestionText().$question->getId());
+$question->save();*/
 
-//$arguments = (isset($_GET['arg'])) ? $_GET['arg'] : "index";
-//$PageController = new PageController($arguments);
+/*$arguments = (isset($_GET['arg'])) ? $_GET['arg'] : "index";
+$PageController = new PageController($arguments);*/
