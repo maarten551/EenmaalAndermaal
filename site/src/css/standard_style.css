@@ -1,35 +1,83 @@
 html{
-    height: 100%;
+    height: 100vh;
 }
 
 body {
-    height: 100%;
+    height: inherit;
     background-color: #45737F;
 }
 
 #menu{
-    top: 50px;
     position: relative;
     background-color: #68ADBF;
     font-family: CalibriFont;
     text-align: center;
     color: #233A40;
+    top:50px;
+    margin-bottom: 15px;
+}
+
+.roundTop{
+    border-radius:         10px 10px 0 0;
+    -webkit-border-radius: 10px 10px 0 0;
+    -moz-border-radius:    10px 10px 0 0;
+    border-bottom: 1px solid #000000;
+}
+
+.roundBottom{
+    border-radius:        0 0 10px 10px;
+    -webkit-border-radius:0 0 10px 10px;
+    -moz-border-radius:   0 0 10px 10px;
+    border-top: 1px solid #000000;
+}
+
+.productBlueLine{
+    background-color: #68ADBF;
+    position: relative;
+    width: 100%;
+    color: #233A40;
+    height: 55px;           /*height of blue line*/
+    padding: 10px;          /*padding for text*/
+    line-height: 35px;      /* should be height - (padding * 2) */
+    font-size: 20px;
+    white-space: nowrap;
+    overflow: hidden;
+    -o-text-overflow: ellipsis;
+    text-overflow:    ellipsis;
+}
+
+.inner {
+    background-color: #dcdcdc;
+    border-radius:10px;
+    border: 1px solid black;
+}
+
+.productBox{
+    padding: 10px;
+}
+
+.productBox:hover{
+    padding: 0px;
 }
 
 #contentvak{
-    min-height: 100%;
+    min-height: 100vh;
     height: auto;
     margin: 0 auto;
-    padding: 0px;
+    padding: 0;
     z-index: -4;
     background-color: white;
 }
 
 #push{
-    min-height: 100%;
+    position: relative;
+    min-height: calc(100vh - 300px);
+    top:50px;
 }
 
 #footer {
+    top:50px;
+    position: relative;
     height: auto;
     background-color: #ffffff;
     margin: 0;
@@ -39,10 +87,6 @@ body {
     height: 1px;
     background-color: #233A40;
     margin: 3px;
-}
-
-h2{
-    margin: 0;
 }
 
 .col-xs-5ths,.col-sm-5ths,.col-md-5ths,.col-lg-5ths {
@@ -63,7 +107,7 @@ h2{
         width: 20%;
         float: left;
     }
-    .row{
+    #menu {
         font-size: 1.38em;
     }
 }
@@ -73,25 +117,25 @@ h2{
         width: 20%;
         float: left;
     }
-    .row{
+    #menu {
         font-size: 1.4em;
     }
 }
 
 @media (min-width: 540px) {
-    .row{
+    #menu {
         font-size: 1.4em;
     }
 }
 
 @media (min-width: 640px) {
-    .row{
+    #menu {
         font-size: 1.5em;
     }
 }
 
 @media (min-width: 768px) {
-    .row{
+    #menu {
         font-size: 1.6em;
     }
 }
@@ -100,7 +144,7 @@ h2{
     #contentvak {
         width: 787px;
     }
-    .row{
+    #menu {
         font-size: 1.7em;
     }
 }
@@ -113,7 +157,7 @@ h2{
     #contentvak {
         width: 875px;
     }
-    .row{
+    #menu {
         font-size: 1.8em;
     }
 }
@@ -122,7 +166,7 @@ h2{
     #contentvak {
         width: 920px;
     }
-    .row{
+    #menu {
         font-size: 1.9em;
     }
 }
@@ -135,7 +179,7 @@ h2{
         width: 20%;
         float: left;
     }
-    .row{
+    #menu {
         font-size: 2.1em;
     }
 }
@@ -144,7 +188,7 @@ h2{
     #contentvak {
         width: 1060px;
     }
-    .row{
+    #menu {
         font-size: 2.2em;
     }
 }
@@ -153,7 +197,7 @@ h2{
     #contentvak {
         width: 1150px;
     }
-    .row{
+    #menu {
         font-size: 2.4em;
     }
 }
@@ -162,7 +206,7 @@ h2{
     #contentvak {
         width: 1190px;
     }
-    .row{
+    #menu {
         font-size: 2.4em;
     }
 }
@@ -171,7 +215,7 @@ h2{
     #contentvak {
         width: 1300px;
     }
-    .row{
+    #menu {
         font-size: 2.4em;
     }
 }
@@ -180,7 +224,7 @@ h2{
     #contentvak {
         width: 1415px;
     }
-    .row{
+    #menu {
         font-size: 2.4em;
     }
 }

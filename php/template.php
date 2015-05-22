@@ -12,13 +12,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- het inladen van de stylesheets -->
-    <link rel="stylesheet" type="text/css" href="../css/bootstrap-theme.min.css">
-    <link rel="stylesheet" type="text/css" href="../css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="../css/standard_style.css">
+    <link rel="stylesheet" type="text/css" href="../site/src/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" type="text/css" href="../site/src/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../site/src/css/standard_style.css">
 
     <!-- het inladen van de javascripts -->
-    <script src="../js/jquery-1.11.2.min.js"></script>
-    <script src="../js/bootstrap.min.js"></script>
+    <script src="../site/src/js/jquery-1.11.2.min.js"></script>
+    <script src="../site/src/js/bootstrap.min.js"></script>
 
     <title>Bootstrap Tests</title>
 </head>

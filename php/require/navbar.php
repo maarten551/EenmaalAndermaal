@@ -16,7 +16,7 @@
                 </button>
 
                 <a class="navbar-brand" href="Home.php">
-                    <img alt="Eenmaal Andermaal" class="img-responsive" src="../images/logo2.png" style="max-width:50px; margin-top: -15px;">
+                    <img alt="Eenmaal Andermaal" class="img-responsive" src="../images/logoEenmaalAndermaal.png" style="max-width:50px; margin-top: -15px;">
                 </a>
             </div>
 

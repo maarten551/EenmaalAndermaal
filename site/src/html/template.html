@@ -1,0 +1,103 @@
+<!--
+ * Created by PhpStorm.
+ * User: Marijn
+ * Date: 1-5-2015
+ * Time: 09:28
+ -->
+<!doctype html>
+<html>
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- het inladen van de stylesheets -->
+    <link rel="stylesheet" type="text/css" href="../site/src/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" type="text/css" href="../site/src/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../site/src/css/standard_style.css">
+
+    <!-- het inladen van de javascripts -->
+    <script src="../site/src/js/jquery-1.11.2.min.js"></script>
+    <script src="../site/src/js/bootstrap.min.js"></script>
+
+    <title>Test van template Systeem</title>
+</head>
+
+<body>
+
+<div id="contentvak">
+
+    <div class="navbar navbar-default navbar-fixed-top"> <!-- de navbar wordt gemaakt -->
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse"> <!-- de hamburgerbutton voor een verkleind scherm -->
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+
+                <a class="navbar-brand" href="Home.php">
+                    <img alt="Eenmaal Andermaal" class="img-responsive" src="../site/src/img/logoEenmaalAndermaal.png" style="max-width:50px; margin-top: -15px;">
+                </a>
+            </div>
+            <div class="navbar-collapse collapse" id="searchbar"> <!-- content voor in de navbar -->
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="#">Geavanceerd zoeken</a></li>
+                    <li><a href="#">Inloggen</a></li>
+                    <li><a href="#">Aanmelden</a></li>
+                </ul>
+
+                <form class="navbar-form">
+                    <div class="form-group" style="display:inline;">
+                        <div class="input-group" style="display:table;">
+                            <input class="form-control" name="search" placeholder="Zoeken" autocomplete="off" autofocus="autofocus" type="text">
+                            <span class="input-group-addon" style="width:1%;"> <span class="glyphicon glyphicon-search"> </span></span>
+                        </div>
+                    </div>
+                </form>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+    <div class="row" id = "menu">
+        <a href="#">    <div class="col-xs-12 col-sm-12 col-md-5ths menu">Home</div> </a>
+        <a href="#">    <div class="col-xs-12 col-sm-6 col-md-5ths menu" >Mijn Veilingen</div> </a>
+        <a href="#">    <div class="col-xs-12 col-sm-6 col-md-5ths menu" >Mijn Biedingen</div> </a>
+        <a href="#">    <div class="col-xs-12 col-sm-6 col-md-5ths menu" >Account</div> </a>
+        <a href="#">    <div class="col-xs-12 col-sm-6 col-md-5ths menu" >Nieuwe Veiling</div> </a>
+    </div>
+
+    <div id="push">
+        #$(content)$#
+    </div>
+
+    <footer id="footer" style="margin: 0; text-align: center">
+        <div class="row">
+            <div class="col-xs-12 col-sm-4 col-md-4">
+                <hr class="footer-line">
+                <h2>Help</h2>
+                <hr class="footer-line">
+                <p> <h4>blablabla </h4>
+                <p> <h4>blablabla </h4>
+                <p> <h4>blablabla </h4>
+            </div>
+            <div class="col-xs-12 col-sm-4 col-md-4">
+                <hr class="footer-line">
+                <h2>Contact</h2>
+                <hr class="footer-line">
+                <p> <h4>blablabla </h4>
+            </div>
+            <div class="col-xs-12 col-sm-4 col-md-4">
+                <hr class="footer-line">
+                <h2>Info</h2>
+                <hr class="footer-line">
+                 <p> <h4>blablabla </h4>
+                 <p> <h4>blablabla </h4>
+            </div>
+        </div>
+    </footer>
+
+</div>
+</body>
+
+</html>
