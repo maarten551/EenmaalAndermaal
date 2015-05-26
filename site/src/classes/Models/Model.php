@@ -89,7 +89,7 @@ abstract class Model
                         $this->isDirty = false;
                         $this->isLoaded = true;
                     } else if ($this->hasIdentity === false) {
-                        //TODO: save while primary key is known
+                        //TODO: save while primary key is known and is not an identity
                     }
                 } else {
                     $fieldUpdateInQuery = $this->prepareDatabaseFieldsForUpdate($currentObjectDataFields);
@@ -167,7 +167,7 @@ abstract class Model
         foreach ($this->databaseFields as $type) {
             foreach ($type as $databaseField => $databaseType) {
                 $databaseFieldsWithValues[$databaseField] = $this->databaseHelper->prepareString($this->get($databaseField, true));
-            } //TODO: test this.
+            }
         }
 
         return $databaseFieldsWithValues; //Removes the last ', '
@@ -200,7 +200,7 @@ abstract class Model
         return $this->$primaryKeyName;
     }
 
-    private function mergeQueryData($assocQueryResultArray) {
+    protected function mergeQueryData($assocQueryResultArray) {
         foreach ($assocQueryResultArray as $key => $value) {
             if($this->isFieldInDatabase($key) === true) {
                 $this->set($key, $value);
