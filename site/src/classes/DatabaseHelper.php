@@ -56,6 +56,10 @@ class DatabaseHelper {
         return $value;
     }
 
+    public function closeConnection() {
+        sqlsrv_close($this->databaseConnection);
+    }
+
     /**
      * @param $data
      * @return string

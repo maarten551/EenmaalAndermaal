@@ -15,6 +15,7 @@ class Question extends Model {
         $this->tableName = "Question";
         $this->primaryKeyName = "id";
         $this->hasIdentity = true;
+        $this->databaseFields["required"]["id"] = "quote";
         $this->databaseFields["required"]["questionText"] = "quote";
 
         $this->setId($primaryKeyValue);

@@ -48,7 +48,7 @@ abstract class Model
         if ($primaryKeyValue !== null) {
             $databaseFields = $this->getDatabaseFieldsWithValues(); //We need to know the keys for selecting the columns
             $selectQuery = "SELECT " . implode(', ', array_keys($databaseFields)) . "
-                FROM $this->tableName
+                FROM [$this->tableName]
                 WHERE $this->primaryKeyName = ?";
             $statement = sqlsrv_prepare($this->databaseHelper->getDatabaseConnection(), $selectQuery, array(
                 &$primaryKeyValue
@@ -93,7 +93,7 @@ abstract class Model
                     }
                 } else {
                     $fieldUpdateInQuery = $this->prepareDatabaseFieldsForUpdate($currentObjectDataFields);
-                    $updateQuery = "UPDATE $this->tableName SET $fieldUpdateInQuery WHERE $this->primaryKeyName = ?";
+                    $updateQuery = "UPDATE [$this->tableName] SET $fieldUpdateInQuery WHERE $this->primaryKeyName = ?";
                     $statement = sqlsrv_prepare($this->databaseHelper->getDatabaseConnection(), $updateQuery, array(
                         &$primaryKeyValue
                     ));
@@ -133,13 +133,16 @@ abstract class Model
     /**
      * @param $fieldName
      * @param $value
+     * @param bool $ignoreIsDirty
      * @return mixed
      */
-    protected function set($fieldName, $value) {
+    protected function set($fieldName, $value, $ignoreIsDirty = false) {
         if(property_exists($this, $fieldName)) {
             if($value !== $this->$fieldName) {
                 $this->$fieldName = $value;
-                $this->isDirty = true;
+                if($ignoreIsDirty === false) {
+                    $this->isDirty = true;
+                }
             }
         } else {
             die("Property '$fieldName' doesn't exists in class '".get_class($this)."'");
@@ -200,10 +203,10 @@ abstract class Model
         return $this->$primaryKeyName;
     }
 
-    protected function mergeQueryData($assocQueryResultArray) {
+    public function mergeQueryData($assocQueryResultArray) {
         foreach ($assocQueryResultArray as $key => $value) {
             if($this->isFieldInDatabase($key) === true) {
-                $this->set($key, $value);
+                $this->set($key, $value, true);
             }
         }
     }
