@@ -56,7 +56,7 @@ class User extends Model {
     }
 
     /**
-     * @return null|Question
+     * @return Question
      */
     public function getQuestion() {
         if($this->question === null && $this->get("questionId") !== null) {
@@ -71,20 +71,20 @@ class User extends Model {
      */
     public function setQuestion($question) {
         $this->question = $question;
-        $this->questionId = &$question->getId();
+        $this->questionId = $question->getId();
     }
 
     /**
      * @param $primaryKeyValue
      */
-    private function setUsername($primaryKeyValue) {
+    public function setUsername($primaryKeyValue) {
         $this->username = $primaryKeyValue;
     }
 
     /**
      * @return mixed
      */
-    private function getUsername() {
+    public function getUsername() {
         return $this->username;
     }
 

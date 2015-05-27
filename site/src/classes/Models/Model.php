@@ -139,6 +139,7 @@ abstract class Model
     protected function set($fieldName, $value, $ignoreIsDirty = false) {
         if(property_exists($this, $fieldName)) {
             if($value !== $this->$fieldName) {
+
                 $this->$fieldName = $value;
                 if($ignoreIsDirty === false) {
                     $this->isDirty = true;
@@ -183,7 +184,14 @@ abstract class Model
     private function prepareDatabaseFieldsForUpdate($databaseFields) {
         $updateFormat = "";
         foreach ($databaseFields as $key => $value) {
-            $updateFormat .= "$key = $value, ";
+            if($value instanceof \DateTime) {
+                /**
+                 * @var $value \DateTime
+                 */
+                $updateFormat .= "$key = '".$value->format("m-d-Y H:i:s")."', ";
+            } else {
+                $updateFormat .= "$key = $value, ";
+            }
         }
 
         if(!empty($updateFormat)) {
@@ -205,10 +213,11 @@ abstract class Model
 
     public function mergeQueryData($assocQueryResultArray) {
         foreach ($assocQueryResultArray as $key => $value) {
-            if($this->isFieldInDatabase($key) === true) {
+            if(property_exists($this, $key)) {
                 $this->set($key, $value, true);
             }
         }
+        $this->isLoaded = true;
     }
 
     /**

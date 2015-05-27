@@ -48,10 +48,13 @@ class DatabaseHelper {
         return $this->databaseConnection;
     }
 
-    public function prepareString($value) {
-        $value = trim($value);
-        $value = htmlentities($value);
-        $value = $this->mssql_escape($value);
+    public function prepareString($value)
+    {
+        if (is_string($value)) {
+            $value = trim($value);
+            $value = htmlentities($value);
+            $value = $this->mssql_escape($value);
+        }
 
         return $value;
     }
