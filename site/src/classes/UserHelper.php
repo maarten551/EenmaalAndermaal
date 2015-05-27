@@ -5,6 +5,15 @@ use src\classes\Models\User;
 
 class UserHelper {
     /**
+     * @var DatabaseHelper
+     */
+    private $databaseHelper;
+
+    public function __construct($databaseHelper) {
+        $this->databaseHelper = $databaseHelper;
+    }
+
+    /**
      * @param int $passwordLength
      * @return string
      */
@@ -23,15 +32,6 @@ class UserHelper {
      * @param $user User
      */
     public function hashPassword(&$user) {
-        /*
-         $salt = mcrypt_create_iv(22, MCRYPT_DEV_URANDOM);
-        $salt = base64_encode($salt);
-        $salt = str_replace('+', '.', $salt);
-        $hash = crypt($user->getPassword(), '$2y$10$'.$salt.'$');
-
-        $user->setPassword($hash);
-         */
-
         $user->setPassword(password_hash($user->getPassword(), PASSWORD_BCRYPT));
     }
 
@@ -49,5 +49,33 @@ class UserHelper {
         }
 
         return false;
+    }
+
+    /**
+     * @param $username
+     * @param $password
+     * @return User
+     */
+    public function loginUser($username, $password) {
+        if(!empty($username)) {
+            $user = new User($this->databaseHelper, $username);
+            if($this->hasSamePasswordAsHash($user, $password)) {
+                $_SESSION['loggedInUsername'] = $username;
+                return $user;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return null|User
+     */
+    public function getLoggedInUser() {
+        if(isset($_SESSION['loggedInUsername'])) {
+            return new User($this->databaseHelper, $_SESSION['loggedInUsername']);
+        }
+
+        return null;
     }
 }
