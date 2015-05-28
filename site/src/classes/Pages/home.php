@@ -7,6 +7,7 @@ use src\classes\Models\Rubric;
 
 class Home extends AbstractPage {
     private $HTMLBuilder;
+    private $rubricCounter = 0;
 
     public function __construct($parameters) {
         parent::__construct($parameters);
@@ -27,21 +28,29 @@ class Home extends AbstractPage {
      * @param $rubric Rubric
      * @return HTMLParameter
      */
-    private function generateRubricChildren($rubric) {
+    private function generateMobileRubricChildren($rubric) {
+        $toRemove = array(" ", ",", "'");/* an array containing the characters that should be removed for the target of the buttons*/
+        $rubricTemplate = new HTMLParameter($this->HTMLBuilder, "content\\mobile-category.html");
+        $rubricTemplate->addTemplateParameterByString("name", $rubric->getName());
+        $rubricTemplate->addTemplateParameterByString("target-main-category", str_replace($toRemove, "", $rubric->getId()."-".$rubric->getName()));/*removing the special characters from the target using the earlier declared array*/
+
         $childRubrics = $rubric->getChildren();
         $childRubricTemplates = array();
-        foreach($childRubrics as $childRubric) {
-            $childRubricTemplate = new HTMLParameter($this->HTMLBuilder, "content\\mobile-category.html");
-            $childRubricTemplate->addTemplateParameterByString("name", $childRubric->getName());
-            $childRubricTemplates[] = $childRubricTemplate;
+        if($childRubrics !== null) {
+            foreach($childRubrics as $childRubric) {
+                if($this->rubricCounter <= 1500) {
+                    $this->rubricCounter++;
+                    $childRubricTemplates[] = $this->generateMobileRubricChildren($childRubric);
+                }
+            }
         }
 
-        return null;
+        $rubricTemplate->addTemplateParameterByString("child-categories", $this->HTMLBuilder->joinHTMLParameters($childRubricTemplates));
+        return $rubricTemplate;
     }
 
     private function generateRubricMenu() {
         $HTMLCategoriesDes = array(); /*template for desktop categories*/
-        $HTMLCategoriesMob = array(); /*template for mobile categories*/
 
         $databaseHelper = new DatabaseHelper();
         $rubric = new Rubric($databaseHelper, 1);
@@ -53,22 +62,9 @@ class Home extends AbstractPage {
             $HTMLCategoriesDes[$i]->addTemplateParameterByString("name", $mainCategories[$i]->getName());
         }
 
-        $toRemove = array(" ", ",", "'");/* an array containing the characters that should be removed for the target of the buttons*/
-
-        $this->generateRubricChildren($rubric);
-        /** @var $HTMLCategoriesMob HTMLParameter[] */
-        for($i = 0; $i < count($mainCategories); $i++) { /*adding the main category names to the template for mobile*/
-            $HTMLCategoriesMob[$i] = new HTMLParameter($this->HTMLBuilder, "content\\mobile-category.html");
-            $HTMLCategoriesMob[$i]->addTemplateParameterByString("name", $mainCategories[$i]->getName());
-            $HTMLCategoriesMob[$i]->addTemplateParameterByString("target-main-category", str_replace($toRemove, "", $mainCategories[$i]->getName()));/*removing the special characters from the target using the earlier declared array*/
-
-
-
-            $HTMLCategoriesMob[$i]->addTemplateParameterByString("child-categories", $this->HTMLBuilder->joinHTMLParameters($childRubricTemplates));
-        }
-
-        /*inserting the names into the template*/
+        $rubrics = $this->generateMobileRubricChildren($rubric);
+        $test = $rubrics->parseAndGetHTML();
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("desktop-category", $this->HTMLBuilder->joinHTMLParameters($HTMLCategoriesDes));
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("mobile-category", $this->HTMLBuilder->joinHTMLParameters($HTMLCategoriesMob));
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("mobile-category", $rubrics);
     }
 }

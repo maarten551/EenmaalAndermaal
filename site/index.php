@@ -14,17 +14,19 @@ function __autoload($class_name) { //PHP will use this function if a class file 
 session_start();
 date_default_timezone_set("Europe/Amsterdam");
 //
-//$databaseHelper = new DatabaseHelper();
-//$userHelper = new UserHelper($databaseHelper);
-////$user = $userHelper->loginUser("18ribs", "Pzch8KjgmMLXjsBr", $databaseHelper);
-//$user = $userHelper->getLoggedInUser();
-//echo $_SESSION['loggedInUsername'];
-//if($user !== null) {
-//	$user->getBirthdate();
-//	var_dump($user);
-//} else {
-//	echo "Login failed";
-//}
+$databaseHelper = new DatabaseHelper();
+/*$userHelper = new UserHelper($databaseHelper);
+if(isset($_SESSION['loggedInUsername'])) {
+    $user = $userHelper->getLoggedInUser();
+    if($user !== null) {
+        $user->getBirthdate();
+        var_dump($user);
+    } else {
+        echo "Login failed";
+    }
+} else {
+    $user = $userHelper->loginUser("13phoenix66", "wiZHYtvDIQfdxqjq", $databaseHelper);
+}*/
 
 //    $arguments = (isset($_GET['arg'])) ? $_GET['arg'] : "index";
 //    $PageController = new PageController($arguments);
@@ -55,4 +57,4 @@ date_default_timezone_set("Europe/Amsterdam");
 $arguments = (isset($_GET['arg'])) ? $_GET['arg'] : "home";
 $PageController = new PageController($arguments);
 
-//$databaseHelper->closeConnection();
+$databaseHelper->closeConnection();

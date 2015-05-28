@@ -1,5 +1,5 @@
 <?php
-require "../src/libraries/password.php"; //For password hashing functionality for PHP < 5.5
+require_once "../src/libraries/password.php"; //For password hashing functionality for PHP < 5.5
 
 use src\classes\DatabaseHelper;
 use src\classes\Models\Question;
@@ -14,8 +14,8 @@ function __autoload($class_name) { //PHP will use this function if a class file 
  * @var Question[]
  */
 $questions = array();
-$userHelper = new UserHelper();
 $databaseHelper = new DatabaseHelper();
+$userHelper = new UserHelper($databaseHelper);
 
 /* Get all the questions */
     $query = "SELECT  * FROM [question]";
