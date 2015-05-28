@@ -55,4 +55,4 @@ date_default_timezone_set("Europe/Amsterdam");
 $arguments = (isset($_GET['arg'])) ? $_GET['arg'] : "home";
 $PageController = new PageController($arguments);
 
-$databaseHelper->closeConnection();
+//$databaseHelper->closeConnection();
