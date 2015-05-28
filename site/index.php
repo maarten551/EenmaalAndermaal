@@ -1,9 +1,9 @@
 <?php
 use src\classes\DatabaseHelper;
 use src\classes\HTMLBuilder;
-use src\classes\Models\User;
-use src\classes\PageController;
-use src\classes\UserHelper;
+use src\classes\HTMLBuilder\HTMLParameter;
+use src\classes\Models\Rubric;
+use src\classes\Page;
 
 require_once "src/libraries/password.php"; //For password hashing functionality for PHP < 5.5, server is 5.4.35, source: https://github.com/ircmaxell/password_compat
 
@@ -14,47 +14,85 @@ function __autoload($class_name) { //PHP will use this function if a class file 
 session_start();
 date_default_timezone_set("Europe/Amsterdam");
 
-$databaseHelper = new DatabaseHelper();
-/*$userHelper = new UserHelper($databaseHelper);
-if(isset($_SESSION['loggedInUsername'])) {
-    $user = $userHelper->getLoggedInUser();
-    if($user !== null) {
-        $user->getBirthdate();
-        var_dump($user);
-    } else {
-        echo "Login failed";
+class Index extends Page {
+    public function __construct() {
+        parent::__construct("template.html");
     }
-} else {
-    $user = $userHelper->loginUser("13phoenix66", "wiZHYtvDIQfdxqjq", $databaseHelper);
-}*/
 
-//    $arguments = (isset($_GET['arg'])) ? $_GET['arg'] : "index";
-//    $PageController = new PageController($arguments);
+    public function createHTML()
+    {
+        $content = new HTMLParameter($this->HTMLBuilder, "content\\content-homepage.html");
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("content", $content);
 
-//$databaseHelper = new DatabaseHelper();
-//$rubric = new \src\classes\Models\Rubric($databaseHelper, 1);
-//$children = $rubric->getChildren();
-//$parentId = array();
-//$children2 = array();
-//$childrenId = array();
-//
-//foreach($children as $child){
-//    $parentId[] = $child->getId();
-//    $children2[] = $child->getName();
-//    $childrenId[] = $child->getId();
-//}
-//
-//for($i = 2; $i<sizeof($childrenId); $i++){
-//    $temprubric = new \src\classes\Models\Rubric($databaseHelper, $i);
-//    $tempchildren = $temprubric->getChildren();
-//    foreach($tempchildren as $temp) {
-//        $a = $temp->getName();
-//        echo $a . ". parent id =";
-//        echo $parentId[$i] . "</br>";
-//    }
-//}
-//
-$arguments = (isset($_GET['arg'])) ? $_GET['arg'] : "home";
-$PageController = new PageController($arguments);
+        $this->generateRubricMenu();
+        return $this->HTMLBuilder->getHTML();
+    }
 
-$databaseHelper->closeConnection();
+    public function __destruct() {
+        parent::__destruct();
+    }
+
+    public function getRootRubricWithChildrenLoaded() {
+        $statement = sqlsrv_query($this->databaseHelper->getDatabaseConnection(), "{call sp_selectRubric }");
+        if($statement === false) {
+            echo "Error in executing statement 3.\n";
+            die( print_r( sqlsrv_errors(), true));
+        } else {
+            $rubrics = array();
+            while($row = sqlsrv_fetch_array($statement, SQLSRV_FETCH_ASSOC)) {
+                $rubric = new Rubric($this->databaseHelper);
+                $rubric->mergeQueryData($row);
+                $rubric->setAmountOfProductsRelated($row["amountOfProducts"]);
+                $rubrics[$rubric->getId()] = $rubric;
+                if (array_key_exists($row["childOfRubric"], $rubrics)) {
+                    $rubrics[$row["childOfRubric"]]->addChild($rubric);
+                }
+            }
+
+            return $rubrics[1]; //return root
+        }
+    }
+
+    private function generateRubricMenu() {
+        $HTMLCategoriesDes = array(); /*template for desktop categories*/
+
+        $rubric = $this->getRootRubricWithChildrenLoaded();
+        $mainCategories = $rubric->getChildren();
+
+        /** @var $HTMLCategoriesDes HTMLParameter[] */
+        for($i = 0; $i < count($mainCategories); $i++) { /*adding the main category names to the template for desktop*/
+            $HTMLCategoriesDes[$i] = new HTMLParameter($this->HTMLBuilder, "content\\desktop-category.html");
+            $HTMLCategoriesDes[$i]->addTemplateParameterByString("name", $mainCategories[$i]->getName());
+        }
+
+        $rubrics = $this->generateMobileRubricChildren($rubric);
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("desktop-category", $this->HTMLBuilder->joinHTMLParameters($HTMLCategoriesDes));
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("mobile-category", $rubrics);
+    }
+
+    /**
+     * @param $rubric Rubric
+     * @return HTMLParameter
+     */
+    private function generateMobileRubricChildren($rubric) {
+        $toRemove = array(" ", ",", "'");/* an array containing the characters that should be removed for the target of the buttons*/
+        $rubricTemplate = new HTMLParameter($this->HTMLBuilder, "content\\mobile-category.html");
+        $rubricTemplate->addTemplateParameterByString("name", $rubric->getName());
+        $rubricTemplate->addTemplateParameterByString("target-main-category", str_replace($toRemove, "", $rubric->getId()."-".$rubric->getName()));/*removing the special characters from the target using the earlier declared array*/
+        $rubricTemplate->addTemplateParameterByString("amountOfProductsRelated", $rubric->getAmountOfProductsRelated());
+
+        $childRubrics = $rubric->getChildren();
+        $childRubricTemplates = array();
+        if($childRubrics !== null) {
+            foreach($childRubrics as $childRubric) {
+                $childRubricTemplates[] = $this->generateMobileRubricChildren($childRubric);
+            }
+        }
+
+        $rubricTemplate->addTemplateParameterByString("child-categories", $this->HTMLBuilder->joinHTMLParameters($childRubricTemplates));
+        return $rubricTemplate;
+    }
+}
+
+$page = new Index();
+echo $page->createHTML();

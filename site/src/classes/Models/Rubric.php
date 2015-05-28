@@ -23,6 +23,7 @@ class Rubric extends Model {
      * @var Rubric[]
      */
     protected $children;
+    private $amountOfProductsRelated;
 
     public function __construct(DatabaseHelper $databaseHelper, $primaryKeyValue = null) {
         parent::__construct($databaseHelper);
@@ -53,6 +54,18 @@ class Rubric extends Model {
         }
 
         return $this->children;
+    }
+
+    /**
+     * @param $rubricChild Rubric
+     */
+    public function addChild($rubricChild) {
+        if($this->children === null) {
+            $this->children = array();
+        }
+
+        $rubricChild->setParentRubric($this);
+        $this->children[] = $rubricChild;
     }
 
     /**
@@ -119,4 +132,26 @@ class Rubric extends Model {
     private function setId($id) {
         $this->id = $id;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getAmountOfProductsRelated()
+    {
+        if($this->amountOfProductsRelated === null) {
+            return 0;
+        }
+
+        return $this->amountOfProductsRelated;
+    }
+
+    /**
+     * @param mixed $amountOfProductsRelated
+     */
+    public function setAmountOfProductsRelated($amountOfProductsRelated)
+    {
+        $this->amountOfProductsRelated = $amountOfProductsRelated;
+    }
+
+
 }
