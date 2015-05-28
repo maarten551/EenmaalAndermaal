@@ -63,8 +63,8 @@ class Home extends AbstractPage {
         }
 
         $rubrics = $this->generateMobileRubricChildren($rubric);
-        $test = $rubrics->parseAndGetHTML();
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("desktop-category", $this->HTMLBuilder->joinHTMLParameters($HTMLCategoriesDes));
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("mobile-category", $rubrics);
     }
+
 }

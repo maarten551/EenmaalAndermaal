@@ -48,7 +48,6 @@ class Rubric extends Model {
                     $child->setParentRubric($this);
                     $child->getName();
                     $this->children[] = $child;
-
                 }
             }
         }

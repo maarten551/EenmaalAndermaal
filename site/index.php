@@ -13,7 +13,7 @@ function __autoload($class_name) { //PHP will use this function if a class file 
 
 session_start();
 date_default_timezone_set("Europe/Amsterdam");
-//
+
 $databaseHelper = new DatabaseHelper();
 /*$userHelper = new UserHelper($databaseHelper);
 if(isset($_SESSION['loggedInUsername'])) {
