@@ -235,4 +235,11 @@ abstract class Model
 
         return true;
     }
+
+    /**
+     * @param $isLoaded bool
+     */
+    public function setIsLoaded($isLoaded) {
+        $this->isLoaded = $isLoaded;
+    }
 }

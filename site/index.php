@@ -41,14 +41,17 @@ class Index extends Page {
             echo "Error in executing statement 3.\n";
             die( print_r( sqlsrv_errors(), true));
         } else {
+            /** @var $rubrics Rubric[] */
             $rubrics = array();
             while($row = sqlsrv_fetch_array($statement, SQLSRV_FETCH_ASSOC)) {
-                $rubric = new Rubric($this->databaseHelper);
-                $rubric->mergeQueryData($row);
+                $rubric = new Rubric($this->databaseHelper, $row["rubricId"]);
+                $rubric->setIsLoaded(true);
+                $rubric->setName($row["rubricName"]);
+                $rubric->setParentRubricId($row["parentRubric"]);
                 $rubric->setAmountOfProductsRelated($row["productCountIncludingChildren"]);
                 $rubrics[$rubric->getId()] = $rubric;
-                if (array_key_exists($row["childOfRubric"], $rubrics)) {
-                    $rubrics[$row["childOfRubric"]]->addChild($rubric);
+                if (array_key_exists($row["parentRubric"], $rubrics)) {
+                    $rubrics[$row["parentRubric"]]->addChild($rubric);
                 }
             }
 

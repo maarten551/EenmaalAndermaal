@@ -121,6 +121,10 @@ class Rubric extends Model {
         $this->childOfRubric = $parentRubric->getId();
     }
 
+    public function setParentRubricId($parentRubricId) {
+        $this->childOfRubric = $parentRubricId;
+    }
+
     /**
      * @return mixed
      */
