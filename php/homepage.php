@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../site/src/css/bootstrap-theme.min.css">
     <link rel="stylesheet" type="text/css" href="../site/src/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="../site/src/css/standard_style.css">
-    <link rel="stylesheet" type="text/css" href="../site/src/css/homepage.css">
+    <link rel="stylesheet" type="text/css" href="../site/src/css/rubric.css">
 
     <!-- het inladen van de javascripts -->
     <script src="../site/src/js/jquery-1.11.2.min.js"></script>

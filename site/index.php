@@ -2,7 +2,6 @@
 use src\classes\DatabaseHelper;
 use src\classes\HTMLBuilder;
 use src\classes\HTMLBuilder\HTMLParameter;
-use src\classes\Models\File;
 use src\classes\Models\Rubric;
 use src\classes\Page;
 
@@ -28,13 +27,46 @@ class Index extends Page {
         $content = new HTMLParameter($this->HTMLBuilder, "content\\content-homepage.html");
         $content->addTemplateParameterByString("image-link", $imageHelper->getImageLocation($fileTest));
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("content", $content);
+        $registerModal = new HTMLParameter($this->HTMLBuilder, "content\\modal\\register-modal.html");
+        $loginModal = new HTMLParameter($this->HTMLBuilder, "content\\modal\\inloggen-modal.html");
+        $question = new HTMLParameter($this->HTMLBuilder, "content\\question.html");
 
-        $this->generateRubricMenu();
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("inloggen-modal", $loginModal);
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("register-modal", $registerModal);
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("questions", $question);
+
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("max-birthdate", date('d-m-Y'));
+
+       ///$this->generateRubricMenu();
+        $this->generateQuestionTemplate();
         return $this->HTMLBuilder->getHTML();
     }
 
     public function __destruct() {
         parent::__destruct();
+    }
+
+    public function getQuestions(){
+        $statement = sqlsrv_query($this->databaseHelper->getDatabaseConnection(), "select questionText from question");
+        if($statement === false) {
+            echo "Error in executing statement.\n";
+            die( print_r( sqlsrv_errors(), true));
+        } else {
+            $questions = array();
+            while ($row = sqlsrv_fetch_array($statement, SQLSRV_FETCH_ASSOC)) {
+                $question = new Question($this->databaseHelper);
+                $question->mergeQueryData($row);
+                $questions[] = $question->getQuestionText();
+            }
+            return $questions;
+        }
+    }
+
+    private function generateQuestionTemplate(){
+        $questions = $this->getQuestions();
+        foreach($questions as $question){
+            $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("question-name", $question);
+        }
     }
 
     /**
@@ -86,8 +118,8 @@ class Index extends Page {
      * @return HTMLParameter
      */
     private function generateMobileRubricChildren($rubric) {
-        $toRemove = array(" ", ",", "'");/* an array containing the characters that should be removed for the target of the buttons*/
-        $rubricTemplate = new HTMLParameter($this->HTMLBuilder, "content\\mobile-category.html");
+        $toRemove = array(" ", ",", "'", "&");/* an array containing the characters that should be removed for the target of the buttons*/
+        $rubricTemplate = new HTMLParameter($this->HTMLBuilder, "content\\rubric\\mobile-category.html");
         $rubricTemplate->addTemplateParameterByString("name", $rubric->getName());
         $rubricTemplate->addTemplateParameterByString("target-main-category", str_replace($toRemove, "", $rubric->getId()."-".$rubric->getName()));/*removing the special characters from the target using the earlier declared array*/
         $rubricTemplate->addTemplateParameterByString("amountOfProductsRelated", $rubric->getAmountOfProductsRelated());
@@ -109,8 +141,8 @@ class Index extends Page {
      * @return HTMLParameter
      */
     private function generateDesktopRubricChildren($rubric) {
-        $rubricTemplate = new HTMLParameter($this->HTMLBuilder, "content\\desktop-category.html");
-        $rubricChildCategories = new HTMLParameter($this->HTMLBuilder, "content\\desktop-child-categories.html");
+        $rubricTemplate = new HTMLParameter($this->HTMLBuilder, "content\\rubric\\desktop-category.html");
+        $rubricChildCategories = new HTMLParameter($this->HTMLBuilder, "content\\rubric\\desktop-child-categories.html");
         $rubricTemplate->addTemplateParameterByString("name", $rubric->getName());
         $rubricTemplate->addTemplateParameterByString("amountOfProductsRelated", $rubric->getAmountOfProductsRelated());
 
