@@ -104,6 +104,7 @@ class Index extends Page {
         $rubricTemplate = new HTMLParameter($this->HTMLBuilder, "content\\desktop-category.html");
         $rubricChildCategories = new HTMLParameter($this->HTMLBuilder, "content\\desktop-child-categories.html");
         $rubricTemplate->addTemplateParameterByString("name", $rubric->getName());
+        $rubricTemplate->addTemplateParameterByString("amountOfProductsRelated", $rubric->getAmountOfProductsRelated());
 
         $childRubrics = $rubric->getChildren();
         $childRubricTemplates = array();

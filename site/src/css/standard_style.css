@@ -17,7 +17,6 @@ ul
     background-color: #68ADBF;
     font-family: CalibriFont;
     text-align: center;
-    color: #233A40;
     top:50px;
     margin-bottom: 15px;
 }
@@ -118,28 +117,32 @@ ul
     color: #0f0f0f;
 }
 
+.category-div{
+    background-color: transparent;
+}
+
 .category-button:hover{
     color: #555555;
 }
 
 .category-div > .btn{
     background-color: #8dcf54;
-    border-color: #70ac4e;
+    border-color: #b1cf56;
 }
 
 .category-div > .category-div > .category-button{
     background-color: #cbcf3b;
-    border-color: #9da133;
+    border-color: #cfb038;
 }
 
 .category-div > .category-div > .category-div > .category-button{
     background-color: #cfab2c;
-    border-color: #a68428;
+    border-color: #cf9730;
 }
 
 .category-div > .category-div > .category-div > .category-div > .category-button{
     background-color: #cf8a2c;
-    border-color: #a76b2a;
+    border-color: #cf732d;
 }
 
 /* de meest gebruikte resolutions (width) voor mobile tablet en desktop
@@ -285,12 +288,12 @@ a:link {
 
 /* visited link */
 a:visited {
-    color: #45737F;
+    color: #364f55;
 }
 
 /* mouse over link */
 a:hover {
-    color: #4F6166;
+    color: #233A40;
 }
 
 /* selected link */
