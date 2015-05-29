@@ -1,0 +1,49 @@
+.roundTop{
+    border-radius:         10px 10px 0 0;
+    -webkit-border-radius: 10px 10px 0 0;
+    -moz-border-radius:    10px 10px 0 0;
+    border-bottom: 1px solid #000000;
+}
+
+.roundBottom{
+    border-radius:        0 0 10px 10px;
+    -webkit-border-radius:0 0 10px 10px;
+    -moz-border-radius:   0 0 10px 10px;
+    border-top: 1px solid #000000;
+}
+
+.productBlueLine{
+    background-color: #68ADBF;
+    position: relative;
+    width: 100%;
+    color: #233A40;
+    height: 55px;           /*height of blue line*/
+    padding: 10px;          /*padding for text*/
+    line-height: 35px;      /* should be height - (padding * 2) */
+    font-size: 20px;
+    white-space: nowrap;
+    overflow: hidden;
+    -o-text-overflow: ellipsis;
+    text-overflow:    ellipsis;
+}
+
+.inner {
+    background-color: #dcdcdc;
+    border-radius:10px;
+    border: 1px solid #000000;
+}
+
+.no-padding{
+    padding: 0;
+}
+
+.productBox{
+    border: 1px solid transparent;
+    padding: 15px;
+    border-radius:10px;
+    margin: 0px;
+}
+
+.productBox:hover{
+    border: 1px solid #000000;
+}

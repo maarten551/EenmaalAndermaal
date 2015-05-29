@@ -16,16 +16,9 @@ class Home extends AbstractPage {
 
     protected function createHTML() {
         $content = new HTMLParameter($this->HTMLBuilder, "content\\content-homepage.html");
-        $registerModal = new HTMLParameter($this->HTMLBuilder, "content\\register-modal.html");
-        $loginModal = new HTMLParameter($this->HTMLBuilder, "content\\inloggen-modal.html");
 
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("inloggen-modal", $loginModal);
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("register-modal", $registerModal);
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("content", $content);
 
         echo $this->HTMLBuilder->getHTML();
     }
-
-
-
 }
