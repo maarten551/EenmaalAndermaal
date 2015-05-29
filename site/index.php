@@ -2,6 +2,7 @@
 use src\classes\DatabaseHelper;
 use src\classes\HTMLBuilder;
 use src\classes\HTMLBuilder\HTMLParameter;
+use src\classes\Models\File;
 use src\classes\Models\Rubric;
 use src\classes\Page;
 
@@ -21,7 +22,11 @@ class Index extends Page {
 
     public function createHTML()
     {
+        $imageHelper = new \src\classes\ImageHelper();
+        $fileTest = new File($this->databaseHelper, "dt_1_110302450194.jpg", 1);
+
         $content = new HTMLParameter($this->HTMLBuilder, "content\\content-homepage.html");
+        $content->addTemplateParameterByString("image-link", $imageHelper->getImageLocation($fileTest));
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("content", $content);
 
         $this->generateRubricMenu();

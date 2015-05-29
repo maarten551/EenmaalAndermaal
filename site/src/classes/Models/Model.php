@@ -47,12 +47,11 @@ abstract class Model
     protected function load($primaryKeyValue) {
         if ($primaryKeyValue !== null) {
             $databaseFields = $this->getDatabaseFieldsWithValues(); //We need to know the keys for selecting the columns
+            $whereClause = "WHERE ".$this->prepareCompositePrimaryKey($primaryKeyValue);
             $selectQuery = "SELECT " . implode(', ', array_keys($databaseFields)) . "
                 FROM [$this->tableName]
-                WHERE $this->primaryKeyName = ?";
-            $statement = sqlsrv_prepare($this->databaseHelper->getDatabaseConnection(), $selectQuery, array(
-                &$primaryKeyValue
-            ));
+                $whereClause";
+            $statement = sqlsrv_prepare($this->databaseHelper->getDatabaseConnection(), $selectQuery);
 
             if (!sqlsrv_execute($statement)) {
                 die(print_r(sqlsrv_errors()[0]["message"], true)); //Failed to select
@@ -64,6 +63,24 @@ abstract class Model
                 $this->isLoaded = true;
             }
         }
+    }
+
+    private function prepareCompositePrimaryKey($primaryKeyValue) {
+        if(is_array($primaryKeyValue)) {
+            $compositeWhereClause = "";
+
+            foreach ($primaryKeyValue as $compositeFieldName) {
+                $compositeFieldValue = $this->get($compositeFieldName, true);
+                if(empty($compositeFieldValue)) {
+                    die("The composite key values weren't supplied in the class ". get_class($this));
+                }
+                $compositeWhereClause .= "$compositeFieldName = ".$this->databaseHelper->prepareString($compositeFieldValue)." AND ";
+            }
+
+            return substr($compositeWhereClause, 0, -5); //Removed the last ' AND '
+        }
+
+        return "$this->primaryKeyName = $primaryKeyValue";
     }
 
     public function save()
@@ -116,14 +133,14 @@ abstract class Model
     protected function get($fieldName, $ignoreIsLoaded = false) {
         if(property_exists($this, $fieldName)) {
             $primaryKeyValue = $this->getPrimaryKeyField();
-            if($ignoreIsLoaded === false && $this->isLoaded === false && !empty($primaryKeyValue)) { //Enables lazy loading
+
+            if($ignoreIsLoaded === false && $this->isLoaded === false && $this->prepareCompositePrimaryKey($primaryKeyValue) !== "") { //Enables lazy loading and also checks if composite keys are filled in
                 if($fieldName !== $this->primaryKeyName && ($this->isFieldInDatabase($fieldName) || $ignoreIsLoaded === false)) {
                     $this->load($primaryKeyValue);
                     return $this->$fieldName;
                 }
-            } else {
-                return $this->$fieldName;
             }
+
             return $this->$fieldName;
         } else {
             die("Property '$fieldName' doesn't exists in class '".get_class($this)."'");
@@ -202,11 +219,19 @@ abstract class Model
     }
 
     private function setPrimaryKeyField($value) {
-        $primaryKeyName = $this->primaryKeyName;
-        $this->$primaryKeyName = $value;
+        if(is_array($value)) { //If composite keys
+            $this->primaryKeyName = $value;
+        } else {
+            $primaryKeyName = $this->primaryKeyName;
+            $this->$primaryKeyName = $value;
+        }
     }
 
     private function getPrimaryKeyField() {
+        if(is_array($this->primaryKeyName)) { //If composite keys
+            return $this->primaryKeyName;
+        }
+
         $primaryKeyName = $this->primaryKeyName;
         return $this->$primaryKeyName;
     }
