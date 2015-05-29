@@ -34,7 +34,7 @@ class Index extends Page {
 
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("max-birthdate", date('d-m-Y'));
 
-       //$this->generateRubricMenu();
+       ///$this->generateRubricMenu();
         $this->generateQuestionTemplate();
         return $this->HTMLBuilder->getHTML();
     }
