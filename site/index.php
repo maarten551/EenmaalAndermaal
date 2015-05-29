@@ -32,6 +32,9 @@ class Index extends Page {
         parent::__destruct();
     }
 
+    /**
+     * @return Rubric
+     */
     public function getRootRubricWithChildrenLoaded() {
         $statement = sqlsrv_query($this->databaseHelper->getDatabaseConnection(), "{call sp_selectRubric }");
         if($statement === false) {
@@ -54,14 +57,20 @@ class Index extends Page {
     }
 
     private function generateRubricMenu() {
-        $HTMLCategoriesDes = array(); /*template for desktop categories*/
+        $rootRubric = $this->getRootRubricWithChildrenLoaded();
+        /**
+         * @var $mobileRubricTemplates HTMLParameter[]
+         * @var $desktopRubricTemplates HTMLParameter[]
+         */
+        $mobileRubricTemplates = $desktopRubricTemplates = array();
 
-        $rubric = $this->getRootRubricWithChildrenLoaded();
+        foreach ($rootRubric->getChildren() as $childRubric) {
+            $mobileRubricTemplates[] = $this->generateMobileRubricChildren($childRubric);
+            $desktopRubricTemplates[] = $this->generateDesktopRubricChildren($childRubric);
+        }
 
-        $rubrics = $this->generateMobileRubricChildren($rubric);
-        $rubricsDesktop = $this->generateDesktopRubricChildren($rubric);
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("desktop-category", $rubricsDesktop);
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("mobile-category", $rubrics);
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("mobile-category", $this->HTMLBuilder->joinHTMLParameters($mobileRubricTemplates));
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("desktop-category", $this->HTMLBuilder->joinHTMLParameters($desktopRubricTemplates));
     }
 
     /**
