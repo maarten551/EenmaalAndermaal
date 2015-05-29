@@ -57,16 +57,10 @@ class Index extends Page {
         $HTMLCategoriesDes = array(); /*template for desktop categories*/
 
         $rubric = $this->getRootRubricWithChildrenLoaded();
-        $mainCategories = $rubric->getChildren();
-
-        /** @var $HTMLCategoriesDes HTMLParameter[] */
-        for($i = 0; $i < count($mainCategories); $i++) { /*adding the main category names to the template for desktop*/
-            $HTMLCategoriesDes[$i] = new HTMLParameter($this->HTMLBuilder, "content\\desktop-category.html");
-            $HTMLCategoriesDes[$i]->addTemplateParameterByString("name", $mainCategories[$i]->getName());
-        }
 
         $rubrics = $this->generateMobileRubricChildren($rubric);
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("desktop-category", $this->HTMLBuilder->joinHTMLParameters($HTMLCategoriesDes));
+        $rubricsDesktop = $this->generateDesktopRubricChildren($rubric);
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("desktop-category", $rubricsDesktop);
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("mobile-category", $rubrics);
     }
 
@@ -90,6 +84,31 @@ class Index extends Page {
         }
 
         $rubricTemplate->addTemplateParameterByString("child-categories", $this->HTMLBuilder->joinHTMLParameters($childRubricTemplates));
+        return $rubricTemplate;
+    }
+
+    /**
+     * @param $rubric Rubric
+     * @return HTMLParameter
+     */
+    private function generateDesktopRubricChildren($rubric) {
+        $rubricTemplate = new HTMLParameter($this->HTMLBuilder, "content\\desktop-category.html");
+        $rubricChildCategories = new HTMLParameter($this->HTMLBuilder, "content\\desktop-child-categories.html");
+        $rubricTemplate->addTemplateParameterByString("name", $rubric->getName());
+
+        $childRubrics = $rubric->getChildren();
+        $childRubricTemplates = array();
+        if($childRubrics !== null) {
+            foreach($childRubrics as $childRubric) {
+                $childRubricTemplates[] = $this->generateDesktopRubricChildren($childRubric);
+            }
+        }
+        if (!empty($childRubricTemplates)) {
+            $rubricTemplate->addTemplateParameterByParameter("child-category", $rubricChildCategories);
+            $rubricTemplate->addTemplateParameterByString("is-child", "dropdown-submenu dropdown-menu-right");
+        }
+            $rubricTemplate->addTemplateParameterByString("child-categories-desktop", $this->HTMLBuilder->joinHTMLParameters($childRubricTemplates));
+
         return $rubricTemplate;
     }
 }

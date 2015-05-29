@@ -112,6 +112,36 @@ ul
     padding-left: 10px;
 }
 
+.category-button {
+    width:100%;
+    background-color: #39bd5d;
+    color: #0f0f0f;
+}
+
+.category-button:hover{
+    color: #555555;
+}
+
+.category-div > .btn{
+    background-color: #8dcf54;
+    border-color: #70ac4e;
+}
+
+.category-div > .category-div > .category-button{
+    background-color: #cbcf3b;
+    border-color: #9da133;
+}
+
+.category-div > .category-div > .category-div > .category-button{
+    background-color: #cfab2c;
+    border-color: #a68428;
+}
+
+.category-div > .category-div > .category-div > .category-div > .category-button{
+    background-color: #cf8a2c;
+    border-color: #a76b2a;
+}
+
 /* de meest gebruikte resolutions (width) voor mobile tablet en desktop
 -1920 -1600 -1440 -1366 -1280 -1024 -900 800 -768 720 -640 -540 -480 -320*/
 
@@ -285,6 +315,14 @@ a:active {
     width: inherit;
 }
 
+.dropdown-menu, a:hover{
+    text-decoration: none;
+}
+
+.modal-backdrop{
+    z-index: 0;
+}
+
 .dropdown-submenu>.dropdown-menu {
     top: 0;
     left: 100%;
@@ -293,7 +331,7 @@ a:active {
     -webkit-border-radius: 0 6px 6px 6px;
     -moz-border-radius: 0 6px 6px;
     border-radius: 0 6px 6px 6px;
-    width: 100%;
+    width: 90%;
 }
 
 .dropdown-submenu:hover>.dropdown-menu {
@@ -311,7 +349,6 @@ a:active {
     border-width: 5px 0 5px 5px;
     border-left-color: #ccc;
     margin-top: 5px;
-    margin-right: -10px;
 }
 
 .badge-right{
@@ -329,7 +366,6 @@ a:active {
 
 .dropdown-submenu.pull-left>.dropdown-menu {
     left: -100%;
-    margin-left: 10px;
     -webkit-border-radius: 6px 0 6px 6px;
     -moz-border-radius: 6px 0 6px 6px;
     border-radius: 6px 0 6px 6px;
