@@ -42,7 +42,7 @@ class Index extends Page {
             while($row = sqlsrv_fetch_array($statement, SQLSRV_FETCH_ASSOC)) {
                 $rubric = new Rubric($this->databaseHelper);
                 $rubric->mergeQueryData($row);
-                $rubric->setAmountOfProductsRelated($row["amountOfProducts"]);
+                $rubric->setAmountOfProductsRelated($row["productCountIncludingChildren"]);
                 $rubrics[$rubric->getId()] = $rubric;
                 if (array_key_exists($row["childOfRubric"], $rubrics)) {
                     $rubrics[$row["childOfRubric"]]->addChild($rubric);
