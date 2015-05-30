@@ -2,6 +2,9 @@
 use src\classes\DatabaseHelper;
 use src\classes\HTMLBuilder;
 use src\classes\HTMLBuilder\HTMLParameter;
+use src\classes\Models\File;
+use src\classes\Models\Item;
+use src\classes\Models\Question;
 use src\classes\Models\Rubric;
 use src\classes\Page;
 
@@ -37,7 +40,11 @@ class Index extends Page {
 
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("max-birthdate", date('d-m-Y'));
 
-       ///$this->generateRubricMenu();
+        $item = new Item($this->databaseHelper, 2917);
+        foreach ($item->getImages() as $image) {
+            echo "<img src='".$imageHelper->getImageLocation($image)."'/>";
+        }
+
         $this->generateQuestionTemplate();
         return $this->HTMLBuilder->getHTML();
     }

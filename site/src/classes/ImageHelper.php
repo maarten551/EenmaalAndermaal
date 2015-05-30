@@ -12,17 +12,21 @@ class ImageHelper {
      * @return string
      */
     public function getImageLocation($file) {
-        $externTypeLocations = array("thumbnail", "pics");
-        $fileFoundLocation = "";
-        foreach ($externTypeLocations as $externTypeLocation) {
-            $location = $this::$EXTERN_IMAGE_LOCATION."$externTypeLocation/".$file->getFileName();
-            if($this->isAbsolutePathCorrect($location)) {
-                $fileFoundLocation = $location;
-                break;
+        if($file !== null) {
+            $externTypeLocations = array("thumbnails", "pics");
+            $fileFoundLocation = "";
+            foreach ($externTypeLocations as $externTypeLocation) {
+                $location = $this::$EXTERN_IMAGE_LOCATION . "$externTypeLocation/" . $file->getFileName();
+                if ($this->isAbsolutePathCorrect($location)) {
+                    $fileFoundLocation = $location;
+                    break;
+                }
             }
+
+            return $fileFoundLocation;
         }
 
-        return $fileFoundLocation;
+        return false;
     }
 
     /**
