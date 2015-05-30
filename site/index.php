@@ -7,6 +7,7 @@ use src\classes\Models\Item;
 use src\classes\Models\Question;
 use src\classes\Models\Rubric;
 use src\classes\Page;
+use src\classes\ProductPagination;
 
 require_once "src/libraries/password.php"; //For password hashing functionality for PHP < 5.5, server is 5.4.35, source: https://github.com/ircmaxell/password_compat
 
@@ -24,8 +25,6 @@ class Index extends Page {
 
     public function createHTML()
     {
-        $imageHelper = new \src\classes\ImageHelper();
-
         $content = new HTMLParameter($this->HTMLBuilder, "content\\content-homepage.html");
         $registerModal = new HTMLParameter($this->HTMLBuilder, "content\\modal\\register-modal.html");
         $loginModal = new HTMLParameter($this->HTMLBuilder, "content\\modal\\inloggen-modal.html");
@@ -38,7 +37,8 @@ class Index extends Page {
 
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("max-birthdate", date('d-m-Y'));
 
-
+        $productPagination = new ProductPagination(5);
+        var_dump($productPagination->getProducts($this->databaseHelper));
 
         $this->generateQuestionTemplate();
         return $this->HTMLBuilder->getHTML();
