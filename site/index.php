@@ -25,25 +25,20 @@ class Index extends Page {
     public function createHTML()
     {
         $imageHelper = new \src\classes\ImageHelper();
-        $fileTest = new File($this->databaseHelper, "dt_1_110302450194.jpg", 1);
 
         $content = new HTMLParameter($this->HTMLBuilder, "content\\content-homepage.html");
-        $content->addTemplateParameterByString("image-link", $imageHelper->getImageLocation($fileTest));
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("content", $content);
         $registerModal = new HTMLParameter($this->HTMLBuilder, "content\\modal\\register-modal.html");
         $loginModal = new HTMLParameter($this->HTMLBuilder, "content\\modal\\inloggen-modal.html");
         $question = new HTMLParameter($this->HTMLBuilder, "content\\question.html");
 
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("content", $content);
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("inloggen-modal", $loginModal);
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("register-modal", $registerModal);
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("questions", $question);
 
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("max-birthdate", date('d-m-Y'));
 
-        $item = new Item($this->databaseHelper, 2917);
-        foreach ($item->getImages() as $image) {
-            echo "<img src='".$imageHelper->getImageLocation($image)."'/>";
-        }
+
 
         $this->generateQuestionTemplate();
         return $this->HTMLBuilder->getHTML();
