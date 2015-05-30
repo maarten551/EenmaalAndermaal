@@ -230,7 +230,7 @@ class Item extends Model {
      */
     public function getStartPrice()
     {
-        return $this->get("");
+        return $this->get("startPrice");
     }
 
     /**

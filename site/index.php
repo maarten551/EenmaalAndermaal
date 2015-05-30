@@ -4,6 +4,7 @@ use src\classes\HTMLBuilder;
 use src\classes\HTMLBuilder\HTMLParameter;
 use src\classes\Models\File;
 use src\classes\Models\Item;
+use \src\classes\ImageHelper;
 use src\classes\Models\Question;
 use src\classes\Models\Rubric;
 use src\classes\Page;
@@ -25,21 +26,24 @@ class Index extends Page {
 
     public function createHTML()
     {
+        $imageHelper = new ImageHelper();
+
         $content = new HTMLParameter($this->HTMLBuilder, "content\\content-homepage.html");
         $registerModal = new HTMLParameter($this->HTMLBuilder, "content\\modal\\register-modal.html");
         $loginModal = new HTMLParameter($this->HTMLBuilder, "content\\modal\\inloggen-modal.html");
         $question = new HTMLParameter($this->HTMLBuilder, "content\\question.html");
 
+
+
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("content", $content);
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("inloggen-modal", $loginModal);
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("register-modal", $registerModal);
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("questions", $question);
-
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("max-birthdate", date('d-m-Y'));
 
-        $productPagination = new ProductPagination(5);
-        var_dump($productPagination->getProducts($this->databaseHelper));
 
+        $this->createProducts();
+        $this->generateRubricMenu();
         $this->generateQuestionTemplate();
         return $this->HTMLBuilder->getHTML();
     }
@@ -47,6 +51,36 @@ class Index extends Page {
     public function __destruct() {
         parent::__destruct();
     }
+
+    public function createProducts(){//TODO abilty to give a variable to this function wich determins the amount of products per page
+        $productPagination = new ProductPagination(10);
+        $products = $productPagination->getProducts($this->databaseHelper);
+        $productTemplates = array();
+        foreach($products as $product){
+            $productTemplates[] = $this->generateProducts($product);
+        }
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("products", $this->HTMLBuilder->joinHTMLParameters($productTemplates));
+    }
+
+    private function generateProducts($product){
+        $imageHelper = new \src\classes\ImageHelper();
+        $productTemplate = new HTMLParameter($this->HTMLBuilder, "product\\product-item.html");
+        $productTemplate->addTemplateParameterByString("title", $product->getTitle());
+
+        $images = $product->getImages();
+        foreach($images as $image){
+            $imagePath = $imageHelper->getImageLocation($image);
+
+            if (strpos($imagePath,'pics') !== false) {
+                $productTemplate->addTemplateParameterByString("thumbnail-source", $imagePath);
+            }
+        }
+        $productTemplate->addTemplateParameterByString("price", floatval($product->getStartPrice()));
+        //TODO make a href that links to the product
+        return $productTemplate;
+    }
+
+
 
     public function getQuestions(){
         $statement = sqlsrv_query($this->databaseHelper->getDatabaseConnection(), "select questionText from question");
@@ -159,7 +193,7 @@ class Index extends Page {
             $rubricTemplate->addTemplateParameterByParameter("child-category", $rubricChildCategories);
             $rubricTemplate->addTemplateParameterByString("is-child", "dropdown-submenu dropdown-menu-right");
         }
-            $rubricTemplate->addTemplateParameterByString("child-categories-desktop", $this->HTMLBuilder->joinHTMLParameters($childRubricTemplates));
+        $rubricTemplate->addTemplateParameterByString("child-categories-desktop", $this->HTMLBuilder->joinHTMLParameters($childRubricTemplates));
 
         return $rubricTemplate;
     }
