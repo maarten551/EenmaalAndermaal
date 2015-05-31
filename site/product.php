@@ -25,22 +25,18 @@ class Product extends Page {
     public function createHTML()
     {
         $imageHelper = new ImageHelper();
+        if(!array_key_exists("product", $_GET) && is_numeric($_SERVER["REQUEST_URI"])) {
+            $this->redirectToIndex();
+        }
         $item = new Item($this->databaseHelper, $_GET["product"]);
+        $this->generateLoginAndRegisterTemplates();
 
         $auctionEndDate = $item->getAuctionEndDateTime();
         $now = new \DateTime();
         $interval = $auctionEndDate->diff($now);
 
         $content = new HTMLParameter($this->HTMLBuilder, "content\\content-productoverzicht.html");
-        $question = new HTMLParameter($this->HTMLBuilder, "content\\question.html");
-        $registerModal = new HTMLParameter($this->HTMLBuilder, "content\\modal\\register-modal.html");
-        $loginModal = new HTMLParameter($this->HTMLBuilder, "content\\modal\\inloggen-modal.html");
         $thumbnail = new HTMLParameter($this->HTMLBuilder, "content\\product\\product-thumbnail.html");
-
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("inloggen-modal", $loginModal);
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("register-modal", $registerModal);
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("questions", $question);
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("max-birthdate", date('d-m-Y'));
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("content", $content);
 
         //getting all information from the product
@@ -76,6 +72,12 @@ class Product extends Page {
 
     public function __destruct() {
         parent::__destruct();
+    }
+
+    private function redirectToIndex() {
+        $redirectLink = substr("$_SERVER[REQUEST_URI]", 0, strpos($_SERVER["REQUEST_URI"], "/product.php"));
+        header("location: $redirectLink/index.php");
+        die();
     }
 }
 

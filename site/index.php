@@ -29,22 +29,11 @@ class Index extends Page {
         $imageHelper = new ImageHelper();
 
         $content = new HTMLParameter($this->HTMLBuilder, "content\\content-homepage.html");
-        $registerModal = new HTMLParameter($this->HTMLBuilder, "content\\modal\\register-modal.html");
-        $loginModal = new HTMLParameter($this->HTMLBuilder, "content\\modal\\inloggen-modal.html");
-        $question = new HTMLParameter($this->HTMLBuilder, "content\\question.html");
-
-
-
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("content", $content);
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("inloggen-modal", $loginModal);
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("register-modal", $registerModal);
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("questions", $question);
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("max-birthdate", date('d-m-Y'));
-
 
         $this->createProducts();
         $this->generateRubricMenu();
-        $this->generateQuestionTemplate();
+        $this->generateLoginAndRegisterTemplates();
         return $this->HTMLBuilder->getHTML();
     }
 
@@ -62,10 +51,15 @@ class Index extends Page {
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("products", $this->HTMLBuilder->joinHTMLParameters($productTemplates));
     }
 
+    /**
+     * @param $product Item
+     * @return HTMLParameter
+     */
     private function generateProducts($product){
         $imageHelper = new \src\classes\ImageHelper();
         $productTemplate = new HTMLParameter($this->HTMLBuilder, "product\\product-item.html");
         $productTemplate->addTemplateParameterByString("title", $product->getTitle());
+        $productTemplate->addTemplateParameterByString("product-id", $product->getId());
 
         $images = $product->getImages();
         foreach($images as $image){
@@ -78,31 +72,6 @@ class Index extends Page {
         $productTemplate->addTemplateParameterByString("price", floatval($product->getStartPrice()));
         //TODO make a href that links to the product
         return $productTemplate;
-    }
-
-
-
-    public function getQuestions(){
-        $statement = sqlsrv_query($this->databaseHelper->getDatabaseConnection(), "select questionText from question");
-        if($statement === false) {
-            echo "Error in executing statement.\n";
-            die( print_r( sqlsrv_errors(), true));
-        } else {
-            $questions = array();
-            while ($row = sqlsrv_fetch_array($statement, SQLSRV_FETCH_ASSOC)) {
-                $question = new Question($this->databaseHelper);
-                $question->mergeQueryData($row);
-                $questions[] = $question->getQuestionText();
-            }
-            return $questions;
-        }
-    }
-
-    private function generateQuestionTemplate(){
-        $questions = $this->getQuestions();
-        foreach($questions as $question){
-            $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("question-name", $question);
-        }
     }
 
     /**
