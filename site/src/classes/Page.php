@@ -31,7 +31,10 @@ abstract class Page {
     protected function __construct($templateFileName) {
         $this->databaseHelper = new DatabaseHelper();
         $this->userHelper = new UserHelper($this->databaseHelper);
-        $this->user = $this->userHelper->getLoggedInUser();
+        $this->handlePostParameters();
+        if($this->loggedInUser === null) {
+            $this->loggedInUser = $this->userHelper->getLoggedInUser();
+        }
 
         $this->HTMLBuilder = new HTMLBuilder($templateFileName);
     }
@@ -40,12 +43,26 @@ abstract class Page {
         $this->databaseHelper->closeConnection();
     }
 
+    private function handlePostParameters() {
+        if(array_key_exists('login', $_POST)) {
+            $this->loggedInUser =  $this->userHelper->loginUser($_POST['login-username'], $_POST['login-password']);
+        } else if (array_key_exists('logout', $_GET)) {
+            $this->userHelper->logoutUser();
+        }
+    }
+
     protected function generateLoginAndRegisterTemplates() {
-        $registerModal = new HTMLParameter($this->HTMLBuilder, "content\\modal\\register-modal.html");
-        $loginModal = new HTMLParameter($this->HTMLBuilder, "content\\modal\\inloggen-modal.html");
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("inloggen-modal", $loginModal);
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("register-modal", $registerModal);
-        $this->generateQuestionTemplate();
+        if($this->loggedInUser === null) {
+            $registerModal = new HTMLParameter($this->HTMLBuilder, "content\\modal\\register-modal.html");
+            $loginModal = new HTMLParameter($this->HTMLBuilder, "content\\modal\\inloggen-modal.html");
+            $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("inloggen-modal", $loginModal);
+            $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("register-modal", $registerModal);
+            $this->generateQuestionTemplate();
+        } else {
+            $loggedOnTemplate = new HTMLParameter($this->HTMLBuilder, "content\\user-is-logged-on.html");
+            $loggedOnTemplate->addTemplateParameterByString("user-username", $this->loggedInUser->getUsername());
+            $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("inloggen-modal", $loggedOnTemplate);
+        }
     }
 
     protected function generateQuestionTemplate(){

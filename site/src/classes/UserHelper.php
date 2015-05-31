@@ -78,4 +78,10 @@ class UserHelper {
 
         return null;
     }
+
+    public function logoutUser() {
+        if(isset($_SESSION['loggedInUsername'])) {
+            unset($_SESSION['loggedInUsername']);
+        }
+    }
 }

@@ -80,7 +80,7 @@ abstract class Model
             return substr($compositeWhereClause, 0, -5); //Removed the last ' AND '
         }
 
-        return "$this->primaryKeyName = $primaryKeyValue";
+        return "$this->primaryKeyName = ".$this->databaseHelper->prepareString($primaryKeyValue);
     }
 
     public function save()
