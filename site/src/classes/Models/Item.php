@@ -181,12 +181,14 @@ class Item extends Model {
          */
         $images = array();
         if($this->getId() !== null) {
-            $selectQuery = "SELECT fileName, itemId FROM [file] WHERE itemId = ?";
+            $selectQuery = "SELECT fileName, fileLocation, itemId FROM [file] WHERE itemId = ?";
             $statement = sqlsrv_prepare($this->databaseHelper->getDatabaseConnection(), $selectQuery, array(&$this->id));
             sqlsrv_execute($statement);
 
             while($row = sqlsrv_fetch_array($statement, SQLSRV_FETCH_ASSOC)) {
-                $images[] = new File($this->databaseHelper, $row["fileName"], $row["itemId"]);
+                $image = new File($this->databaseHelper, $row["fileName"], $row["itemId"]);
+                $image->mergeQueryData($row);
+                $images[] = $image;
             }
         }
 

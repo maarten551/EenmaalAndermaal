@@ -5,7 +5,7 @@ use src\classes\Models\File;
 
 class ImageHelper {
     public static $IMAGE_FOLDER_LOCATION = "UNKNOWN";
-    public static $EXTERN_IMAGE_LOCATION = "http://iproject16.icasites.nl/";
+    public static $EXTERNAL_IMAGE_LOCATION = "http://iproject16.icasites.nl/";
 
     /**
      * @param $file File
@@ -13,20 +13,35 @@ class ImageHelper {
      */
     public function getImageLocation($file) {
         if($file !== null) {
-            $externTypeLocations = array("thumbnails", "pics");
-            $fileFoundLocation = "";
-            foreach ($externTypeLocations as $externTypeLocation) {
-                $location = $this::$EXTERN_IMAGE_LOCATION . "$externTypeLocation/" . $file->getFileName();
-                if ($this->isAbsolutePathCorrect($location)) {
-                    $fileFoundLocation = $location;
-                    break;
+            $fileLocation = $file->getFileLocation();
+            if(!empty($fileLocation)) {
+                return $fileLocation;
+            } else {
+                $fileLocation = $this->findImageLocation($file);
+                if(!empty($fileLocation)) {
+                    $file->setFileLocation($fileLocation);
+                    $file->save(); //To cache the image location
                 }
-            }
 
-            return $fileFoundLocation;
+                return $fileLocation;
+            }
         }
 
         return false;
+    }
+
+    private function findImageLocation($file) {
+        $externalTypeLocations = array("thumbnails", "pics");
+        $fileFoundLocation = "";
+        foreach ($externalTypeLocations as $externalTypeLocation) {
+            $location = $this::$EXTERNAL_IMAGE_LOCATION . "$externalTypeLocation/" . $file->getFileName();
+            if ($this->isAbsolutePathCorrect($location)) {
+                $fileFoundLocation = $location;
+                break;
+            }
+        }
+
+        return $fileFoundLocation;
     }
 
     /**

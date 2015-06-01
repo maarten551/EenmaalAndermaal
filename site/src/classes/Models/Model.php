@@ -110,10 +110,9 @@ abstract class Model
                     }
                 } else {
                     $fieldUpdateInQuery = $this->prepareDatabaseFieldsForUpdate($currentObjectDataFields);
-                    $updateQuery = "UPDATE [$this->tableName] SET $fieldUpdateInQuery WHERE $this->primaryKeyName = ?";
-                    $statement = sqlsrv_prepare($this->databaseHelper->getDatabaseConnection(), $updateQuery, array(
-                        &$primaryKeyValue
-                    ));
+                    $whereClause = "WHERE ".$this->prepareCompositePrimaryKey($primaryKeyValue);
+                    $updateQuery = "UPDATE [$this->tableName] SET $fieldUpdateInQuery $whereClause";
+                    $statement = sqlsrv_prepare($this->databaseHelper->getDatabaseConnection(), $updateQuery);
 
                     if (!sqlsrv_execute($statement)) {
                         die(print_r(sqlsrv_errors()[0]["message"], true)); //Failed to update

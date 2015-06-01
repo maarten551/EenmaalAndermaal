@@ -13,10 +13,12 @@ class HTMLParameter {
     private $HTMLParameters = array();
     private $templateHTML;
 
-    public function __construct(HTMLBuilder $HTMLBuilder, $templateFileLocation = "") {
+    public function __construct(HTMLBuilder $HTMLBuilder, $templateContentOrFileLocation = "", $HTMLFromParameter = false) {
         $this->HTMLBuilder = $HTMLBuilder;
-        if($templateFileLocation !== "") {
-            $this->templateHTML = $this->HTMLBuilder->loadHTMLFromFile($templateFileLocation);
+        if($templateContentOrFileLocation !== "" && $HTMLFromParameter === false) {
+            $this->templateHTML = $this->HTMLBuilder->loadHTMLFromFile($templateContentOrFileLocation);
+        } else if ($templateContentOrFileLocation !== "" && $HTMLFromParameter === true) {
+            $this->templateHTML = $templateContentOrFileLocation;
         }
     }
 

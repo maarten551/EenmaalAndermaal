@@ -9,6 +9,7 @@ use src\classes\Models\Question;
 use src\classes\Models\Rubric;
 use src\classes\Page;
 use src\classes\ProductPagination;
+use src\classes\SpeedTester;
 
 require_once "src/libraries/password.php"; //For password hashing functionality for PHP < 5.5, server is 5.4.35, source: https://github.com/ircmaxell/password_compat
 
@@ -20,21 +21,34 @@ session_start();
 date_default_timezone_set("Europe/Amsterdam");
 
 class Index extends Page {
+    private $imageHelper;
+    private $productTemplateHTML;
+    private $mobileMenuTemplateHTML;
+    private $desktopMenuTemplateHTML;
+    private $desktopMenuChildrenTemplateHTML;
+
     public function __construct() {
         parent::__construct("template.html");
+
+        $this->imageHelper = new ImageHelper();
+
+        /* Save all HTML files into memory, otherwise every time a new template is loaded, */
+        $this->productTemplateHTML = $this->HTMLBuilder->loadHTMLFromFile("product\\product-item.html");
+        $this->mobileMenuTemplateHTML = $this->HTMLBuilder->loadHTMLFromFile("content\\rubric\\mobile-category.html");
+        $this->desktopMenuTemplateHTML = $this->HTMLBuilder->loadHTMLFromFile("content\\rubric\\desktop-category.html");
+        $this->desktopMenuChildrenTemplateHTML = $this->HTMLBuilder->loadHTMLFromFile("content\\rubric\\desktop-child-categories.html");
     }
 
     public function createHTML()
     {
-        $imageHelper = new ImageHelper();
-
         $content = new HTMLParameter($this->HTMLBuilder, "content\\content-homepage.html");
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("content", $content);
 
         $this->createProducts();
         $this->generateRubricMenu();
         $this->generateLoginAndRegisterTemplates();
-        return $this->HTMLBuilder->getHTML();
+
+        echo $this->HTMLBuilder->getHTML();
     }
 
     public function __destruct() {
@@ -42,12 +56,15 @@ class Index extends Page {
     }
 
     public function createProducts(){//TODO abilty to give a variable to this function wich determins the amount of products per page
-        $productPagination = new ProductPagination(10);
+        $productPagination = new ProductPagination(9);
+
         $products = $productPagination->getProducts($this->databaseHelper);
+
         $productTemplates = array();
         foreach($products as $product){
             $productTemplates[] = $this->generateProducts($product);
         }
+
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("products", $this->HTMLBuilder->joinHTMLParameters($productTemplates));
     }
 
@@ -56,21 +73,23 @@ class Index extends Page {
      * @return HTMLParameter
      */
     private function generateProducts($product){
-        $imageHelper = new \src\classes\ImageHelper();
-        $productTemplate = new HTMLParameter($this->HTMLBuilder, "product\\product-item.html");
+        $productTemplate = new HTMLParameter($this->HTMLBuilder, $this->productTemplateHTML, true);
         $productTemplate->addTemplateParameterByString("title", $product->getTitle());
         $productTemplate->addTemplateParameterByString("product-id", $product->getId());
 
         $images = $product->getImages();
+        $imagePath = "";
         foreach($images as $image){
-            $imagePath = $imageHelper->getImageLocation($image);
-
+            $imagePath = $this->imageHelper->getImageLocation($image);
             if (strpos($imagePath,'pics') !== false) {
                 $productTemplate->addTemplateParameterByString("thumbnail-source", $imagePath);
+                break;
             }
         }
+
+        $productTemplate->addTemplateParameterByString("thumbnail-source", $imagePath);
         $productTemplate->addTemplateParameterByString("price", floatval($product->getStartPrice()));
-        //TODO make a href that links to the product
+
         return $productTemplate;
     }
 
@@ -124,7 +143,7 @@ class Index extends Page {
      */
     private function generateMobileRubricChildren($rubric) {
         $toRemove = array(" ", ",", "'", "&");/* an array containing the characters that should be removed for the target of the buttons*/
-        $rubricTemplate = new HTMLParameter($this->HTMLBuilder, "content\\rubric\\mobile-category.html");
+        $rubricTemplate = new HTMLParameter($this->HTMLBuilder, $this->mobileMenuTemplateHTML, true);
         $rubricTemplate->addTemplateParameterByString("name", $rubric->getName());
         $rubricTemplate->addTemplateParameterByString("target-main-category", str_replace($toRemove, "", $rubric->getId()."-".$rubric->getName()));/*removing the special characters from the target using the earlier declared array*/
         $rubricTemplate->addTemplateParameterByString("amountOfProductsRelated", $rubric->getAmountOfProductsRelated());
@@ -146,8 +165,7 @@ class Index extends Page {
      * @return HTMLParameter
      */
     private function generateDesktopRubricChildren($rubric) {
-        $rubricTemplate = new HTMLParameter($this->HTMLBuilder, "content\\rubric\\desktop-category.html");
-        $rubricChildCategories = new HTMLParameter($this->HTMLBuilder, "content\\rubric\\desktop-child-categories.html");
+        $rubricTemplate = new HTMLParameter($this->HTMLBuilder, $this->desktopMenuTemplateHTML, true);
         $rubricTemplate->addTemplateParameterByString("name", $rubric->getName());
         $rubricTemplate->addTemplateParameterByString("amountOfProductsRelated", $rubric->getAmountOfProductsRelated());
 
@@ -159,10 +177,10 @@ class Index extends Page {
             }
         }
         if (!empty($childRubricTemplates)) {
-            $rubricTemplate->addTemplateParameterByParameter("child-category", $rubricChildCategories);
+            $rubricTemplate->addTemplateParameterByString("child-category", $this->desktopMenuChildrenTemplateHTML);
+            $rubricTemplate->addTemplateParameterByString("child-categories-desktop", $this->HTMLBuilder->joinHTMLParameters($childRubricTemplates));
             $rubricTemplate->addTemplateParameterByString("is-child", "dropdown-submenu dropdown-menu-right");
         }
-        $rubricTemplate->addTemplateParameterByString("child-categories-desktop", $this->HTMLBuilder->joinHTMLParameters($childRubricTemplates));
 
         return $rubricTemplate;
     }
