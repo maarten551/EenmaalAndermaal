@@ -146,6 +146,13 @@ class UserHelper {
                             $user->setQuestion($question);
                             $user->setQuestionAnswer($_POST['secretQuestionAnswer']);
                             $this->hashPassword($user);
+                            $user->save();
+
+                            if($user->getIsLoaded()) {
+
+                            } else {
+                                $this->addError("Probleem met het creëren van de gebruiker", "Er was een onbekende probleem met het creëren van de gebruiker.");
+                            }
                             //TODO: finish register user
                         } else {
                             $this->addError("Gebruikersnaam bestaal al", "De ingevulde gebruikersnaam komt overeen met een al bestaande gebruiker.");

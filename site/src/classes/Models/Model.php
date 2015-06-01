@@ -106,7 +106,21 @@ abstract class Model
                         $this->isDirty = false;
                         $this->isLoaded = true;
                     } else if ($this->hasIdentity === false) {
-                        //TODO: save while primary key is known and is not an identity
+                        //TODO: Make this work with composite keys
+                        $insertQuery = "INSERT INTO $this->tableName "
+                            . "(" . implode(", ", array_keys($currentObjectDataFields)) . ") "
+                            . "VALUES (" . implode(", ", $currentObjectDataFields) . ")"
+                            . "SELECT SCOPE_IDENTITY()"; //It seems you can't pass column names as a parameter
+
+                        $statement = sqlsrv_prepare($this->databaseHelper->getDatabaseConnection(), $insertQuery);
+
+                        if (!sqlsrv_execute($statement)) {
+                            die(print_r(sqlsrv_errors()[0]["message"], true)); //Failed to insert
+                        }
+
+                        $this->setPrimaryKeyField($this->databaseHelper->getLastInsertedId($statement));
+                        $this->isDirty = false;
+                        $this->isLoaded = true;
                     }
                 } else {
                     $fieldUpdateInQuery = $this->prepareDatabaseFieldsForUpdate($currentObjectDataFields);
@@ -265,5 +279,13 @@ abstract class Model
      */
     public function setIsLoaded($isLoaded) {
         $this->isLoaded = $isLoaded;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getIsLoaded()
+    {
+        return $this->isLoaded;
     }
 }

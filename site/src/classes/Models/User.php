@@ -168,7 +168,7 @@ class User extends Model {
      */
     public function setZipCode($zipCode)
     {
-        $this->set("zipcode", $zipCode);
+        $this->set("zipCode", $zipCode);
     }
 
     /**

@@ -25,7 +25,7 @@ class Product extends Page {
     public function createHTML()
     {
         $imageHelper = new ImageHelper();
-        if(!array_key_exists("product", $_GET) && is_numeric($_SERVER["REQUEST_URI"])) {
+        if(!array_key_exists("product", $_GET) && !is_numeric($_SERVER["product"])) {
             $this->redirectToIndex();
         }
 
