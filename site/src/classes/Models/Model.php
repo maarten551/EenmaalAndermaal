@@ -91,7 +91,7 @@ abstract class Model
                 $primaryKeyValue = $this->getPrimaryKeyField();
                 if ($this->isLoaded === false) {
                     if ($primaryKeyValue === null && $this->hasIdentity === true) {//test
-                        $insertQuery = "INSERT INTO $this->tableName "
+                        $insertQuery = "INSERT INTO [$this->tableName] "
                             . "(" . implode(", ", array_keys($currentObjectDataFields)) . ") "
                             . "VALUES (" . implode(", ", $currentObjectDataFields) . ")"
                             . "SELECT SCOPE_IDENTITY()"; //It seems you can't pass column names as a parameter
@@ -105,20 +105,16 @@ abstract class Model
                         $this->setPrimaryKeyField($this->databaseHelper->getLastInsertedId($statement));
                         $this->isDirty = false;
                         $this->isLoaded = true;
-                    } else if ($this->hasIdentity === false) {
-                        //TODO: Make this work with composite keys
-                        $insertQuery = "INSERT INTO $this->tableName "
+                    } else if ($this->hasIdentity === false) { //When there is no auto increment, the id needs to be given (and the id doesn't need to set)
+                        $insertQuery = "INSERT INTO [$this->tableName] "
                             . "(" . implode(", ", array_keys($currentObjectDataFields)) . ") "
-                            . "VALUES (" . implode(", ", $currentObjectDataFields) . ")"
-                            . "SELECT SCOPE_IDENTITY()"; //It seems you can't pass column names as a parameter
-
+                            . "VALUES (" . implode(", ", $currentObjectDataFields) . ")";
                         $statement = sqlsrv_prepare($this->databaseHelper->getDatabaseConnection(), $insertQuery);
 
                         if (!sqlsrv_execute($statement)) {
                             die(print_r(sqlsrv_errors()[0]["message"], true)); //Failed to insert
                         }
 
-                        $this->setPrimaryKeyField($this->databaseHelper->getLastInsertedId($statement));
                         $this->isDirty = false;
                         $this->isLoaded = true;
                     }
@@ -200,7 +196,17 @@ abstract class Model
         $databaseFieldsWithValues = array();
         foreach ($this->databaseFields as $type) {
             foreach ($type as $databaseField => $databaseType) {
-                $databaseFieldsWithValues[$databaseField] = $this->databaseHelper->prepareString($this->get($databaseField, true));
+                /**
+                 * @var $value \DateTime
+                 */
+                $value = $this->get($databaseField, true);
+                if($value instanceof \DateTime) {
+                    $databaseFieldsWithValues[$databaseField] = "'".$value->format("m-d-Y H:i:s")."'";
+                } elseif (is_bool($value)) {
+                    $databaseFieldsWithValues[$databaseField] = ($value === true) ? 1 : 0;
+                } else {
+                    $databaseFieldsWithValues[$databaseField] = $this->databaseHelper->prepareString($value);
+                }
             }
         }
 
@@ -219,6 +225,8 @@ abstract class Model
                  * @var $value \DateTime
                  */
                 $updateFormat .= "$key = '".$value->format("m-d-Y H:i:s")."', ";
+            } elseif (is_bool($value)) {
+                $updateFormat .= "$key = ".($value === true) ? 1 : 0 .", ";
             } else {
                 $updateFormat .= "$key = $value, ";
             }
@@ -266,7 +274,7 @@ abstract class Model
     {
         //TODO: Add REGEX functionality
         foreach ($this->databaseFields["required"] as $fieldKey => $fieldValue) {
-            if(!array_key_exists($fieldKey, $currentObjectDataFields) || empty($currentObjectDataFields[$fieldKey])) {
+            if(!array_key_exists($fieldKey, $currentObjectDataFields) || (empty($currentObjectDataFields[$fieldKey]) && $currentObjectDataFields[$fieldKey] !== 0)) {
                 return false;
             }
         }

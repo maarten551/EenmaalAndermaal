@@ -4,6 +4,7 @@ namespace src\classes;
 use src\classes\Messages\Alert;
 use src\classes\Models\Question;
 use src\classes\Models\User;
+use src\classes\Models\UserPhoneNumber;
 
 class UserHelper {
     /**
@@ -145,11 +146,17 @@ class UserHelper {
                             $user->setZipCode($_POST['zipCode']);
                             $user->setQuestion($question);
                             $user->setQuestionAnswer($_POST['secretQuestionAnswer']);
+                            $user->setIsSeller(false);
                             $this->hashPassword($user);
                             $user->save();
 
-                            if($user->getIsLoaded()) {
-
+                            if($user->getIsLoaded() === true) {
+                                if(!empty($_POST['phoneNumber'])) {
+                                    $userPhoneNumber = new UserPhoneNumber($this->databaseHelper);
+                                    $userPhoneNumber->setUser($user);
+                                    $userPhoneNumber->setPhoneNumber($_POST['phoneNumber']);
+                                    $userPhoneNumber->save();
+                                }
                             } else {
                                 $this->addError("Probleem met het creëren van de gebruiker", "Er was een onbekende probleem met het creëren van de gebruiker.");
                             }

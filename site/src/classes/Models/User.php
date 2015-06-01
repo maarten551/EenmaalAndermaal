@@ -30,6 +30,10 @@ class User extends Model {
      */
     protected $isSeller;
     protected $loginSession;
+    /**
+     * @var UserPhoneNumber[]
+     */
+    protected $phoneNumbers = array();
 
     public function __construct(DatabaseHelper $databaseHelper, $primaryKeyValue = null) {
         parent::__construct($databaseHelper);
@@ -53,6 +57,27 @@ class User extends Model {
         $this->databaseFields["optional"]["secondAddress"] = "quote";
 
         $this->setUsername($primaryKeyValue);
+    }
+
+    /**
+     * @return UserPhoneNumber
+     */
+    public function getPhoneNumbers() {
+        if($this->question === null && $this->get("questionId") !== null) {
+            $this->question = new Question($this->databaseHelper, $this->get("questionId"));
+        }
+
+        return $this->question;
+    }
+
+    /**
+     * @param $phoneNumber UserPhoneNumber
+     */
+    public function addPhoneNumber($phoneNumber) {
+        if(array_search($phoneNumber, $this->phoneNumbers, true) === false) {
+            $this->phoneNumbers[] = $phoneNumber;
+            $phoneNumber->setUser($this);
+        }
     }
 
     /**
