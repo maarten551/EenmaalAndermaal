@@ -21,7 +21,8 @@ date_default_timezone_set("Europe/Amsterdam");
 
 class Index extends Page {
     private $imageHelper;
-    private $productTemplateHTML;
+    private $productGridTemplateHTML;
+    private $productListTemplateHTML;
     private $mobileMenuTemplateHTML;
     private $desktopMenuTemplateHTML;
     private $desktopMenuChildrenTemplateHTML;
@@ -32,7 +33,8 @@ class Index extends Page {
         $this->imageHelper = new ImageHelper();
 
         /* Save all HTML files into memory, otherwise every time a new template is loaded, */
-        $this->productTemplateHTML = $this->HTMLBuilder->loadHTMLFromFile("product\\product-item.html");
+        $this->productGridTemplateHTML = $this->HTMLBuilder->loadHTMLFromFile("product\\product-item-grid.html");
+        $this->productListTemplateHTML = $this->HTMLBuilder->loadHTMLFromFile("product\\product-item-list.html");
         $this->mobileMenuTemplateHTML = $this->HTMLBuilder->loadHTMLFromFile("content\\rubric\\mobile-category.html");
         $this->desktopMenuTemplateHTML = $this->HTMLBuilder->loadHTMLFromFile("content\\rubric\\desktop-category.html");
         $this->desktopMenuChildrenTemplateHTML = $this->HTMLBuilder->loadHTMLFromFile("content\\rubric\\desktop-child-categories.html");
@@ -165,18 +167,17 @@ class Index extends Page {
      * @return HTMLParameter
      */
     private function generateProducts($product){
-        $productTemplate = new HTMLParameter($this->HTMLBuilder, $this->productTemplateHTML, true);
-        $imageHelper = new ImageHelper();
-        if (empty($_GET["view"])){
-            $view = "grid";
+        /**
+         * @var $productTemplate HTMLParameter
+         */
+        $productTemplate = null;
+
+        if (empty($_GET["view"]) || $_GET["view"] == "grid"){
+            $productTemplate = new HTMLParameter($this->HTMLBuilder, $this->productGridTemplateHTML, true);
         } else {
-            $view = $_GET["view"];
+            $productTemplate = new HTMLParameter($this->HTMLBuilder, $this->productListTemplateHTML, true);
         }
-        if ($view === "grid") {
-            $productTemplate = new HTMLParameter($this->HTMLBuilder, "product\\product-item-grid.html");
-        } else {
-            $productTemplate = new HTMLParameter($this->HTMLBuilder, "product\\product-item-list.html");
-        }
+
         $productTemplate->addTemplateParameterByString("title", $product->getTitle());
         $productTemplate->addTemplateParameterByString("product-id", $product->getId());
 
@@ -184,11 +185,9 @@ class Index extends Page {
         foreach($images as $image){
             $imagePath = $this->imageHelper->getImageLocation($image);
             if (strpos($imagePath,'pics') !== false) {
-                $productTemplate->addTemplateParameterByString("thumbnail-source", $imagePath);
+                $productTemplate->addTemplateParameterByString("image-source", $imagePath);
                 break;
             }
-            $imagePath = $imageHelper->getImageLocation($image);
-            $productTemplate->addTemplateParameterByString("image-source", $imagePath);
         }
 
         $auctionEndDate = $product->getAuctionEndDateTime();
@@ -258,7 +257,7 @@ class Index extends Page {
      */
     private function generateMobileRubricChildren($rubric) {
         $toRemove = array(" ", ",", "'", "&");/* an array containing the characters that should be removed for the target of the buttons*/
-        $rubricTemplate = new HTMLParameter($this->HTMLBuilder, "content\\rubric\\mobile-category.html");
+        $rubricTemplate = new HTMLParameter($this->HTMLBuilder, $this->mobileMenuTemplateHTML, true);
         $rubricTemplate->addTemplateParameterByString("name", $rubric->getName());
         $rubricTemplate->addTemplateParameterByString("id", $rubric->getId());
         $rubricTemplate->addTemplateParameterByString("target-main-category", str_replace($toRemove, "", $rubric->getId()."-".$rubric->getName()));/*removing the special characters from the target using the earlier declared array*/
@@ -281,8 +280,8 @@ class Index extends Page {
      * @return HTMLParameter
      */
     private function generateDesktopRubricChildren($rubric) {
-        $rubricTemplate = new HTMLParameter($this->HTMLBuilder, "content\\rubric\\desktop-category.html");
-        $rubricChildCategories = new HTMLParameter($this->HTMLBuilder, "content\\rubric\\desktop-child-categories.html");
+        $rubricTemplate = new HTMLParameter($this->HTMLBuilder, $this->desktopMenuTemplateHTML, true);
+        $rubricChildCategories = new HTMLParameter($this->HTMLBuilder, $this->desktopMenuChildrenTemplateHTML, true);
         $rubricTemplate->addTemplateParameterByString("name", $rubric->getName());
         $rubricTemplate->addTemplateParameterByString("id", $rubric->getId());
         $rubricTemplate->addTemplateParameterByString("amountOfProductsRelated", $rubric->getAmountOfProductsRelated());
