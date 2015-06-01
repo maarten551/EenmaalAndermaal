@@ -43,15 +43,14 @@
             </div>
             <div class="navbar-collapse collapse" id="searchbar"> <!-- content voor in de navbar -->
                 <ul class="nav navbar-nav navbar-right" style="cursor: pointer">
-                    <li><a href="#">Geavanceerd zoeken <span class="glyphicon glyphicon-search" aria-hidden="true"></span> </a></li>
                     #$(inloggen-modal)$#
                     #$(register-modal)$#
                 </ul>
 
-                <form class="navbar-form">
+                <form class="navbar-form" action="index.php" method="get">
                     <div class="form-group" style="display:inline;">
                         <div class="input-group" style="display:table;">
-                            <input class="form-control" name="search" placeholder="Zoeken" autocomplete="off" autofocus="autofocus" type="text">
+                            <input class="form-control" name="search" placeholder="Zoeken" autocomplete="off" autofocus="autofocus" type="text" onkeypress="searchKeyPress(event);">
                             <span class="input-group-addon" style="width:1%;"> <span class="glyphicon glyphicon-search"> </span></span>
                         </div>
                     </div>

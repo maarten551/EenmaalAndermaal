@@ -28,6 +28,7 @@ class Product extends Page {
         if(!array_key_exists("product", $_GET) && is_numeric($_SERVER["REQUEST_URI"])) {
             $this->redirectToIndex();
         }
+
         $item = new Item($this->databaseHelper, $_GET["product"]);
         $this->generateLoginAndRegisterTemplates();
 
@@ -66,7 +67,6 @@ class Product extends Page {
                 }
             }
         }
-
         return $this->HTMLBuilder->getHTML();
     }
 

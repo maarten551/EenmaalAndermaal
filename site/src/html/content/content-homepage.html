@@ -1,24 +1,41 @@
 <div class="row">
     <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
         <div class="visible-sm visible-xs">
-            <button type="button" class="btn category-button" data-toggle="collapse" data-target="#mainCategories" style="width: 100%">Categorie&#235;n</button>
+            <button type="button" class="btn category-button maxWidth" data-toggle="collapse" data-target="#mainCategories">Categorie&#235;n</button>
             <div id="mainCategories" class="collapse category-div">
                 #$(mobile-category)$#
             </div>
         </div>
 
-        <div class="visible-lg visible-md" style="width: 100%;">
-            <div style="width: inherit; background-color: #68ADBF" class="container well-sm">Categori&#235;en</div>
+        <div class="visible-lg visible-md maxWidth">
+            <div style="width: inherit; background-color: #68ADBF"><a href="index.php?category=1" style="width: inherit; background-color: #68ADBF; display: block; padding: 10px;"> Categori&#235;en</a></div>
             <ul class="no-padding dropdown-menu-right" role="menu" aria-labelledby="dropdownMenu">
                 #$(desktop-category)$#
             </ul>
         </div>
     </div>
     <div class="col-xs-12 col-sm-12 col-md-9 col-lg-9">
-        <div class="row text-center">
-            #$(products)$#
+        <div class="row">
+            <form action="index.php" method="get" role="form" class="form-inline">
+                <div class="form-group col-xs-10 col-md-10 col-sm-10 col-lg-10">
+                    <label for = "productsPerPage">Producten per pagina: </label>
+                    <input type="hidden" name="view" value="#$(view-value)$#">
+                    <select class="form-control" name="productsPerPage" id="productsPerPage" onchange="this.form.submit()">
+                        #$(options)$#
+                    </select>
+                </div>
+            </form>
+            <form method="get" class="form-inline col-xs-2 col-md-2 col-sm-2 col-lg-2">
+                <input type="hidden" name="productsPerPage" value="#$(product-value)$#">
+                <button type="submit" name="view" value="grid" class="noButton"><span class="glyphicon glyphicon-th" aria-hidden="true"></span></button>
+                <button type="submit" name="view" value="list" class="noButton"><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span></button>
+            </form>
+            <div class="text-center">
+                #$(products)$#
+                #$(categories-found)$#
+            </div>
+
         </div>
     </div>
 </div>
-
-
+#$(pagination)$#

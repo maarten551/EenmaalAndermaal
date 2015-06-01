@@ -28,7 +28,7 @@ $userHelper = new UserHelper($databaseHelper);
     }
 
 /* Get all the users */
-    $query = "SELECT TOP 1 * FROM [user] WHERE questionAnswer = 'Not generated yet'"; //If to many rows are gotten from the database, the script will take to long process and the script will be eliminated, just refresh the page to process the next 500 users
+    $query = "SELECT TOP 10 * FROM [user] WHERE questionAnswer = 'Not generated yet'"; //If to many rows are gotten from the database, the script will take to long process and the script will be eliminated, just refresh the page to process the next 500 users
     $statement = sqlsrv_prepare($databaseHelper->getDatabaseConnection(), $query);
     sqlsrv_execute($statement);
     $startTime = microtime(true);

@@ -9,7 +9,6 @@ use src\classes\Models\Question;
 use src\classes\Models\Rubric;
 use src\classes\Page;
 use src\classes\ProductPagination;
-use src\classes\SpeedTester;
 
 require_once "src/libraries/password.php"; //For password hashing functionality for PHP < 5.5, server is 5.4.35, source: https://github.com/ircmaxell/password_compat
 
@@ -41,31 +40,124 @@ class Index extends Page {
 
     public function createHTML()
     {
+        $imageHelper = new ImageHelper();
+
         $content = new HTMLParameter($this->HTMLBuilder, "content\\content-homepage.html");
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("content", $content);
+        /* check for every get if it has been set, and if no, give them a default value*/
+        if (empty($_GET["productsPerPage"])){
+            $productsPerPage = 6;
+        } else {
+            $productsPerPage = $_GET["productsPerPage"];
+        }
+        if (empty($_GET["view"])){
+            $view = "grid";
+        } else{
+            $view = $_GET["view"];
+        }
+        if (empty($_GET["pageNumber"]) || ($_GET["pageNumber"] <=0)){
+            $pageNumber = 1;
+        } else {
+            $pageNumber = $_GET["pageNumber"];
+        }
+        if (empty($_GET["category"])){
+            $category="";
+        } else {
+            $category = $_GET["category"];
+        }
+        if (empty($_GET["search"])){
+            $search = "";
+        } else {
+            $search = $_GET["search"];
+        }
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("view-value", $view);
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("product-value", $productsPerPage);
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("next-page", $pageNumber + 1);
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("previous-page", $pageNumber - 1);
 
-        $this->createProducts();
+
+        $this->createSelectValues($productsPerPage);
+        $this->createProducts($productsPerPage, $pageNumber, $category, $search);
+        $this->createPageNumbers($pageNumber);
         $this->generateRubricMenu();
         $this->generateLoginAndRegisterTemplates();
-
-        echo $this->HTMLBuilder->getHTML();
+        return $this->HTMLBuilder->getHTML();
     }
 
     public function __destruct() {
         parent::__destruct();
     }
 
-    public function createProducts(){//TODO abilty to give a variable to this function wich determins the amount of products per page
-        $productPagination = new ProductPagination(9);
+    public function createPageNumbers($currentPageNumber){
+        $numberTemplates = array();
+        for($i = $currentPageNumber-5; $i<$currentPageNumber; $i++){/*go back 5 pages to show the 5 previous pages in pagination*/
+            if ($i >0) {/*check if the number being made is more than 0, if so, don't create anything*/
+                $numberTemplates[] = $this->generatePageNumbers($i, $currentPageNumber);
+            }
+        }
+        for($i = $currentPageNumber; $i<$currentPageNumber+6; $i++){/*go forward 5 pages, the +1 added is because the current page doesn't count*/
+            $numberTemplates[] = $this->generatePageNumbers($i, $currentPageNumber);
+        }
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("page-numbers", $this->HTMLBuilder->joinHTMLParameters($numberTemplates));
+    }
+
+    private function generatePageNumbers($pageNumber, $currentPageNumber){
+        $numberTemplate = new HTMLParameter($this->HTMLBuilder, "content\\indexAddons\\page-number.html");
+        if ($currentPageNumber == $pageNumber) { /*if the current pagenumber equals the pagenumber being made, then it should be active*/
+            $numberTemplate->addTemplateParameterByString("is-active", "active");
+        } else {
+            $numberTemplate->addTemplateParameterByString("is-active", "");
+        }
+        $numberTemplate->addTemplateParameterByString("page-number", $pageNumber);
+        return $numberTemplate;
+    }
+
+    public function createSelectValues($productsPerPage){
+        $optionTemplates = array();
+        for($i = 1; $i<6; $i++){/*creating 5 possible option to pick from which determines the amount of products per page*/
+            $optionTemplates[] = $this->generateSelectValues($i*6, $productsPerPage);/* do this times 6 because everything multiplied with 6 looks good on different screen sizes and doesn't leave any open spaces*/
+        }
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("options", $this->HTMLBuilder->joinHTMLParameters($optionTemplates));
+    }
+
+    private function generateSelectValues($selectValue, $productsPerPage){
+        $optionTemplate = new HTMLParameter($this->HTMLBuilder, "content\\indexAddons\\option.html");
+        $optionTemplate->addTemplateParameterByString("value", $selectValue);
+        if ($productsPerPage == $selectValue) {/*if the current option being created already has been selected by the user, then the current option has to be selected*/
+            $optionTemplate->addTemplateParameterByString("selected", "selected");
+        } else {
+            $optionTemplate->addTemplateParameterByString("selected", "");
+        }
+        return $optionTemplate;
+    }
+
+    public function createProducts($productsPerPage, $pageNumber, $category, $search){
+        $pagination = new HTMLParameter($this->HTMLBuilder, "content\\indexAddons\\pagination.html");
+        $productPagination = new ProductPagination($productsPerPage);
+        $productPagination->setFindInTitleFilter($search);
+        $productPagination->setCurrentPageNumber($pageNumber);
+
+        if (!empty($category)) {
+            $rubric = new Rubric($this->databaseHelper);
+            $rubric->setId($category);
+            $productPagination->setRubricFilter($rubric);
+        }
 
         $products = $productPagination->getProducts($this->databaseHelper);
-
         $productTemplates = array();
+        $index = 0;
         foreach($products as $product){
             $productTemplates[] = $this->generateProducts($product);
+            $index++;
         }
 
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("products", $this->HTMLBuilder->joinHTMLParameters($productTemplates));
+        if ($index == 0){
+            $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("categories-found", "<h3>Helaas, er zijn geen producten gevonden die aan de criteria voldoen.</h3>");
+        } else {
+            $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("products", $this->HTMLBuilder->joinHTMLParameters($productTemplates));
+            $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("pagination", $pagination);
+        }
     }
 
     /**
@@ -74,22 +166,45 @@ class Index extends Page {
      */
     private function generateProducts($product){
         $productTemplate = new HTMLParameter($this->HTMLBuilder, $this->productTemplateHTML, true);
+        $imageHelper = new ImageHelper();
+        if (empty($_GET["view"])){
+            $view = "grid";
+        } else {
+            $view = $_GET["view"];
+        }
+        if ($view === "grid") {
+            $productTemplate = new HTMLParameter($this->HTMLBuilder, "product\\product-item-grid.html");
+        } else {
+            $productTemplate = new HTMLParameter($this->HTMLBuilder, "product\\product-item-list.html");
+        }
         $productTemplate->addTemplateParameterByString("title", $product->getTitle());
         $productTemplate->addTemplateParameterByString("product-id", $product->getId());
 
         $images = $product->getImages();
-        $imagePath = "";
         foreach($images as $image){
             $imagePath = $this->imageHelper->getImageLocation($image);
             if (strpos($imagePath,'pics') !== false) {
                 $productTemplate->addTemplateParameterByString("thumbnail-source", $imagePath);
                 break;
             }
+            $imagePath = $imageHelper->getImageLocation($image);
+            $productTemplate->addTemplateParameterByString("image-source", $imagePath);
+        }
+
+        $auctionEndDate = $product->getAuctionEndDateTime();
+        $now = new \DateTime();
+        $interval = $auctionEndDate->diff($now);
+        if ($product->getIsAuctionClosed()) {
+            $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("time-left", "Gesloten");
+        } else {
+            $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("time-left", $interval->days." dagen ".$interval->h." uur");
         }
 
         $productTemplate->addTemplateParameterByString("thumbnail-source", $imagePath);
         $productTemplate->addTemplateParameterByString("price", floatval($product->getStartPrice()));
 
+
+        $productTemplate->addTemplateParameterByString("price", number_format($product->getStartPrice(), 2, '.',''));
         return $productTemplate;
     }
 
@@ -143,8 +258,9 @@ class Index extends Page {
      */
     private function generateMobileRubricChildren($rubric) {
         $toRemove = array(" ", ",", "'", "&");/* an array containing the characters that should be removed for the target of the buttons*/
-        $rubricTemplate = new HTMLParameter($this->HTMLBuilder, $this->mobileMenuTemplateHTML, true);
+        $rubricTemplate = new HTMLParameter($this->HTMLBuilder, "content\\rubric\\mobile-category.html");
         $rubricTemplate->addTemplateParameterByString("name", $rubric->getName());
+        $rubricTemplate->addTemplateParameterByString("id", $rubric->getId());
         $rubricTemplate->addTemplateParameterByString("target-main-category", str_replace($toRemove, "", $rubric->getId()."-".$rubric->getName()));/*removing the special characters from the target using the earlier declared array*/
         $rubricTemplate->addTemplateParameterByString("amountOfProductsRelated", $rubric->getAmountOfProductsRelated());
 
@@ -165,8 +281,10 @@ class Index extends Page {
      * @return HTMLParameter
      */
     private function generateDesktopRubricChildren($rubric) {
-        $rubricTemplate = new HTMLParameter($this->HTMLBuilder, $this->desktopMenuTemplateHTML, true);
+        $rubricTemplate = new HTMLParameter($this->HTMLBuilder, "content\\rubric\\desktop-category.html");
+        $rubricChildCategories = new HTMLParameter($this->HTMLBuilder, "content\\rubric\\desktop-child-categories.html");
         $rubricTemplate->addTemplateParameterByString("name", $rubric->getName());
+        $rubricTemplate->addTemplateParameterByString("id", $rubric->getId());
         $rubricTemplate->addTemplateParameterByString("amountOfProductsRelated", $rubric->getAmountOfProductsRelated());
 
         $childRubrics = $rubric->getChildren();
@@ -177,10 +295,10 @@ class Index extends Page {
             }
         }
         if (!empty($childRubricTemplates)) {
-            $rubricTemplate->addTemplateParameterByString("child-category", $this->desktopMenuChildrenTemplateHTML);
-            $rubricTemplate->addTemplateParameterByString("child-categories-desktop", $this->HTMLBuilder->joinHTMLParameters($childRubricTemplates));
+            $rubricTemplate->addTemplateParameterByParameter("child-category", $rubricChildCategories);
             $rubricTemplate->addTemplateParameterByString("is-child", "dropdown-submenu dropdown-menu-right");
         }
+        $rubricTemplate->addTemplateParameterByString("child-categories-desktop", $this->HTMLBuilder->joinHTMLParameters($childRubricTemplates));
 
         return $rubricTemplate;
     }
