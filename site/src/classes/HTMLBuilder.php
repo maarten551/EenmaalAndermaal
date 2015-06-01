@@ -119,4 +119,20 @@ class HTMLBuilder {
     public function addMessage($message) {
         $this->messages[] = $message;
     }
+
+    /**
+     * @param $fileLocation
+     * @param $HTML
+     * Caches the HTML is given fileLocation
+     */
+    public function cacheHTML($fileLocation, $HTML) {
+        $fileLocation = getcwd().self::BASE_LOCATION."cache/".$fileLocation;
+        if(file_exists($fileLocation)) {
+            unlink($fileLocation);
+        }
+
+        $fileHandler = fopen($fileLocation, "wr+");
+        fwrite($fileHandler, $HTML);
+        fclose($fileHandler);
+    }
 }

@@ -234,21 +234,40 @@ class Index extends Page {
         }
     }
 
-    private function generateRubricMenu() {
-        $rootRubric = $this->getRootRubricWithChildrenLoaded();
-        /**
-         * @var $mobileRubricTemplates HTMLParameter[]
-         * @var $desktopRubricTemplates HTMLParameter[]
-         */
-        $mobileRubricTemplates = $desktopRubricTemplates = array();
+    private function generateRubricMenu()
+    {
+        $isUpToDate = 0;
+        $mobileRubricTemplate = "";
+        $desktopRubricTemplate = "";
+        $statement = sqlsrv_query($this->databaseHelper->getDatabaseConnection(), "{call sp_isCachedRubricUpToDate(?) }", array(array(&$isUpToDate, SQLSRV_PARAM_INOUT)));
+        if ($statement === false) {
+            echo "Error in executing statement 3.\n";
+            die(print_r(sqlsrv_errors(), true));
+        }
+        if ($isUpToDate === 0) {
+            $rootRubric = $this->getRootRubricWithChildrenLoaded();
+            /**
+             * @var $mobileRubricTemplates HTMLParameter[]
+             * @var $desktopRubricTemplates HTMLParameter[]
+             */
+            $mobileRubricTemplates = $desktopRubricTemplates = array();
 
-        foreach ($rootRubric->getChildren() as $childRubric) {
-            $mobileRubricTemplates[] = $this->generateMobileRubricChildren($childRubric);
-            $desktopRubricTemplates[] = $this->generateDesktopRubricChildren($childRubric);
+            foreach ($rootRubric->getChildren() as $childRubric) {
+                $mobileRubricTemplates[] = $this->generateMobileRubricChildren($childRubric);
+                $desktopRubricTemplates[] = $this->generateDesktopRubricChildren($childRubric);
+            }
+
+            $mobileRubricTemplate = $this->HTMLBuilder->joinHTMLParameters($mobileRubricTemplates);
+            $this->HTMLBuilder->cacheHTML("mobile-rubric-template.html", $mobileRubricTemplate);
+            $desktopRubricTemplate = $this->HTMLBuilder->joinHTMLParameters($desktopRubricTemplates);
+            $this->HTMLBuilder->cacheHTML("desktop-rubric-template.html", $mobileRubricTemplate);
+        } else {
+            $mobileRubricTemplate = (new HTMLParameter($this->HTMLBuilder, "cache\\mobile-rubric-template.html"))->parseAndGetHTML();
+            $desktopRubricTemplate = (new HTMLParameter($this->HTMLBuilder, "cache\\desktop-rubric-template.html"))->parseAndGetHTML();
         }
 
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("mobile-category", $this->HTMLBuilder->joinHTMLParameters($mobileRubricTemplates));
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("desktop-category", $this->HTMLBuilder->joinHTMLParameters($desktopRubricTemplates));
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("mobile-category", $mobileRubricTemplate);
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("desktop-category", $desktopRubricTemplate);
     }
 
     /**

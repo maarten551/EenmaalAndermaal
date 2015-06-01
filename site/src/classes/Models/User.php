@@ -63,11 +63,25 @@ class User extends Model {
      * @return UserPhoneNumber
      */
     public function getPhoneNumbers() {
-        if($this->question === null && $this->get("questionId") !== null) {
-            $this->question = new Question($this->databaseHelper, $this->get("questionId"));
+        if(count($this->phoneNumbers) === 0 && $this->username !== null) {
+            $selectQuery = "SELECT id, username, phoneNumber FROM userPhoneNumber WHERE username = ?";
+            $statement = sqlsrv_prepare($this->databaseHelper->getDatabaseConnection(), $selectQuery, array(
+                $this->username
+            ));
+
+            if (!sqlsrv_execute($statement)) {
+                die(print_r(sqlsrv_errors()[0]["message"], true)); //Failed to update
+            }
+
+            while($row = sqlsrv_fetch_array($statement, SQLSRV_FETCH_ASSOC)) {
+                /** @var $phoneNumber UserPhoneNumber */
+                $phoneNumber = new UserPhoneNumber($this->databaseHelper, $row['id']);
+                $phoneNumber->mergeQueryData($row);
+                $this->addPhoneNumber($phoneNumber);
+            }
         }
 
-        return $this->question;
+        return $this->phoneNumbers;
     }
 
     /**

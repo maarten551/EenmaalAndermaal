@@ -15,7 +15,7 @@ function __autoload($class_name) { //PHP will use this function if a class file 
  */
 $questions = array();
 $databaseHelper = new DatabaseHelper();
-$userHelper = new UserHelper($databaseHelper);
+$userHelper = new UserHelper($databaseHelper, NULL);
 
 /* Get all the questions */
     $query = "SELECT  * FROM [question]";
