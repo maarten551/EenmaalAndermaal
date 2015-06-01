@@ -13,7 +13,7 @@ class AbstractMessage {
     public function toHTMLParameter() {
         $HTMLParameter = new HTMLParameter($this->HTMLBuilder, $this->HTMLTemplateLocation);
         $HTMLParameter->addTemplateParameterByString("message-title", $this->title);
-        $HTMLParameter->addTemplateParameterByString("message-description", $this->title);
+        $HTMLParameter->addTemplateParameterByString("message-description", $this->message);
 
         return $HTMLParameter;
     }

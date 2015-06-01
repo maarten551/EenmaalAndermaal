@@ -149,6 +149,9 @@ class User extends Model {
      */
     public function setSecondAddress($secondAddress)
     {
+        if(empty($secondAddress)) {
+            $secondAddress = null;
+        }
         $this->set("secondAddress", $secondAddress);
     }
 

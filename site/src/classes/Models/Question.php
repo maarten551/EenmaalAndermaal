@@ -22,6 +22,34 @@ class Question extends Model {
     }
 
     /**
+     * @param $databaseHelper DatabaseHelper
+     * @param $questionText
+     * @return Question
+     */
+    public static function GET_BY_QUESTION_TEXT($databaseHelper, $questionText) {
+        if(!empty($questionText)) {
+            $selectQuery = "SELECT TOP 1 id, questionText FROM [question] WHERE questionText = ?";
+            $statement = sqlsrv_prepare($databaseHelper->getDatabaseConnection(), $selectQuery, array(
+                &$questionText
+            ));
+            sqlsrv_execute($statement);
+            if($statement !== false) {
+                if (sqlsrv_has_rows($statement)) {
+                    $row = sqlsrv_fetch_array($statement, SQLSRV_FETCH_ASSOC);
+                    $question = new Question($databaseHelper, $row["id"]);
+                    $question->mergeQueryData($row);
+
+                    return $question;
+                }
+            } else {
+                die( print_r( sqlsrv_errors(), true));
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * @return mixed
      */
     public function getQuestionText()

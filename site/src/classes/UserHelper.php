@@ -2,6 +2,7 @@
 namespace src\classes;
 
 use src\classes\Messages\Alert;
+use src\classes\Models\Question;
 use src\classes\Models\User;
 
 class UserHelper {
@@ -71,8 +72,8 @@ class UserHelper {
                 return $user;
             } else {
                 $errorMessage = new Alert($this->HTMLBuilder);
-                $errorMessage->getTitle("Informatie incorrect");
-                $errorMessage->setMessage("De ingevulde inlognaam en/of wachtwoord is verkeerd");
+                $errorMessage->setTitle("Informatie incorrect");
+                $errorMessage->setMessage("De ingevulde inlognaam en/of wachtwoord is verkeerd ingevuld");
                 $this->HTMLBuilder->addMessage($errorMessage);
 
             }
@@ -96,5 +97,89 @@ class UserHelper {
         if(isset($_SESSION['loggedInUsername'])) {
             unset($_SESSION['loggedInUsername']);
         }
+    }
+
+    public function registerUser()
+    {
+        $registerFields = array(
+            "username" => "required",
+            "firstname" => "required",
+            "lastname" => "required",
+            "firstAddress" => "required",
+            "zipCode" => "required",
+            "town" => "required",
+            "country" => "required",
+            "birthdate" => "required",
+            "mailbox" => "required",
+            "password" => "required",
+            "passwordMatch" => "required",
+            "secretQuestionType" => "required",
+            "secretQuestionAnswer" => "required",
+            "phoneNumber" => "optional",
+            "secondAddress" => "optional"
+        );
+
+        if($this->checkAllRequiredFields($registerFields)) {
+            if($_POST['password'] === $_POST['passwordMatch']) {
+                $question = Question::GET_BY_QUESTION_TEXT($this->databaseHelper, $_POST['secretQuestionType']);
+                if($question !== null) {
+                    $birthDate = null;
+                    try {
+                        $birthDate = new \DateTime($_POST['birthdate']);
+                    } catch(\Exception $e) {
+                        $this->addError("Datum klopt niet", "De ingevulde datum is niet correct ingevuld.");
+                    }
+
+                    if($birthDate !== null) {
+                        $user = new User($this->databaseHelper, $_POST['username']);
+                        if($user->getFirstname() === null) { //Check if user already exists
+                            $user->setFirstname($_POST['firstname']);
+                            $user->setLastname($_POST['lastname']);
+                            $user->setPassword($_POST['password']);
+                            $user->setBirthdate($birthDate);
+                            $user->setFirstAddress($_POST['firstAddress']);
+                            $user->setSecondAddress($_POST['secondAddress']);
+                            $user->setMailbox($_POST['mailbox']);
+                            $user->setCountry($_POST['country']);
+                            $user->setTown($_POST['town']);
+                            $user->setZipCode($_POST['zipCode']);
+                            $user->setQuestion($question);
+                            $user->setQuestionAnswer($_POST['secretQuestionAnswer']);
+                            $this->hashPassword($user);
+                            //TODO: finish register user
+                        } else {
+                            $this->addError("Gebruikersnaam bestaal al", "De ingevulde gebruikersnaam komt overeen met een al bestaande gebruiker.");
+                        }
+                    }
+                } else {
+                    $this->addError("beveilingsvraag bestaat niet in databank", "De geselecteerde vraag komt niet overeen met wat in de database staat.");
+                }
+            } else {
+                $this->addError("Wachtwoorden niet gelijk", "De ingevulde wachtwoorden komen niet overeen.");
+            }
+        } else {
+            $this->addError("Veld(en) niet ingevuld", "Er zijn één of meerdere velden niet ingevuld.");
+        }
+
+        return null;
+    }
+
+    private function addError($title, $message) {
+        $errorMessage = new Alert($this->HTMLBuilder);
+        $errorMessage->setTitle($title);
+        $errorMessage->setMessage($message);
+        $this->HTMLBuilder->addMessage($errorMessage);
+    }
+
+    public function checkAllRequiredFields($registerFields) {
+        $checkResult = true;
+        foreach ($registerFields as $fieldName => $isRequiredValue) {
+            if(!array_key_exists($fieldName, $_POST) && !empty($_POST[$fieldName]) && $isRequiredValue === "required") {
+                $checkResult = false;
+                break;
+            }
+        }
+
+        return $checkResult;
     }
 }

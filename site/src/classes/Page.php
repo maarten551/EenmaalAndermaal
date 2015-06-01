@@ -2,7 +2,6 @@
 namespace src\classes;
 use src\classes\HTMLBuilder\HTMLParameter;
 use src\classes\Models\Question;
-use src\classes\Models\Rubric;
 use src\classes\Models\User;
 
 abstract class Page {
@@ -29,14 +28,13 @@ abstract class Page {
      * @param $templateFileName
      */
     protected function __construct($templateFileName) {
+        $this->HTMLBuilder = new HTMLBuilder($templateFileName);
         $this->databaseHelper = new DatabaseHelper();
         $this->userHelper = new UserHelper($this->databaseHelper, $this->HTMLBuilder);
         $this->handleRequestParameters();
         if($this->loggedInUser === null) {
             $this->loggedInUser = $this->userHelper->getLoggedInUser();
         }
-
-        $this->HTMLBuilder = new HTMLBuilder($templateFileName);
     }
 
     protected function __destruct() {
@@ -49,7 +47,7 @@ abstract class Page {
         } else if (array_key_exists('logout', $_GET)) {
             $this->userHelper->logoutUser();
         } else if (array_key_exists('register', $_POST)) {
-            //$this->userHelper->registerUser();
+            $this->userHelper->registerUser();
         }
     }
 
@@ -73,6 +71,7 @@ abstract class Page {
         foreach($questions as $question){
             $questionTemplate = new HTMLParameter($this->HTMLBuilder, "content\\question.html");
             $questionTemplate->addTemplateParameterByString("question-name", $question->getQuestionText());
+            $questionTemplate->addTemplateParameterByString("question-value", $question->getQuestionText());
             $questionTemplates[] = $questionTemplate;
         }
 
