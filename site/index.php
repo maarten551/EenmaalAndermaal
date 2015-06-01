@@ -260,7 +260,7 @@ class Index extends Page {
             $mobileRubricTemplate = $this->HTMLBuilder->joinHTMLParameters($mobileRubricTemplates);
             $this->HTMLBuilder->cacheHTML("mobile-rubric-template.html", $mobileRubricTemplate);
             $desktopRubricTemplate = $this->HTMLBuilder->joinHTMLParameters($desktopRubricTemplates);
-            $this->HTMLBuilder->cacheHTML("desktop-rubric-template.html", $mobileRubricTemplate);
+            $this->HTMLBuilder->cacheHTML("desktop-rubric-template.html", $desktopRubricTemplate);
         } else {
             $mobileRubricTemplate = (new HTMLParameter($this->HTMLBuilder, "cache\\mobile-rubric-template.html"))->parseAndGetHTML();
             $desktopRubricTemplate = (new HTMLParameter($this->HTMLBuilder, "cache\\desktop-rubric-template.html"))->parseAndGetHTML();
