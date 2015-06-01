@@ -30,8 +30,8 @@ abstract class Page {
      */
     protected function __construct($templateFileName) {
         $this->databaseHelper = new DatabaseHelper();
-        $this->userHelper = new UserHelper($this->databaseHelper);
-        $this->handlePostParameters();
+        $this->userHelper = new UserHelper($this->databaseHelper, $this->HTMLBuilder);
+        $this->handleRequestParameters();
         if($this->loggedInUser === null) {
             $this->loggedInUser = $this->userHelper->getLoggedInUser();
         }
@@ -43,11 +43,13 @@ abstract class Page {
         $this->databaseHelper->closeConnection();
     }
 
-    private function handlePostParameters() {
+    private function handleRequestParameters() {
         if(array_key_exists('login', $_POST)) {
-            $this->loggedInUser =  $this->userHelper->loginUser($_POST['login-username'], $_POST['login-password']);
+            $this->loggedInUser = $this->userHelper->loginUser($_POST['login-username'], $_POST['login-password']);
         } else if (array_key_exists('logout', $_GET)) {
             $this->userHelper->logoutUser();
+        } else if (array_key_exists('register', $_POST)) {
+            //$this->userHelper->registerUser();
         }
     }
 

@@ -29,7 +29,9 @@ class HTMLBuilder {
      */
     public function __construct($fileName) {
         $this->mainHTMLParameter = new HTMLParameter($this, $fileName);
-        $this->messages[] = new Alert($this);
+        $this->addMessage(new Alert($this));
+        $this->addMessage(new Alert($this));
+        $this->addMessage(new Alert($this));
     }
 
     /**
@@ -90,12 +92,14 @@ class HTMLBuilder {
     }
 
     private function buildMessagesHTML() {
+        $messageContainerTemplate = new HTMLParameter($this, "messages\\message-container.html");
         if(count($this->messages) > 0) {
             $html = "";
             foreach($this->messages as $message) {
                 $html .= $message->toHTMLParameter()->parseAndGetHTML();
             }
-            $this->mainHTMLParameter->addTemplateParameterByString("messages", $html);
+            $messageContainerTemplate->addTemplateParameterByString("messages", $html);
+            $this->mainHTMLParameter->addTemplateParameterByParameter("message-container", $messageContainerTemplate);
         }
     }
 
@@ -107,5 +111,12 @@ class HTMLBuilder {
         $html = $this->mainHTMLParameter->parseAndGetHTML();
 
         return $this->cleanUpNotUsedVariables($html);
+    }
+
+    /**
+     * @param $message AbstractMessage
+     */
+    public function addMessage($message) {
+        $this->messages[] = $message;
     }
 }

@@ -1,6 +1,7 @@
 <?php
 namespace src\classes;
 
+use src\classes\Messages\Alert;
 use src\classes\Models\User;
 
 class UserHelper {
@@ -8,9 +9,15 @@ class UserHelper {
      * @var DatabaseHelper
      */
     private $databaseHelper;
+    /**
+     * @var HTMLBuilder
+     * To add messages when needed.
+     */
+    private $HTMLBuilder;
 
-    public function __construct($databaseHelper) {
+    public function __construct($databaseHelper, $HTMLBuilder) {
         $this->databaseHelper = $databaseHelper;
+        $this->HTMLBuilder = $HTMLBuilder;
     }
 
     /**
@@ -62,6 +69,12 @@ class UserHelper {
             if($this->hasSamePasswordAsHash($user, $password)) {
                 $_SESSION['loggedInUsername'] = $username;
                 return $user;
+            } else {
+                $errorMessage = new Alert($this->HTMLBuilder);
+                $errorMessage->getTitle("Informatie incorrect");
+                $errorMessage->setMessage("De ingevulde inlognaam en/of wachtwoord is verkeerd");
+                $this->HTMLBuilder->addMessage($errorMessage);
+
             }
         }
 
