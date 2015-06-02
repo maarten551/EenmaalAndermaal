@@ -34,7 +34,12 @@ class Index extends Page {
 
         $this->imageHelper = new ImageHelper();
 
+        //$url = $_SERVER['QUERY_STRING'];
+        //var_dump(parse_url($url));
+
         /* Save all HTML files into memory, otherwise every time a new template is loaded, */
+        $this->productTemplateHTML = $this->HTMLBuilder->loadHTMLFromFile("product\\product-item-list.html");
+        $this->productTemplateHTML = $this->HTMLBuilder->loadHTMLFromFile("product\\product-item-grid.html");
         $this->productGridTemplateHTML = $this->HTMLBuilder->loadHTMLFromFile("product\\product-item-grid.html");
         $this->productListTemplateHTML = $this->HTMLBuilder->loadHTMLFromFile("product\\product-item-list.html");
         $this->mobileMenuTemplateHTML = $this->HTMLBuilder->loadHTMLFromFile("content\\rubric\\mobile-category.html");
@@ -167,27 +172,30 @@ class Index extends Page {
      * @return HTMLParameter
      */
     private function generateProducts($product){
-        /**
-         * @var $productTemplate HTMLParameter
-         */
-        $productTemplate = null;
-
-        if (empty($_GET["view"]) || $_GET["view"] == "grid"){
-            $productTemplate = new HTMLParameter($this->HTMLBuilder, $this->productGridTemplateHTML, true);
+        $productTemplate = new HTMLParameter($this->HTMLBuilder, $this->productTemplateHTML, true);
+        $imageHelper = new ImageHelper();
+        if (empty($_GET["view"])){
+            $view = "grid";
         } else {
-            $productTemplate = new HTMLParameter($this->HTMLBuilder, $this->productListTemplateHTML, true);
+            $view = $_GET["view"];
         }
-
+        if ($view === "grid") {
+            $productTemplate = new HTMLParameter($this->HTMLBuilder, "product\\product-item-grid.html");
+        } else {
+            $productTemplate = new HTMLParameter($this->HTMLBuilder, "product\\product-item-list.html");
+        }
         $productTemplate->addTemplateParameterByString("title", $product->getTitle());
         $productTemplate->addTemplateParameterByString("product-id", $product->getId());
 
         $images = $product->getImages();
         foreach($images as $image){
             $imagePath = $this->imageHelper->getImageLocation($image);
-            if (strpos($imagePath,'pics') !== false) {
-                $productTemplate->addTemplateParameterByString("image-source", $imagePath);
+            if (strpos($imagePath,'thumbnails') !== false) {
+                $productTemplate->addTemplateParameterByString("thumbnail-source", $imagePath);
                 break;
             }
+            $imagePath = $imageHelper->getImageLocation($image);
+            $productTemplate->addTemplateParameterByString("image-source", $imagePath);
         }
 
         $auctionEndDate = $product->getAuctionEndDateTime();
@@ -199,9 +207,7 @@ class Index extends Page {
             $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("time-left", $interval->days." dagen ".$interval->h." uur");
         }
 
-        $productTemplate->addTemplateParameterByString("thumbnail-source", $imagePath);
-        $productTemplate->addTemplateParameterByString("price", floatval($product->getStartPrice()));
-
+        $productTemplate->addTemplateParameterByString("image-source", $imagePath);
 
         $productTemplate->addTemplateParameterByString("price", number_format($product->getStartPrice(), 2, '.',''));
         return $productTemplate;
@@ -276,7 +282,7 @@ class Index extends Page {
      */
     private function generateMobileRubricChildren($rubric) {
         $toRemove = array(" ", ",", "'", "&");/* an array containing the characters that should be removed for the target of the buttons*/
-        $rubricTemplate = new HTMLParameter($this->HTMLBuilder, $this->mobileMenuTemplateHTML, true);
+        $rubricTemplate = new HTMLParameter($this->HTMLBuilder, "content\\rubric\\mobile-category.html");
         $rubricTemplate->addTemplateParameterByString("name", $rubric->getName());
         $rubricTemplate->addTemplateParameterByString("id", $rubric->getId());
         $rubricTemplate->addTemplateParameterByString("target-main-category", str_replace($toRemove, "", $rubric->getId()."-".$rubric->getName()));/*removing the special characters from the target using the earlier declared array*/
@@ -299,8 +305,8 @@ class Index extends Page {
      * @return HTMLParameter
      */
     private function generateDesktopRubricChildren($rubric) {
-        $rubricTemplate = new HTMLParameter($this->HTMLBuilder, $this->desktopMenuTemplateHTML, true);
-        $rubricChildCategories = new HTMLParameter($this->HTMLBuilder, $this->desktopMenuChildrenTemplateHTML, true);
+        $rubricTemplate = new HTMLParameter($this->HTMLBuilder, "content\\rubric\\desktop-category.html");
+        $rubricChildCategories = new HTMLParameter($this->HTMLBuilder, "content\\rubric\\desktop-child-categories.html");
         $rubricTemplate->addTemplateParameterByString("name", $rubric->getName());
         $rubricTemplate->addTemplateParameterByString("id", $rubric->getId());
         $rubricTemplate->addTemplateParameterByString("amountOfProductsRelated", $rubric->getAmountOfProductsRelated());

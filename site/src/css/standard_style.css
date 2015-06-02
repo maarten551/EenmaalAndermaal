@@ -1,6 +1,5 @@
 html{
     height: 100vh;
-    overflow-y: scroll;
 }
 
 body {
@@ -349,6 +348,22 @@ a:active {
     border-color: #407380;
 }
 
+#message-container{
+    position: fixed;
+    top: 98px;
+    min-width:400px;
+    max-width: 700px;
+    left: 50%;
+    margin: 0 0 0 -200px;
+    z-index: 10;
+}
+
+.alert{
+    margin-bottom: 5px;
+    padding-left: 30px;
+    padding-right: 30px;
+}
+
 .dropdown-submenu {
     position: relative;
 }
@@ -366,7 +381,7 @@ a:active {
 }
 
 .modal-backdrop{
-    z-index: 0;
+    z-index: 11;
 }
 
 .dropdown-submenu>.dropdown-menu {
