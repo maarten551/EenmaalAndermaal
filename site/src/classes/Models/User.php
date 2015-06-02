@@ -34,6 +34,10 @@ class User extends Model {
      * @var UserPhoneNumber[]
      */
     protected $phoneNumbers = array();
+    /**
+     * @var Bid[]
+     */
+    protected $bids = array();
 
     public function __construct(DatabaseHelper $databaseHelper, $primaryKeyValue = null) {
         parent::__construct($databaseHelper);
@@ -64,9 +68,9 @@ class User extends Model {
      */
     public function getPhoneNumbers() {
         if(count($this->phoneNumbers) === 0 && $this->username !== null) {
-            $selectQuery = "SELECT id, username, phoneNumber FROM userPhoneNumber WHERE username = ?";
+            $selectQuery = "SELECT id, username, phoneNumber FROM [userPhoneNumber] WHERE username = ?";
             $statement = sqlsrv_prepare($this->databaseHelper->getDatabaseConnection(), $selectQuery, array(
-                $this->username
+                array(&$this->username, SQLSRV_PARAM_IN)
             ));
 
             if (!sqlsrv_execute($statement)) {
@@ -91,6 +95,41 @@ class User extends Model {
         if(array_search($phoneNumber, $this->phoneNumbers, true) === false) {
             $this->phoneNumbers[] = $phoneNumber;
             $phoneNumber->setUser($this);
+        }
+    }
+
+    /**
+     * @return Bid
+     */
+    public function getBids() {
+        if(count($this->bids) === 0 && $this->username !== null) {
+            $selectQuery = "SELECT amount, itemId, username, placementDateTime FROM [bid] WHERE username = ? ORDER BY amount DESC";
+            $statement = sqlsrv_prepare($this->databaseHelper->getDatabaseConnection(), $selectQuery, array(
+                array(&$this->username, SQLSRV_PARAM_IN)
+            ));
+
+            if (!sqlsrv_execute($statement)) {
+                die(print_r(sqlsrv_errors()[0]["message"], true)); //Failed to update
+            }
+
+            while($row = sqlsrv_fetch_array($statement, SQLSRV_FETCH_ASSOC)) {
+                /** @var $bid Bid */
+                $bid = new Bid($this->databaseHelper, $row['amount'], $row['itemId']);
+                $bid->mergeQueryData($row);
+                $this->addBid($bid);
+            }
+        }
+
+        return $this->bids;
+    }
+
+    /**
+     * @param $bid Bid
+     */
+    public function addBid($bid) {
+        if(array_search($bid, $this->bids, true) === false) {
+            $this->bids[] = $bid;
+            $bid->setUser($this);
         }
     }
 

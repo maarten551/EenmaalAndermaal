@@ -2,6 +2,7 @@
 use src\classes\DatabaseHelper;
 use src\classes\HTMLBuilder;
 use src\classes\HTMLBuilder\HTMLParameter;
+use src\classes\Models\Bid;
 use src\classes\Page;
 use src\classes\Models\File;
 use src\classes\Models\Item;
@@ -17,36 +18,47 @@ session_start();
 date_default_timezone_set("Europe/Amsterdam");
 
 class Product extends Page {
+    /**
+     * @var Item
+     */
+    private $item = null;
 
     public function __construct() {
         parent::__construct("template.html");
+
+        if(!array_key_exists("product", $_GET) || !is_numeric($_GET["product"]) || $this->item->getSeller() === null) {
+            $this->redirectToIndex();
+        }
+    }
+
+    public function handleRequestParameters() {
+        parent::handleRequestParameters();
+        $this->item = new Item($this->databaseHelper, $_GET["product"]);
+        $user = $this->userHelper->getLoggedInUser();
+        if(array_key_exists("bid-on-product", $_POST) && $user !== null) {
+            $bid = new Bid($this->databaseHelper, $_POST['bid-amount'], $this->item->getId());
+            $bid->setUser($user);
+            $bid->save();
+        }
     }
 
     public function createHTML()
     {
         $imageHelper = new ImageHelper();
-        if(!array_key_exists("product", $_GET) && !is_numeric($_SERVER["product"])) {
-            $this->redirectToIndex();
-        }
-
-        $item = new Item($this->databaseHelper, $_GET["product"]);
-        $this->generateLoginAndRegisterTemplates();
-
-        $auctionEndDate = $item->getAuctionEndDateTime();
-        $now = new \DateTime();
-        $interval = $auctionEndDate->diff($now);
+        $interval = $this->item->getAuctionEndDateTime()->diff(new \DateTime());
 
         $content = new HTMLParameter($this->HTMLBuilder, "content\\content-productoverzicht.html");
-        $thumbnail = new HTMLParameter($this->HTMLBuilder, "content\\product\\product-thumbnail.html");
+        $thumbnail = new HTMLParameter($this->HTMLBuilder, "product\\product-thumbnail.html");
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("content", $content);
 
         //getting all information from the product
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("title", $item->getTitle());
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("description", $item->getDescription());
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("seller", $item->getSeller()->getUsername());
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("auction-enddate", $auctionEndDate->format('Y-m-d H:i'));
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("title", $this->item->getTitle());
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("description", $this->item->getDescription());
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("seller", $this->item->getSeller()->getUsername());
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("auction-enddate", $this->item->getAuctionStartDateTime()->format('Y-m-d H:i'));
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("bid-container", $this->generateBidTemplates());
 
-        if ($item->getIsAuctionClosed()){
+        if ($this->item->getIsAuctionClosed()){
             $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("time-left", "Deze veiling is gesloten, u kunt niet meeer bieden");
             $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("is-disabled", "disabled");
         } else {
@@ -54,7 +66,7 @@ class Product extends Page {
             $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("is-disabled", "enabled");
         }
         //TODO add more information to the product view
-        foreach ($item->getImages() as $index => $image) {
+        foreach ($this->item->getImages() as $index => $image) {
             $imagePath = $imageHelper->getImageLocation($image);
 
             if($index == 0) {
@@ -67,11 +79,36 @@ class Product extends Page {
                 }
             }
         }
+
+        $this->generateLoginAndRegisterTemplates();
         return $this->HTMLBuilder->getHTML();
     }
 
     public function __destruct() {
         parent::__destruct();
+    }
+
+    /**
+     * @return HTMLParameter
+     */
+    private function generateBidTemplates() {
+        $bidContainerTemplate = new HTMLParameter($this->HTMLBuilder, "product\\bid\\bid-container.html");
+
+        /**
+         * @var $bidTemplates HTMLParameter[]
+         */
+        $bidTemplates = array();
+        $bids = $this->item->getBids();
+        foreach ($bids as $bid) {
+            $bidTemplate = new HTMLParameter($this->HTMLBuilder, "product\\bid\\bid-item.html");
+            $bidTemplate->addTemplateParameterByString("username", $bid->getUsername());
+            $bidTemplate->addTemplateParameterByString("amount", $bid->getAmount());
+            $bidTemplate->addTemplateParameterByString("timeOfPlacement", $bid->getPlacementDateTime()->format("d-m-Y H:m:s"));
+            $bidTemplates[] = $bidTemplate;
+        }
+
+        $bidContainerTemplate->addTemplateParameterByString("bids", $this->HTMLBuilder->joinHTMLParameters($bidTemplates));
+        return $bidContainerTemplate;
     }
 
     private function redirectToIndex() {

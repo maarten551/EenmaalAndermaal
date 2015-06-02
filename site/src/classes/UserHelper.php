@@ -188,7 +188,7 @@ class UserHelper {
     public function checkAllRequiredFields($registerFields) {
         $checkResult = true;
         foreach ($registerFields as $fieldName => $isRequiredValue) {
-            if(!array_key_exists($fieldName, $_POST) && !empty($_POST[$fieldName]) && $isRequiredValue === "required") {
+            if(!array_key_exists($fieldName, $_POST) || (empty($_POST[$fieldName]) && $isRequiredValue === "required")) {
                 $checkResult = false;
                 break;
             }
