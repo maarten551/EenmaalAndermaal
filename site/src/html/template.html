@@ -1,9 +1,3 @@
-<!--
- * Created by PhpStorm.
- * User: Marijn
- * Date: 1-5-2015
- * Time: 09:28
- -->
 <!doctype html>
 <html>
 <head>
@@ -25,7 +19,7 @@
 </head>
 
 <body>
-#$(message-container)$#
+
 <div id="contentvak">
     <div class="navbar navbar-default navbar-fixed-top"> <!-- de navbar wordt gemaakt -->
         <div class="container">
@@ -45,7 +39,6 @@
                     #$(inloggen-modal)$#
                     #$(register-modal)$#
                 </ul>
-
                 <form class="navbar-form" action="index.php" method="get">
                     <div class="form-group" style="display:inline;">
                         <div class="input-group" style="display:table;">
@@ -57,6 +50,7 @@
             </div><!--/.nav-collapse -->
         </div>
     </div>
+    #$(message-container)$#
     <div class="row" id = "menu">
         <a href="index.php">    <div class="col-xs-12 col-sm-12 col-md-5ths menu">Home</div> </a>
         <a href="#">    <div class="col-xs-12 col-sm-6 col-md-5ths menu" >Mijn Veilingen</div> </a>
@@ -64,11 +58,9 @@
         <a href="#">    <div class="col-xs-12 col-sm-6 col-md-5ths menu" >Account</div> </a>
         <a href="#">    <div class="col-xs-12 col-sm-6 col-md-5ths menu" >Nieuwe Veiling</div> </a>
     </div>
-
     <div id="push">
         #$(content)$#
     </div>
-
     <footer id="footer" style="margin: 0; text-align: center">
         <div class="row">
             <div class="col-xs-12 col-sm-4 col-md-4">
@@ -94,7 +86,6 @@
             </div>
         </div>
     </footer>
-
 </div>
 </body>
 
