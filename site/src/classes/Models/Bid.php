@@ -51,7 +51,9 @@ class Bid extends Model {
             );
             $statement = sqlsrv_query($this->databaseHelper->getDatabaseConnection(), "{call sp_addBidToItem (?, ?, ?)}", $parameters);
             if($statement === false) {
-                echo "Bid not high enough";
+                return false;
+            } else {
+                return true;
             }
         }
     }

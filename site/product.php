@@ -2,6 +2,8 @@
 use src\classes\DatabaseHelper;
 use src\classes\HTMLBuilder;
 use src\classes\HTMLBuilder\HTMLParameter;
+use src\classes\Messages\Alert;
+use src\classes\Messages\PositiveMessage;
 use src\classes\Models\Bid;
 use src\classes\Page;
 use src\classes\Models\File;
@@ -35,10 +37,18 @@ class Product extends Page {
         parent::handleRequestParameters();
         $this->item = new Item($this->databaseHelper, $_GET["product"]);
         $user = $this->userHelper->getLoggedInUser();
-        if(array_key_exists("bid-on-product", $_POST) && $user !== null) {
-            $bid = new Bid($this->databaseHelper, $_POST['bid-amount'], $this->item->getId());
-            $bid->setUser($user);
-            $bid->save();
+        if(array_key_exists("bid-on-product", $_POST)) {
+            if($user !== null) {
+                $bid = new Bid($this->databaseHelper, $_POST['bid-amount'], $this->item->getId());
+                $bid->setUser($user);
+                if ($bid->save() === false) {
+                    $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Bieding niet geplaatst", "Bieding is niet hoog genoeg"));
+                } else {
+                    $this->HTMLBuilder->addMessage(new PositiveMessage($this->HTMLBuilder, "Bieding geplaatst", "Uw bieding is geplaatst"));
+                }
+            } else {
+                $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Bieding niet geplaatst", "U bent niet ingelogd"));
+            }
         }
     }
 
@@ -80,6 +90,7 @@ class Product extends Page {
             }
         }
 
+        $this->processHighestBid();
         $this->generateLoginAndRegisterTemplates();
         return $this->HTMLBuilder->getHTML();
     }
@@ -115,6 +126,37 @@ class Product extends Page {
         $redirectLink = substr("$_SERVER[REQUEST_URI]", 0, strpos($_SERVER["REQUEST_URI"], "/product.php"));
         header("location: $redirectLink/index.php");
         die();
+    }
+
+    private function processHighestBid() {
+        $highestPrice = $this->item->getStartPrice();
+        if(count($this->item->getBids()) >= 1) {
+            $highestPrice = $this->item->getBids()[0]->getAmount();
+        }
+
+        $minimalIncrement = $this->calculateMinimumBidIncrement($highestPrice);
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("highest-bid", $highestPrice);
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("minimal-increment", $minimalIncrement);
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("minimal-new-value", $highestPrice + $minimalIncrement);
+    }
+
+    /**
+     * @param $highestPrice float
+     * @return float
+     */
+    private function calculateMinimumBidIncrement($highestPrice)
+    {
+        if ($highestPrice < 50) {
+            return 0.5;
+        } else if ($highestPrice < 500) {
+            return 1;
+        } else if ($highestPrice < 1000) {
+            return 5;
+        } else if ($highestPrice < 5000) {
+            return 10;
+        } else if ($highestPrice >= 5000) {
+            return 50;
+        }
     }
 }
 
