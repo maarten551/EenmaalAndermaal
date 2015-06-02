@@ -14,78 +14,78 @@
 
                             <div class="form-group col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                 <label class="control-label">Gebruikersnaam:</label>
-                                <input type="text" maxlength="50" class="form-control" name="username">
+                                <input required type="text" maxlength="50" class="form-control" name="username">
                             </div>
 
                             <div class="form-group col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                 <label class="control-label">E-mail adres:</label>
-                                <input type="email" maxlength="50" class="form-control" name="mailbox">
+                                <input required type="email" maxlength="50" class="form-control" name="mailbox">
                             </div>
                             <div class="form-group col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                 <label class="control-label">Wachtwoord:</label>
-                                <input type="password" maxlength="60" class="form-control" id="password1" onkeyup="passwordMatch()" name="password">
+                                <input required type="password" maxlength="60" class="form-control" id="password1" onkeyup="passwordMatch()" name="password">
                             </div>
 
                             <div class="form-group col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                 <label class="control-label">Herhaal Wachtwoord:</label>
-                                <input type="password" maxlength="60" class="form-control" id="password2" onkeyup="passwordMatch()" name="passwordMatch">
+                                <input required type="password" maxlength="60" class="form-control" id="password2" onkeyup="passwordMatch()" name="passwordMatch">
                             </div>
 
                             <div class="form-group col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                 <label class="control-label">Voornaam:</label>
-                                <input type="text" maxlength="30" class="form-control" name="firstname">
+                                <input required type="text" maxlength="30" class="form-control" name="firstname">
                             </div>
 
                             <div class="form-group col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                 <label class="control-label">Achternaam:</label>
-                                <input type="text" maxlength="30" class="form-control" name="lastname">
+                                <input required type="text" maxlength="30" class="form-control" name="lastname">
                             </div>
 
                             <div class="form-group col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                 <label class="control-label">Postcode:</label>
-                                <input type="text" maxlength="10" class="form-control" name="zipCode">
+                                <input required type="text" maxlength="10" class="form-control" name="zipCode">
                             </div>
 
                             <div class="form-group col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                 <label class="control-label">Land:</label>
-                                <input type="text" maxlength="40" class="form-control" name="country">
+                                <input required type="text" maxlength="40" class="form-control" name="country">
                             </div>
 
                             <div class="form-group col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                 <label class="control-label">Adres:</label>
-                                <input type="text" maxlength="100" class="form-control" name="firstAddress">
+                                <input required type="text" maxlength="100" class="form-control" name="firstAddress">
                             </div>
 
                             <div class="form-group col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                <label class="control-label">Secundair Adres (Mag leeg gelaten worden):</label>
+                                <label class="control-label">Secundair Adres (Optioneel):</label>
                                 <input type="text" maxlength="100" class="form-control" name="secondAddress" >
                             </div>
 
                             <div class="form-group col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                 <label class="control-label">Plaats:</label>
-                                <input type="text" maxlength="40" class="form-control" name="town">
+                                <input required type="text" maxlength="40" class="form-control" name="town">
                             </div>
 
                             <div class="form-group col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                 <label class="control-label">Geboortedatum:</label>
-                                <input type="text" data-provide="datepicker" class="form-control" name="birthdate" data-date-start-view = "decade" data-date-language="nl" data-date-format="dd/mm/yyyy" data-date-start-date="01-01-1900" data-date-end-date = "#$(max-birthdate)$#">
+                                <input required type="text" data-provide="datepicker" class="form-control" name="birthdate" data-date-start-view = "decade" data-date-language="nl" data-date-format="dd/mm/yyyy" data-date-start-date="01-01-1900" data-date-end-date = "#$(max-birthdate)$#">
                             </div>
 
                             <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                 <label class="control-label">Telefoonnummer: (U kunt later meer telefoonnummers toevoegen.)</label>
-                                <input type="tel" maxlength="11" class="form-control" name="phoneNumber">
+                                <input required type="tel" maxlength="11" class="form-control" name="phoneNumber">
                             </div>
 
                             <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                 <label class="control-label">Geheime vraag:</label>
-                                <select class="form-control" name="secretQuestionType">
+                                <select required class="form-control" name="secretQuestionType">
                                     #$(questions)$#
                                 </select>
                             </div>
 
                             <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                 <label class="control-label">Antwoord:</label>
-                                <input type="text" maxlength="100" class="form-control" name="secretQuestionAnswer">
+                                <input required type="text" maxlength="100" class="form-control" name="secretQuestionAnswer">
                             </div>
                         </div>
 

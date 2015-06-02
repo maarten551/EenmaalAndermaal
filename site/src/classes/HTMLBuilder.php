@@ -3,6 +3,8 @@ namespace src\classes;
 use src\classes\HTMLBuilder\HTMLParameter;
 use src\classes\Messages\AbstractMessage;
 use src\classes\Messages\Alert;
+use src\classes\Messages\PositiveMessage;
+use src\classes\Messages\WarningMessage;
 
 /**
  * Created by PhpStorm.
@@ -29,9 +31,9 @@ class HTMLBuilder {
      */
     public function __construct($fileName) {
         $this->mainHTMLParameter = new HTMLParameter($this, $fileName);
-        $this->addMessage(new Alert($this));
-        $this->addMessage(new Alert($this));
-        $this->addMessage(new Alert($this));
+//        $this->addMessage(new Alert($this));
+//        $this->addMessage(new WarningMessage($this));
+//        $this->addMessage(new PositiveMessage($this));
     }
 
     /**

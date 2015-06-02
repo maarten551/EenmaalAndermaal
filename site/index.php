@@ -26,14 +26,12 @@ class Index extends Page {
     private $mobileMenuTemplateHTML;
     private $desktopMenuTemplateHTML;
     private $desktopMenuChildrenTemplateHTML;
+    private $previousGetters;
 
     public function __construct() {
         parent::__construct("template.html");
 
         $this->imageHelper = new ImageHelper();
-
-        //$url = $_SERVER['QUERY_STRING'];
-        //var_dump(parse_url($url));
 
         /* Save all HTML files into memory, otherwise every time a new template is loaded, */
         $this->productTemplateHTML = $this->HTMLBuilder->loadHTMLFromFile("product\\product-item-list.html");
@@ -43,6 +41,7 @@ class Index extends Page {
         $this->mobileMenuTemplateHTML = $this->HTMLBuilder->loadHTMLFromFile("content\\rubric\\mobile-category.html");
         $this->desktopMenuTemplateHTML = $this->HTMLBuilder->loadHTMLFromFile("content\\rubric\\desktop-category.html");
         $this->desktopMenuChildrenTemplateHTML = $this->HTMLBuilder->loadHTMLFromFile("content\\rubric\\desktop-child-categories.html");
+
     }
 
     public function createHTML()
@@ -56,32 +55,43 @@ class Index extends Page {
             $productsPerPage = 6;
         } else {
             $productsPerPage = $_GET["productsPerPage"];
+            $_SESSION["productsPerPage"] = $_GET["productsPerPage"];
         }
         if (empty($_GET["view"])){
             $view = "grid";
         } else{
             $view = $_GET["view"];
+            $_SESSION["view"] = $_GET["view"];
         }
         if (empty($_GET["pageNumber"]) || ($_GET["pageNumber"] <=0)){
             $pageNumber = 1;
         } else {
             $pageNumber = $_GET["pageNumber"];
+            $_SESSION["pageNumber"] = $_GET["pageNumber"];
         }
         if (empty($_GET["category"])){
             $category="";
         } else {
             $category = $_GET["category"];
+            $_SESSION["category"] = $_GET["category"];
         }
         if (empty($_GET["search"])){
             $search = "";
         } else {
             $search = $_GET["search"];
+            $_SESSION["search"] = $_GET["search"];
         }
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("view-value", $view);
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("product-value", $productsPerPage);
+        $index = 0;
+        foreach($_SESSION as $key => $sessionValue){
+            if ($index >= 2) {
+                echo $key . ": " . $sessionValue . "</br>";
+            }
+            $index ++;
+        }
+
+
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("next-page", $pageNumber + 1);
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("previous-page", $pageNumber - 1);
-
 
         $this->createSelectValues($productsPerPage);
         $this->createProducts($productsPerPage, $pageNumber, $category, $search);
