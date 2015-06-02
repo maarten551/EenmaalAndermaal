@@ -27,17 +27,17 @@
                     <h3>Hoogste bod: </h3>
                     <h3>Minimale verhoging: </h3>
 
-                    <form class="form-inline">
+                    <form class="form-inline" method="POST" action="#">
                         <div class="form-group maxWidth"> <!-- form group for better layout-->
                             <div class="col-xs-9 col-sm-9 col-md-9 col-lg-9 no-padding">
                                 <label class="sr-only" for="biedingBedrag">Geld (in euro's)</label>
                                 <div class="input-group maxWidth">
                                     <div class="input-group-addon">&#8364;</div>
-                                    <input #$(is-disabled)$# type="number" class="form-control" id="biedingBedrag" step="0.01" pattern='^\d+(?:\.\d{0,2})$'/><!--the pattern attribute controls whether or not input is a number-->
+                                    <input #$(is-disabled)$# type="number" class="form-control" name="bid-amount" id="biedingBedrag" step="0.01" pattern='^\d+(?:\.\d{0,2})$'/><!--the pattern attribute controls whether or not input is a number-->
                                 </div>
                             </div>
                             <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 no-padding">
-                                <button #$(is-disabled)$# type="submit" class="btn btn-info maxWidth">Bieden</button>
+                                <button #$(is-disabled)$# type="submit" class="btn btn-info maxWidth" name="bid-on-product">Bieden</button>
                             </div>
                         </div>
                     </form>
@@ -53,28 +53,7 @@
                             <td class="third">Gebruiker:</td><td class="third">Bedrag:</td><td class="third">Datum:</td>
                         </tr>
                     </table>
-                    <div style="overflow-y: scroll; height: 200px; font-size: 1.2em;">
-                        <table class="maxWidth">
-                            <tr class="previousBids">
-                                <td class="third">Gebruiker:</td><td class="third">Bedrag:</td><td class="third">Datum:</td>
-                            </tr>
-                            <tr class="previousBids">
-                                <td class="third">Gebruiker:</td><td class="third">Bedrag:</td><td class="third">Datum:</td>
-                            </tr>
-                            <tr class="previousBids">
-                                <td class="third">Gebruiker:</td><td class="third">Bedrag:</td><td class="third">Datum:</td>
-                            </tr>
-                            <tr class="previousBids">
-                                <td class="third">Gebruiker:</td><td class="third">Bedrag:</td><td class="third">Datum:</td>
-                            </tr>
-                            <tr class="previousBids">
-                                <td class="third">Gebruiker:</td><td class="third">Bedrag:</td><td class="third">Datum:</td>
-                            </tr>
-                            <tr class="previousBids">
-                                <td class="third">Gebruiker:</td><td class="third">Bedrag:</td><td class="third">Datum:</td>
-                            </tr>
-                        </table>
-                    </div>
+                    #$(bid-container)$#
                 </div>
             </div>
         </div>

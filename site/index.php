@@ -2,11 +2,13 @@
 use src\classes\DatabaseHelper;
 use src\classes\HTMLBuilder;
 use src\classes\HTMLBuilder\HTMLParameter;
+use src\classes\Models\Bid;
 use src\classes\Models\File;
 use src\classes\Models\Item;
 use \src\classes\ImageHelper;
 use src\classes\Models\Question;
 use src\classes\Models\Rubric;
+use src\classes\Models\User;
 use src\classes\Page;
 use src\classes\ProductPagination;
 
@@ -42,8 +44,6 @@ class Index extends Page {
 
     public function createHTML()
     {
-        $imageHelper = new ImageHelper();
-
         $content = new HTMLParameter($this->HTMLBuilder, "content\\content-homepage.html");
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("content", $content);
         /* check for every get if it has been set, and if no, give them a default value*/

@@ -37,6 +37,9 @@ abstract class Model
      */
     protected $databaseHelper;
 
+    /**
+     * @param DatabaseHelper $databaseHelper
+     */
     public function __construct(DatabaseHelper $databaseHelper)
     {
         $this->databaseHelper = $databaseHelper;
@@ -192,7 +195,7 @@ abstract class Model
         return false;
     }
 
-    private function getDatabaseFieldsWithValues() {
+    protected function getDatabaseFieldsWithValues() {
         $databaseFieldsWithValues = array();
         foreach ($this->databaseFields as $type) {
             foreach ($type as $databaseField => $databaseType) {
@@ -204,6 +207,8 @@ abstract class Model
                     $databaseFieldsWithValues[$databaseField] = "'".$value->format("m-d-Y H:i:s")."'";
                 } elseif (is_bool($value)) {
                     $databaseFieldsWithValues[$databaseField] = ($value === true) ? 1 : 0;
+                } elseif ($value === null) {
+                    $databaseFieldsWithValues[$databaseField] = "NULL";
                 } else {
                     $databaseFieldsWithValues[$databaseField] = $this->databaseHelper->prepareString($value);
                 }
@@ -270,7 +275,7 @@ abstract class Model
      * @param $currentObjectDataFields string[]
      * @return bool
      */
-    private function areFieldValuesValid($currentObjectDataFields)
+    protected function areFieldValuesValid($currentObjectDataFields)
     {
         //TODO: Add REGEX functionality
         foreach ($this->databaseFields["required"] as $fieldKey => $fieldValue) {

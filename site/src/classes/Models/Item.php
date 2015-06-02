@@ -49,7 +49,10 @@ class Item extends Model {
     protected $auctionEndDateTime;
     protected $isAuctionClosed = 0;
     protected $sellPrice;
-
+    /**
+     * @var Bid[]
+     */
+    protected $bids = array();
 
     public function __construct(DatabaseHelper $databaseHelper, $primaryKeyValue = null) {
         parent::__construct($databaseHelper);
@@ -75,6 +78,38 @@ class Item extends Model {
         $this->databaseFields["optional"]["sellPrice"] = "quote";
 
         $this->setId($primaryKeyValue);
+    }
+
+    public function getBids() {
+        if(count($this->bids) === 0 && $this->id !== null) {
+            $selectQuery = "SELECT amount, itemId, username, placementDateTime FROM [bid] WHERE itemId = ? ORDER BY amount DESC";
+            $statement = sqlsrv_prepare($this->databaseHelper->getDatabaseConnection(), $selectQuery, array(
+                array(&$this->id, SQLSRV_PARAM_IN)
+            ));
+
+            if (!sqlsrv_execute($statement)) {
+                die(print_r(sqlsrv_errors()[0]["message"], true)); //Failed to update
+            }
+
+            while($row = sqlsrv_fetch_array($statement, SQLSRV_FETCH_ASSOC)) {
+                /** @var $bid Bid */
+                $bid = new Bid($this->databaseHelper, $row['amount'], $row['itemId']);
+                $bid->mergeQueryData($row);
+                $this->addBid($bid);
+            }
+        }
+
+        return $this->bids;
+    }
+
+    /**
+     * @param $bid Bid
+     */
+    public function addBid($bid) {
+        if(array_search($bid, $this->bids, true) === false) {
+            $this->bids[] = $bid;
+            $bid->setItem($this);
+        }
     }
 
     /**

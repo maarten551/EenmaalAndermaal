@@ -41,7 +41,7 @@ abstract class Page {
         $this->databaseHelper->closeConnection();
     }
 
-    private function handleRequestParameters() {
+    protected function handleRequestParameters() {
         if(array_key_exists('login', $_POST)) {
             $this->loggedInUser = $this->userHelper->loginUser($_POST['login-username'], $_POST['login-password']);
         } else if (array_key_exists('logout', $_GET)) {
