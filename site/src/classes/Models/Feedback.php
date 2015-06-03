@@ -35,7 +35,7 @@ class Feedback extends Model {
         parent::__construct($databaseHelper);
         $this->tableName = "feedback";
         $this->primaryKeyName = array("kindOfUser", "itemId");
-        $this->hasIdentity = true;
+        $this->hasIdentity = false;
         $this->databaseFields["required"]["kindOfUser"] = "quote";
         $this->databaseFields["required"]["itemId"] = "quote";
         $this->databaseFields["required"]["feedbackKind"] = "quote";

@@ -226,26 +226,30 @@ class Item extends Model {
     }
 
     /**
-     * @return User
+     * @return Seller
      */
     public function getSeller()
     {
         if($this->sellerObject === null && $this->getSellerId() !== null) {
-            $this->sellerObject = new User($this->databaseHelper, $this->getSellerId());
+            $user = new User($this->databaseHelper);
+            $user->load($this->getSellerId());
+            if($user->getIsLoaded() === true && $user->isSeller() === true) {
+                $this->sellerObject = new Seller($this->databaseHelper, $user);
+            };
         }
 
         return $this->sellerObject;
     }
 
     /**
-     * @param User $seller
+     * @param $seller Seller
      */
     public function setSeller($seller)
     {
         //TODO: When the class 'Seller' is created, replace this
-        if($seller !== null && $seller instanceof User) {
+        if($seller !== null && $seller->getUser() !== null) {
             $this->sellerObject = $seller;
-            $this->seller = $seller->getId();
+            $this->seller = $seller->getUser()->getUsername();
         }
     }
 

@@ -414,7 +414,7 @@ class User extends Model {
      */
     public function isSeller()
     {
-        return $this->get("isSeller");
+        return ($this->get("isSeller") === 0) ? false : true;
     }
 
     /**

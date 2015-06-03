@@ -8,6 +8,7 @@ use src\classes\Models\Item;
 use \src\classes\ImageHelper;
 use src\classes\Models\Question;
 use src\classes\Models\Rubric;
+use src\classes\Models\Seller;
 use src\classes\Models\User;
 use src\classes\Page;
 use src\classes\ProductPagination;
@@ -98,6 +99,7 @@ class Index extends Page {
         $this->createPageNumbers($pageNumber);
         $this->generateRubricMenu();
         $this->generateLoginAndRegisterTemplates();
+
         return $this->HTMLBuilder->getHTML();
     }
 
@@ -182,7 +184,6 @@ class Index extends Page {
      * @return HTMLParameter
      */
     private function generateProducts($product){
-        $productTemplate = new HTMLParameter($this->HTMLBuilder, $this->productTemplateHTML, true);
         $imageHelper = new ImageHelper();
         if (empty($_GET["view"])){
             $view = "grid";
@@ -190,9 +191,9 @@ class Index extends Page {
             $view = $_GET["view"];
         }
         if ($view === "grid") {
-            $productTemplate = new HTMLParameter($this->HTMLBuilder, "product\\product-item-grid.html");
+            $productTemplate = new HTMLParameter($this->HTMLBuilder, $this->productGridTemplateHTML, true);
         } else {
-            $productTemplate = new HTMLParameter($this->HTMLBuilder, "product\\product-item-list.html");
+            $productTemplate = new HTMLParameter($this->HTMLBuilder, $this->productListTemplateHTML, true);
         }
         $productTemplate->addTemplateParameterByString("title", $product->getTitle());
         $productTemplate->addTemplateParameterByString("product-id", $product->getId());
@@ -253,8 +254,6 @@ class Index extends Page {
     private function generateRubricMenu()
     {
         $isUpToDate = 0;
-        $mobileRubricTemplate = "";
-        $desktopRubricTemplate = "";
         $statement = sqlsrv_query($this->databaseHelper->getDatabaseConnection(), "{call sp_isCachedRubricUpToDate(?) }", array(array(&$isUpToDate, SQLSRV_PARAM_INOUT)));
         if ($statement === false) {
             echo "Error in executing statement 3.\n";
