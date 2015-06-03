@@ -64,7 +64,7 @@ class Product extends Page {
         //getting all information from the product
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("title", $this->item->getTitle());
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("description", $this->item->getDescription());
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("seller", $this->item->getSeller()->getUsername());
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("seller", $this->item->getSeller()->getUser()->getUsername());
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("auction-enddate", $this->item->getAuctionStartDateTime()->format('Y-m-d H:i'));
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("bid-container", $this->generateBidTemplates());
 
@@ -83,7 +83,7 @@ class Product extends Page {
                 $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("img-source", $imagePath);
             }
             if($index >= 1) {
-                if (strpos($imagePath,'pics') !== false) {
+                if (strpos($imagePath,'thumbnail') === false) {
                     $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("thumbnails", $thumbnail);
                     $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("img-source-thumb", $imagePath);
                 }
@@ -92,8 +92,7 @@ class Product extends Page {
 
         $this->processHighestBid();
         $this->generateLoginAndRegisterTemplates();
-        //return $this->HTMLBuilder->getHTML();
-        var_dump($this->item->getFeedbacks()->getNegativeFeedback());
+        return $this->HTMLBuilder->getHTML();
     }
 
     public function __destruct() {
@@ -121,12 +120,6 @@ class Product extends Page {
 
         $bidContainerTemplate->addTemplateParameterByString("bids", $this->HTMLBuilder->joinHTMLParameters($bidTemplates));
         return $bidContainerTemplate;
-    }
-
-    private function redirectToIndex() {
-        $redirectLink = substr("$_SERVER[REQUEST_URI]", 0, strpos($_SERVER["REQUEST_URI"], "/product.php"));
-        header("location: $redirectLink/index.php");
-        die();
     }
 
     private function processHighestBid() {

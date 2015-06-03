@@ -4,7 +4,7 @@ namespace src\classes;
 use src\classes\Models\File;
 
 class ImageHelper {
-    public static $IMAGE_FOLDER_LOCATION = "UNKNOWN";
+    public static $IMAGE_FOLDER_LOCATION = "src/img/product/";
     public static $EXTERNAL_IMAGE_LOCATION = "http://iproject16.icasites.nl/";
 
     /**
@@ -30,6 +30,10 @@ class ImageHelper {
         return false;
     }
 
+    /**
+     * @param $file File
+     * @return string
+     */
     private function findImageLocation($file) {
         $externalTypeLocations = array("thumbnails", "pics");
         $fileFoundLocation = "";
@@ -38,6 +42,12 @@ class ImageHelper {
             if ($this->isAbsolutePathCorrect($location)) {
                 $fileFoundLocation = $location;
                 break;
+            }
+        }
+        if($fileFoundLocation === "") {
+            $internalTemplateFileLocation = getcwd()."/".self::$IMAGE_FOLDER_LOCATION.$file->getFileName();
+            if(file_exists($internalTemplateFileLocation)) {
+                $fileFoundLocation = self::$IMAGE_FOLDER_LOCATION.$file->getFileName();
             }
         }
 

@@ -22,7 +22,7 @@ class Seller extends Model {
      * @param DatabaseHelper $databaseHelper
      * @param $user User
      */
-    public function __construct(DatabaseHelper $databaseHelper, $user) {
+    public function __construct(DatabaseHelper $databaseHelper, User $user) {
         parent::__construct($databaseHelper);
         if($user !== null && $user->getUsername() !== null && $user->isSeller() === true) {
             $this->tableName = "Seller";

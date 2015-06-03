@@ -297,7 +297,7 @@ class Index extends Page {
         $rubricTemplate->addTemplateParameterByString("target-main-category", str_replace($toRemove, "", $rubric->getId()."-".$rubric->getName()));/*removing the special characters from the target using the earlier declared array*/
         $rubricTemplate->addTemplateParameterByString("amountOfProductsRelated", $rubric->getAmountOfProductsRelated());
 
-        $childRubrics = $rubric->getChildren();
+        $childRubrics = $rubric->getChildren(true);
         $childRubricTemplates = array();
         if($childRubrics !== null) {
             foreach($childRubrics as $childRubric) {
@@ -320,7 +320,7 @@ class Index extends Page {
         $rubricTemplate->addTemplateParameterByString("id", $rubric->getId());
         $rubricTemplate->addTemplateParameterByString("amountOfProductsRelated", $rubric->getAmountOfProductsRelated());
 
-        $childRubrics = $rubric->getChildren();
+        $childRubrics = $rubric->getChildren(true);
         $childRubricTemplates = array();
         if($childRubrics !== null) {
             foreach($childRubrics as $childRubric) {

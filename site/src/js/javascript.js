@@ -8,6 +8,7 @@ $(document).ready(function() {
         today: "Vandaag",
         clear: "Reset"
     };
+    $(".selector-for-chosen").chosen();
 });
 
 function passwordMatch()

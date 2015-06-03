@@ -321,7 +321,7 @@ class Item extends Model {
      */
     public function setStartPrice($startPrice)
     {
-        $this->get("startPrice", $startPrice);
+        $this->set("startPrice", $startPrice);
     }
 
     /**
@@ -353,6 +353,10 @@ class Item extends Model {
      */
     public function setPaymentInstruction($paymentInstruction)
     {
+        if(empty($paymentInstruction)) {
+            $paymentInstruction = null;
+        }
+
         $this->set("paymentInstruction", $paymentInstruction);
     }
 
@@ -401,6 +405,10 @@ class Item extends Model {
      */
     public function setShippingCost($shippingCost)
     {
+        if(empty($shippingCost)) {
+            $shippingCost = null;
+        }
+
         $this->set("shippingCost", $shippingCost);
     }
 
@@ -417,6 +425,10 @@ class Item extends Model {
      */
     public function setShippingInstruction($shippingInstruction)
     {
+        if(empty($shippingInstruction)) {
+            $shippingInstruction = null;
+        }
+
         $this->set("shippingInstruction", $shippingInstruction);
     }
 

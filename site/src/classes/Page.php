@@ -31,10 +31,11 @@ abstract class Page {
         $this->HTMLBuilder = new HTMLBuilder($templateFileName);
         $this->databaseHelper = new DatabaseHelper();
         $this->userHelper = new UserHelper($this->databaseHelper, $this->HTMLBuilder);
-        $this->handleRequestParameters();
+
         if($this->loggedInUser === null) {
             $this->loggedInUser = $this->userHelper->getLoggedInUser();
         }
+        $this->handleRequestParameters();
     }
 
     protected function __destruct() {
@@ -96,5 +97,11 @@ abstract class Page {
             }
             return $questions;
         }
+    }
+
+    protected function redirectToIndex() {
+        $redirectLink = substr("$_SERVER[REQUEST_URI]", 0, strpos($_SERVER["REQUEST_URI"], "/product.php"));
+        header("location: $redirectLink/index.php");
+        die();
     }
 }

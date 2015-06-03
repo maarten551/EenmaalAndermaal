@@ -1,0 +1,88 @@
+<form action="#" method="POST" enctype="multipart/form-data">
+    <table>
+        <tr>
+            <th>Titel*</th>
+            <td><input type="text" name="auction-title"></td>
+        </tr>
+        <tr>
+            <th>Omschrijving*</th>
+            <td><textarea name="auction-description" maxlength="1500"></textarea></td>
+        </tr>
+        <tr>
+            <th>Startprijs*</th>
+            <td><input type="text" name="auction-start-price"></td>
+        </tr>
+        <tr>
+            <th>Tijdsduur van veiling*</th>
+            <td>
+                <select name="auction-duration-days" class="selector-for-chosen">
+                    <option value="1">1 dag</option>
+                    <option value="3">3 dagen</option>
+                    <option value="5">5 dagen</option>
+                    <option value="7">7 dagen</option>
+                    <option value="10">10 dagen</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <th colspan="2">Locatie</th>
+        </tr>
+            <tr>
+                <th>Stad/dorp*</th>
+                <td><input type="text" name="auction-town"></td>
+            </tr>
+            <tr>
+                <th>Land*</th>
+                <td><input type="text" name="auction-country"></td>
+            </tr>
+        <tr>
+            <th colspan="2">Betalings informatie</th>
+        </tr>
+            <tr>
+                <th>Betaling methode*</th>
+                <td><input type="text" name="auction-payment-method"></td>
+            </tr>
+            <tr>
+                <th>Betaling omschrijving</th>
+                <td><textarea name="auction-payment-description" maxlength="500"></textarea></td>
+            </tr>
+        <tr>
+            <th colspan="2">Verzend informatie</th>
+        </tr>
+            <tr>
+                <th>Verzendskosten</th>
+                <td><input type="text" name="auction-shipping-cost"></td>
+            </tr>
+            <tr>
+                <th>Betaling omschrijving</th>
+                <td><textarea name="auction-shipping-instruction" maxlength="200"></textarea></td>
+            </tr>
+        <tr>
+            <th colspan="2">Afbeeldingen</th>
+        </tr>
+        <tr>
+            <th>Afbeelding 1 (thumbnail):</th>
+            <td><input type="file" name="image-to-upload-1"></td>
+        </tr>
+        <tr>
+            <th>Afbeelding 2:</th>
+            <td><input type="file" name="image-to-upload-2"></td>
+        </tr>
+        <tr>
+            <th>Afbeelding 3:</th>
+            <td><input type="file" name="image-to-upload-3"></td>
+        </tr>
+        <tr>
+            <th>Rubriek*</th>
+            <td>
+                <select name="auction-rubric" class="selector-for-chosen">
+                    <option value=""></option>
+                    #$(rubric-values)$#
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <th colspan="2"><input type="submit" value="Veiling toevoegen" name="start-auction"></th>
+        </tr>
+    </table>
+</form>

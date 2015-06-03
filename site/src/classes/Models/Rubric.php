@@ -37,8 +37,8 @@ class Rubric extends Model {
         $this->setId($primaryKeyValue);
     }
 
-    public function getChildren() {
-        if($this->children === null) {
+    public function getChildren($ignoreIsLoaded = false) {
+        if($this->children === null && $ignoreIsLoaded === false) {
             $query = "SELECT id FROM rubric WHERE childOfRubric = ?";
             $statement = sqlsrv_prepare($this->databaseHelper->getDatabaseConnection(), $query, array(&$this->id));
             sqlsrv_execute($statement);
