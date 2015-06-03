@@ -42,12 +42,12 @@ class Product extends Page {
                 $bid = new Bid($this->databaseHelper, $_POST['bid-amount'], $this->item->getId());
                 $bid->setUser($user);
                 if ($bid->save() === false) {
-                    $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Bieding niet geplaatst", "Bieding is niet hoog genoeg"));
+                    $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Bieding niet geplaatst", "Bieding is niet hoog genoeg."));
                 } else {
-                    $this->HTMLBuilder->addMessage(new PositiveMessage($this->HTMLBuilder, "Bieding geplaatst", "Uw bieding is geplaatst"));
+                    $this->HTMLBuilder->addMessage(new PositiveMessage($this->HTMLBuilder, "Bieding geplaatst", "Uw bieding is geplaatst."));
                 }
             } else {
-                $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Bieding niet geplaatst", "U bent niet ingelogd"));
+                $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Bieding niet geplaatst", "U bent niet ingelogd."));
             }
         }
     }
@@ -92,7 +92,8 @@ class Product extends Page {
 
         $this->processHighestBid();
         $this->generateLoginAndRegisterTemplates();
-        return $this->HTMLBuilder->getHTML();
+        //return $this->HTMLBuilder->getHTML();
+        var_dump($this->item->getFeedbacks()->getNegativeFeedback());
     }
 
     public function __destruct() {

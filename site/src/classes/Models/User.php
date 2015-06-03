@@ -3,6 +3,7 @@
 namespace src\classes\Models;
 
 use src\classes\DatabaseHelper;
+use src\classes\FeedbackCollection;
 
 class User extends Model {
     protected $username;
@@ -38,6 +39,10 @@ class User extends Model {
      * @var Bid[]
      */
     protected $bids = array();
+    /**
+     * @var FeedbackCollection
+     */
+    protected $feedbackCollection;
 
     public function __construct(DatabaseHelper $databaseHelper, $primaryKeyValue = null) {
         parent::__construct($databaseHelper);
@@ -60,7 +65,50 @@ class User extends Model {
 
         $this->databaseFields["optional"]["secondAddress"] = "quote";
 
+        $this->feedbackCollection = new FeedbackCollection();
         $this->setUsername($primaryKeyValue);
+    }
+
+    /**
+     * @param $feedback Feedback
+     */
+    public function addFeedback($feedback)
+    {
+        if ($feedback->getUser() !== $this) {
+            $feedback->setUser($this);
+        }
+        $this->feedbackCollection->addFeedback($feedback);
+    }
+
+    /**
+     * @return FeedbackCollection
+     */
+    public function getFeedbacks() {
+        if(count($this->feedbackCollection->getAllFeedback()) <= 1 && $this->username !== null) {
+            $selectQuery = "SELECT t3.kindOfUser, t3.itemId, t3.feedbackKind, t3.placementDateTime, t3.comment
+                            FROM [user] AS t1
+                            INNER JOIN [item] AS t2
+                                ON (t2.buyer = ? AND t2.buyer = t1.username) OR (t2.seller = ? AND t2.seller = t1.username)
+                            INNER JOIN [feedback] AS t3
+                                ON t3.itemId = t2.id";
+            $statement = sqlsrv_prepare($this->databaseHelper->getDatabaseConnection(), $selectQuery, array(
+                array(&$this->username, SQLSRV_PARAM_IN),
+                array(&$this->username, SQLSRV_PARAM_IN)
+            ));
+
+            if (!sqlsrv_execute($statement)) {
+                die(print_r(sqlsrv_errors()[0]["message"], true)); //Failed to update
+            }
+
+            while($row = sqlsrv_fetch_array($statement, SQLSRV_FETCH_ASSOC)) {
+                /** @var $feedback Feedback */
+                $feedback = new Feedback($this->databaseHelper, $row['kindOfUser'], $row['itemId']);
+                $feedback->mergeQueryData($row);
+                $this->addFeedback($feedback);
+            }
+        }
+
+        return $this->feedbackCollection;
     }
 
     /**

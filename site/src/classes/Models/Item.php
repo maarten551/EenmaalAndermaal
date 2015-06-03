@@ -5,6 +5,7 @@ namespace src\classes\Models;
 
 
 use src\classes\DatabaseHelper;
+use src\classes\FeedbackCollection;
 
 class Item extends Model {
     protected $id;
@@ -53,6 +54,10 @@ class Item extends Model {
      * @var Bid[]
      */
     protected $bids = array();
+    /**
+     * @var FeedbackCollection
+     */
+    protected $feedbackCollection;
 
     public function __construct(DatabaseHelper $databaseHelper, $primaryKeyValue = null) {
         parent::__construct($databaseHelper);
@@ -77,6 +82,7 @@ class Item extends Model {
         $this->databaseFields["optional"]["shippingInstruction"] = "quote";
         $this->databaseFields["optional"]["sellPrice"] = "quote";
 
+        $this->feedbackCollection = new FeedbackCollection();
         $this->setId($primaryKeyValue);
     }
 
@@ -110,6 +116,42 @@ class Item extends Model {
             $this->bids[] = $bid;
             $bid->setItem($this);
         }
+    }
+
+    /**
+     * @param $feedback Feedback
+     */
+    public function addFeedback($feedback)
+    {
+        if ($feedback->getItem() !== $this) {
+            $feedback->setItem($this);
+        }
+        $this->feedbackCollection->addFeedback($feedback);
+    }
+
+    /**
+     * @return FeedbackCollection
+     */
+    public function getFeedbacks() {
+        if(count($this->feedbackCollection->getAllFeedback()) <= 1 && $this->id !== null) {
+            $selectQuery = "SELECT kindOfUser, itemId, feedbackKind, placementDateTime, comment FROM [feedback] WHERE itemId = ?";
+            $statement = sqlsrv_prepare($this->databaseHelper->getDatabaseConnection(), $selectQuery, array(
+                array(&$this->id, SQLSRV_PARAM_IN)
+            ));
+
+            if (!sqlsrv_execute($statement)) {
+                die(print_r(sqlsrv_errors()[0]["message"], true)); //Failed to update
+            }
+
+            while($row = sqlsrv_fetch_array($statement, SQLSRV_FETCH_ASSOC)) {
+                /** @var $feedback Feedback */
+                $feedback = new Feedback($this->databaseHelper, $row['kindOfUser'], $row['itemId']);
+                $feedback->mergeQueryData($row);
+                $this->addFeedback($feedback);
+            }
+        }
+
+        return $this->feedbackCollection;
     }
 
     /**
