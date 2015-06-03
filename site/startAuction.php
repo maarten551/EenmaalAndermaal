@@ -19,13 +19,15 @@ function __autoload($class_name) { //PHP will use this function if a class file 
 	require $class_name . '.php';
 }
 
+ini_set("display_errors", 1);
+
 session_start();
 date_default_timezone_set("Europe/Amsterdam");
 
 class StartAuction extends Page {
     public function __construct() {
         parent::__construct("template.html");
-        if((new Seller($this->databaseHelper, $this->loggedInUser))->getUser() === null) {
+        if($this->loggedInUser === null || (new Seller($this->databaseHelper, $this->loggedInUser))->getUser() === null) {
             $this->redirectToIndex();
         }
     }
