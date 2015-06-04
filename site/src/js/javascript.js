@@ -35,3 +35,31 @@ function searchKeyPress(e)
         document.getElementById('btnSearch').click();
     }
 }
+
+function activateFormCheckedRadio(){
+    if(document.getElementById("verification-method").checked){
+        document.getElementById("creditCardNumber").disabled = true;
+    } else {
+        document.getElementById("creditCardNumber").disabled = false;
+    }
+}
+
+function activateFormCheckedCheckBox(){
+    if(document.getElementById("changePasswordCheckbox").checked){
+        document.getElementById("newPasswordInput").disabled = false;
+        document.getElementById("newPasswordInputRepeat").disabled = false;
+        document.getElementById("oldPasswordInput").disabled = false;
+    } else{
+        document.getElementById("newPasswordInput").disabled = true;
+        document.getElementById("newPasswordInputRepeat").disabled = true;
+        document.getElementById("oldPasswordInput").disabled = true;
+    }
+
+    if(document.getElementById("changeQuestionSelect").checked){
+        document.getElementById("secretQuestionInput").disabled = false;
+        document.getElementById("secretQuestionAnswerInput").disabled = false;
+    } else {
+        document.getElementById("secretQuestionInput").disabled = true;
+        document.getElementById("secretQuestionAnswerInput").disabled = true;
+    }
+}

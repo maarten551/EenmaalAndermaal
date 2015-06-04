@@ -21,11 +21,32 @@ class UserTemplate extends Page {
 
     public function createHTML()
     {
-
         $content = new HTMLParameter($this->HTMLBuilder, "content\\content-user.html");
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("content", $content);
-        var_dump($this->loggedInUser);
+        $activateSellerCodeModal = new HTMLParameter($this->HTMLBuilder, "content\\modal\\activate-sellercode-modal.html");
+        $createSellerModal = new HTMLParameter($this->HTMLBuilder, "content\\modal\\create-selleraccount-modal.html");
+        $changePasswordModal = new HTMLParameter($this->HTMLBuilder, "content\\modal\\change-password-modal.html");
+        $phoneNumberModal = new HTMLParameter($this->HTMLBuilder, "content\\modal\\phonenumber-modal.html");
 
+
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("content", $content);
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("activate-sellercode", $activateSellerCodeModal);
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("create-seller", $createSellerModal);
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("change-password", $changePasswordModal);
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("manage-phonenumbers", $phoneNumberModal);
+
+        //$this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("username", $this->loggedInUser->getUsername());
+        if ( $_SERVER['REQUEST_METHOD'] == 'POST' ) {
+            if ($_POST["disabled"] == "disabled"){
+                $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("disabled", "enabled");
+                $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("change-or-save", "Opslaan");
+            } else if ($_POST["disabled"] == "enabled"){
+                $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("disabled", "disabled");
+                $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("change-or-save", "Wijzigen");
+            }
+        } else {
+            $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("disabled", "disabled");
+            $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("change-or-save", "Wijzigen");
+        }
         $this->generateLoginAndRegisterTemplates();
         return $this->HTMLBuilder->getHTML();
     }

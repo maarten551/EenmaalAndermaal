@@ -27,9 +27,9 @@ date_default_timezone_set("Europe/Amsterdam");
 class StartAuction extends Page {
     public function __construct() {
         parent::__construct("template.html");
-        if($this->loggedInUser === null || (new Seller($this->databaseHelper, $this->loggedInUser))->getUser() === null) {
-            $this->redirectToIndex();
-        }
+//        if($this->loggedInUser === null || (new Seller($this->databaseHelper, $this->loggedInUser))->getUser() === null) {
+//            $this->redirectToIndex();
+//        }
     }
 
     public function __destruct() {
@@ -41,7 +41,7 @@ class StartAuction extends Page {
         $content = new HTMLParameter($this->HTMLBuilder, "start-auction\\form.html");
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("content", $content);
         $this->generateRubricMenu();
-
+        $this->generateLoginAndRegisterTemplates();
         return $this->HTMLBuilder->getHTML();
     }
 

@@ -1,0 +1,42 @@
+<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+    <button data-toggle="modal" data-target="#phonenumber" type="button" class="btn maxWidth" style="background-color: #68ADBF; margin-bottom: 15px;">Beheer Telefoonnummers</button>
+</div>
+
+<div class="modal fade" id="phonenumber" tabindex="-1" role="dialog" aria-labelledby="ActiveerCode" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="ActiveerCode">Beheer telefoonnummers</h4>
+            </div>
+
+                <div class="modal-body">
+                    <p>Hier kunt u uw telefoonummers verwijderen en/of nieuwe telefoonnummers aanmaken.
+                    U moet minstens altijd 1 telefoonnummer hebben.</p>
+                    <div class="form-group">
+                        <label class="control-label">Uw bestaande telefoonnummers:</label>
+                        <form method="POST">
+                            <select required class="form-control" name="phoneNumbers">
+                                <option>12345678906</option>
+                            </select>
+                            <button type="submit" class="btn btn-danger" style="margin-top: 15px">Verwijderen</button>
+                        </form>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">Een nieuw telefoonnummer aanmaken:</label>
+                        <form method="POST">
+                        <input required type="tel" maxlength="11" class="form-control" name="phoneNumber">
+                        <button type="submit" class="btn btn-success" style="margin-top: 15px">Aanmaken</button>
+                        </form>
+                    </div>
+
+                </div>
+
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Terug naar accountoverzicht</button>
+                </div>
+
+        </div>
+    </div>
+</div>
