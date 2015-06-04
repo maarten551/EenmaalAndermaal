@@ -34,7 +34,7 @@ class UserInfo extends Page {
 
         if(array_key_exists('become-seller-button', $_POST) && $this->loggedInUser->isSeller() === false) {
             $this->requestSellerStatus();
-        } else if (array_key_exists('activate-seller-account', $_POST) && $this->loggedInUser->isSeller() === true && (new Seller($this->databaseHelper, $this->loggedInUser))->getActivationCode() !== "") {
+        } else if (array_key_exists('activate-seller-account', $_POST) && $this->loggedInUser->isSeller() === true && (new Seller($this->databaseHelper, $this->loggedInUser))->getActivationCode() !== null) {
             $seller = new Seller($this->databaseHelper, $this->loggedInUser);
             if($seller->getActivationCode() === $_POST['activate-seller-account-code']) {
                 $seller->setActivationCode(null);
