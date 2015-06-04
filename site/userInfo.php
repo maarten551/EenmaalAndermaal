@@ -41,6 +41,8 @@ class UserInfo extends Page {
             $this->addPhoneNumber();
         } else if (array_key_exists("phone-number-delete", $_POST)) {
             $this->removePhoneNumber();
+        } else if (array_key_exists("change-or-save", $_POST) && $_POST['change-or-save'] === "Opslaan") {
+            $this->updateUser();
         }
         //TODO: Change user information (Not really important, start other things first)
     }
@@ -113,10 +115,54 @@ class UserInfo extends Page {
         $template->addTemplateParameterByString("lastname", $this->loggedInUser->getLastname());
         $template->addTemplateParameterByString("zipcode", $this->loggedInUser->getZipCode());
         $template->addTemplateParameterByString("country", $this->loggedInUser->getCountry());
-        $template->addTemplateParameterByString("adress", $this->loggedInUser->getFirstAddress());
+        $template->addTemplateParameterByString("adress", htmlentities($this->loggedInUser->getFirstAddress()));
         $template->addTemplateParameterByString("second-adress", $this->loggedInUser->getSecondAddress());
         $template->addTemplateParameterByString("town", $this->loggedInUser->getTown());
         $template->addTemplateParameterByString("birthdate", $this->loggedInUser->getBirthdate()->format("m/d/Y"));
+    }
+
+    private function updateUser()
+    {
+        $userFields = array(
+            "firstname" => "required",
+            "lastname" => "required",
+            "firstAddress" => "required",
+            "zipCode" => "required",
+            "town" => "required",
+            "country" => "required",
+            "birthdate" => "required",
+            "mailbox" => "required",
+            "phoneNumber" => "optional",
+            "secondAddress" => "optional"
+        );
+
+        if($this->checkAllRequiredFields($userFields) === true) {
+            $birthDate = null;
+            try {
+                $birthDate = \DateTime::createFromFormat("d/m/Y", $_POST['birthdate']);
+            } catch(\Exception $e) {
+                $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Gebruiker aanpassingen niet toegepast", "De ingevulde datum is niet correct ingevuld."));
+            }
+
+            if($birthDate !== null && $birthDate !== false) {
+                $this->loggedInUser->getQuestionId();
+                $this->loggedInUser->setFirstname($_POST['firstname']);
+                $this->loggedInUser->setLastname($_POST['lastname']);
+                $this->loggedInUser->setBirthdate($birthDate);
+                $this->loggedInUser->setFirstAddress($_POST['firstAddress']);
+                $this->loggedInUser->setSecondAddress($_POST['secondAddress']);
+                $this->loggedInUser->setMailbox($_POST['mailbox']);
+                $this->loggedInUser->setCountry($_POST['country']);
+                $this->loggedInUser->setTown($_POST['town']);
+                $this->loggedInUser->setZipCode($_POST['zipCode']);
+                $this->loggedInUser->save();
+                $this->HTMLBuilder->addMessage(new PositiveMessage($this->HTMLBuilder, "Gebruiker aanpassingen toegepast", "Uw account is aangepast"));
+            } else {
+                $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Gebruiker aanpassingen niet toegepast", "De ingevulde datum is niet correct ingevuld."));
+            }
+        } else {
+            $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Gebruiker aanpassingen niet toegepast", "Niet alle velden zijn correct ingevuld"));
+        }
     }
 
     private function requestSellerStatus() {
