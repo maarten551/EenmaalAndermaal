@@ -6,6 +6,7 @@ use src\classes\Messages\Alert;
 use src\classes\Messages\PositiveMessage;
 use src\classes\Models\Item;
 use src\classes\Models\Seller;
+use src\classes\Models\UserPhoneNumber;
 use src\classes\Page;
 
 require_once "src/libraries/password.php"; //For password hashing functionality for PHP < 5.5, server is 5.4.35, source: https://github.com/ircmaxell/password_compat
@@ -35,15 +36,11 @@ class UserInfo extends Page {
         if(array_key_exists('become-seller-button', $_POST) && $this->loggedInUser->isSeller() === false) {
             $this->requestSellerStatus();
         } else if (array_key_exists('activate-seller-account', $_POST) && $this->loggedInUser->isSeller() === true && (new Seller($this->databaseHelper, $this->loggedInUser))->getActivationCode() !== null) {
-            $seller = new Seller($this->databaseHelper, $this->loggedInUser);
-            if($seller->getActivationCode() === $_POST['activate-seller-account-code']) {
-                $seller->setActivationCode(null);
-                $this->activateProducts($seller);
-                $seller->save();
-                $this->HTMLBuilder->addMessage(new PositiveMessage($this->HTMLBuilder, "Verifiëren voltooid", "U heeft nu een verkoper status"));
-            } else {
-                $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Verifiëren mislukt", "De opgegeven code komt niet overeen met de benodigde code"));
-            }
+            $this->activateSellerAccount(array_key_exists('activate-seller-account', $_POST));
+        } else if (array_key_exists("add-phone-number", $_POST)) {
+            $this->addPhoneNumber();
+        } else if (array_key_exists("phone-number-delete", $_POST)) {
+            $this->removePhoneNumber();
         }
         //TODO: Change user information (Not really important, start other things first)
     }
@@ -77,8 +74,36 @@ class UserInfo extends Page {
         }
 
         $this->placeUserDataInForm($content);
+        $this->generatePhoneNumberTemplate($phoneNumberModal);
         $this->generateLoginAndRegisterTemplates();
         return $this->HTMLBuilder->getHTML();
+    }
+
+    private function activateSellerAccount() {
+        $seller = new Seller($this->databaseHelper, $this->loggedInUser);
+        if($seller->getActivationCode() === $_POST['activate-seller-account-code']) {
+            $seller->setActivationCode(null);
+            $this->activateProducts($seller);
+            $seller->save();
+            $this->HTMLBuilder->addMessage(new PositiveMessage($this->HTMLBuilder, "Verifiëren voltooid", "U heeft nu een verkoper status"));
+        } else {
+            $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Verifiëren mislukt", "De opgegeven code komt niet overeen met de benodigde code"));
+        }
+    }
+
+    private function generatePhoneNumberTemplate(HTMLParameter $modalTemplate) {
+        $phoneNumbers = $this->loggedInUser->getPhoneNumbers();
+        if(count($phoneNumbers) >= 1) {
+            $optionQuestionHTML = "";
+            foreach ($phoneNumbers as $phoneNumber) {
+                $optionQuestionHTML .= "<option value='" . $phoneNumber->getPhoneNumber() . "'>" . $phoneNumber->getPhoneNumber() . "</option>";
+            }
+            $modalTemplate->addTemplateParameterByString("phone-numbers", $optionQuestionHTML);
+        } else {
+            $modalTemplate->addTemplateParameterByString("delete-phone-number-is-disabled", "disabled");
+        }
+
+
     }
 
     private function placeUserDataInForm(HTMLParameter $template) {
@@ -176,6 +201,62 @@ class UserInfo extends Page {
         }
 
         return $checkResult;
+    }
+
+    private function addPhoneNumber()
+    {
+        if(array_key_exists("add-phone-number-value", $_POST) === true && !empty($_POST['add-phone-number-value'])) {
+            $phoneNumber = new UserPhoneNumber($this->databaseHelper);
+            if($this->doesPhoneNumberAlreadyExists($_POST['add-phone-number-value']) === false) {
+                $phoneNumber->setUser($this->loggedInUser);
+                $phoneNumber->setPhoneNumber($_POST['add-phone-number-value']);
+                $phoneNumber->save();
+                if($phoneNumber->getId() !== null) {
+                    $this->HTMLBuilder->addMessage(new PositiveMessage($this->HTMLBuilder, "Telefoonnummer toegevoegd", "uw telefoonnummer is toegevoegd aan uw account"));
+                } else {
+                    $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Telefoonnummer niet toegevoegd", "Er is een onbekende probleem voorgekomen"));
+                }
+            } else {
+                $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Telefoonnummer niet toegevoegd", "U heeft dit telefoonnummer al toegevoegd"));
+            }
+        } else {
+            $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Telefoonnummer niet toegevoegd", "Er is geen telefoonnummer meegegeven."));
+        }
+    }
+
+    private function removePhoneNumber()
+    {
+        if(array_key_exists("phone-number-delete-value", $_POST) === true && !empty($_POST['phone-number-delete-value'])) {
+            $phoneNumber = $this->doesPhoneNumberAlreadyExists($_POST['phone-number-delete-value']);
+            if($phoneNumber !== false) {
+                $phoneNumber->delete();
+                if($phoneNumber->getId() === null) {
+                    $this->HTMLBuilder->addMessage(new PositiveMessage($this->HTMLBuilder, "Telefoonnummer toegevoegd", "uw telefoonnummer is verwijderd van uw account"));
+                } else {
+                    $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Telefoonnummer niet verwijderd", "Er is een onbekende probleem voorgekomen"));
+                }
+            } else {
+                $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Telefoonnummer niet verwijderd", "De meegegeven telefoonnummer is niet in uw account"));
+            }
+        } else {
+            $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Telefoonnummer niet verwijderd", "Er is geen telefoonnummer meegegeven."));
+        }
+    }
+
+    /**
+     * @param $newPhoneNumber
+     * @return bool|UserPhoneNumber
+     */
+    private function doesPhoneNumberAlreadyExists($newPhoneNumber) {
+        $newPhoneNumber = trim($newPhoneNumber);
+        $phoneNumbers = $this->loggedInUser->getPhoneNumbers();
+        foreach ($phoneNumbers as $phoneNumber) {
+            if($phoneNumber->getPhoneNumber() === $newPhoneNumber) {
+                return $phoneNumber;
+            }
+        }
+
+        return false;
     }
 }
 

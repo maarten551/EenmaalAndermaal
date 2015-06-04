@@ -112,7 +112,7 @@ class User extends Model {
     }
 
     /**
-     * @return UserPhoneNumber
+     * @return UserPhoneNumber[]
      */
     public function getPhoneNumbers() {
         if(count($this->phoneNumbers) === 0 && $this->username !== null) {

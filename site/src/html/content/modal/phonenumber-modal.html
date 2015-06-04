@@ -16,17 +16,17 @@
                     <div class="form-group">
                         <label class="control-label">Uw bestaande telefoonnummers:</label>
                         <form method="POST">
-                            <select required class="form-control" name="phoneNumbers">
-                                <option>12345678906</option>
+                            <select required class="form-control" name="phone-number-delete-value">
+                                #$(phone-numbers)$#
                             </select>
-                            <button type="submit" class="btn btn-danger" style="margin-top: 15px">Verwijderen</button>
+                            <button type="submit" class="btn btn-danger" name="phone-number-delete"  #$(delete-phone-number-is-disabled)$# style="margin-top: 15px">Verwijderen</button>
                         </form>
                     </div>
                     <div class="form-group">
                         <label class="control-label">Een nieuw telefoonnummer aanmaken:</label>
                         <form method="POST">
-                        <input required type="tel" maxlength="11" class="form-control" name="phoneNumber">
-                        <button type="submit" class="btn btn-success" style="margin-top: 15px">Aanmaken</button>
+                                <input required type="tel" maxlength="11" class="form-control" name="add-phone-number-value"/>
+                                <button type="submit" class="btn btn-success" name="add-phone-number" style="margin-top: 15px">Aanmaken</button>
                         </form>
                     </div>
 

@@ -126,7 +126,7 @@ class UserHelper {
                 if($question !== null) {
                     $birthDate = null;
                     try {
-                        $birthDate = new \DateTime($_POST['birthdate']);
+                        $birthDate = \DateTime::createFromFormat("d/m/Y", $_POST['birthdate']);
                     } catch(\Exception $e) {
                         $this->addError("Datum klopt niet", "De ingevulde datum is niet correct ingevuld.");
                     }
@@ -157,6 +157,7 @@ class UserHelper {
                                     $userPhoneNumber->setPhoneNumber($_POST['phoneNumber']);
                                     $userPhoneNumber->save();
                                 }
+                                $this->addError("Gebruiker aangemaakt", "Uw account is succesvol aangemaakt, u kunt nu inloggen met de gekozen informatie");
                             } else {
                                 $this->addError("Probleem met het creëren van de gebruiker", "Er was een onbekende probleem met het creëren van de gebruiker.");
                             }

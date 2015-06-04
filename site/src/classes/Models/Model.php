@@ -68,6 +68,15 @@ abstract class Model
         }
     }
 
+    public function delete() {
+        $whereClause = "WHERE ".$this->prepareCompositePrimaryKey($this->getPrimaryKeyField());
+        $query = "DELETE FROM $this->tableName $whereClause";
+        $statement = sqlsrv_query($this->databaseHelper->getDatabaseConnection(), $query);
+        if($statement !== false) {
+            $this->setPrimaryKeyField(null);
+        }
+    }
+
     private function prepareCompositePrimaryKey($primaryKeyValue) {
         if(is_array($primaryKeyValue)) {
             $compositeWhereClause = "";
