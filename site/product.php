@@ -28,9 +28,9 @@ class Product extends Page {
     public function __construct() {
         parent::__construct("template.html");
 
-        if(!array_key_exists("product", $_GET) || !is_numeric($_GET["product"]) || $this->item->getSeller() === null) {
-            $this->redirectToIndex();
-        }
+//        if(!array_key_exists("product", $_GET) || !is_numeric($_GET["product"]) || $this->item->getSeller() === null) {
+//            $this->redirectToIndex();
+//        }
     }
 
     public function handleRequestParameters() {
@@ -55,7 +55,7 @@ class Product extends Page {
     public function createHTML()
     {
         $imageHelper = new ImageHelper();
-        $interval = $this->item->getAuctionEndDateTime()->diff(new \DateTime());
+        $interval = $this->item->getAuctionEndDateTime()->diff(new DateTime());
 
         $content = new HTMLParameter($this->HTMLBuilder, "content\\content-productoverzicht.html");
         $thumbnail = new HTMLParameter($this->HTMLBuilder, "product\\product-thumbnail.html");
@@ -64,17 +64,30 @@ class Product extends Page {
         //getting all information from the product
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("title", $this->item->getTitle());
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("description", $this->item->getDescription());
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("seller", $this->item->getSeller()->getUser()->getUsername());
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("seller", $this->item->getSellerId());
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("auction-enddate", $this->item->getAuctionStartDateTime()->format('Y-m-d H:i'));
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("payment-instruction", $this->item->getPaymentInstruction());
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("shipping-instruction", $this->item->getShippingInstruction());
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("shipping-cost", $this->item->getShippingCost());
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("bid-container", $this->generateBidTemplates());
 
+
         if ($this->item->getIsAuctionClosed()){
-            $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("time-left", "Deze veiling is gesloten, u kunt niet meeer bieden");
+            $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("time-left", "Deze veiling is gesloten, u kunt niet meer bieden");
             $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("is-disabled", "disabled");
         } else {
-            $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("time-left", "U heeft nog ".$interval->days." dagen en ".$interval->h." uur over om te bieden");
+            if ($interval->days > 1){
+                $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("time-left", "U heeft nog ".$interval->days." dagen ".$interval->h." uur en ".$interval->i." minuten over om te bieden");
+            } else {
+                $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("time-left", "U heeft nog ".$interval->days." dag ".$interval->h." uur en ".$interval->i." minuten over om te bieden");
+            }
             $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("is-disabled", "enabled");
         }
+
+        if(!$this->loggedInUser){
+            $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("is-disabled", "disabled");
+        }
+
         //TODO add more information to the product view
         foreach ($this->item->getImages() as $index => $image) {
             $imagePath = $imageHelper->getImageLocation($image);
@@ -83,7 +96,7 @@ class Product extends Page {
                 $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("img-source", $imagePath);
             }
             if($index >= 1) {
-                if (strpos($imagePath,'thumbnail') === false) {
+                if (strpos($imagePath,'pics') !== false) {
                     $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("thumbnails", $thumbnail);
                     $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("img-source-thumb", $imagePath);
                 }
@@ -93,6 +106,7 @@ class Product extends Page {
         $this->processHighestBid();
         $this->generateLoginAndRegisterTemplates();
         return $this->HTMLBuilder->getHTML();
+        
     }
 
     public function __destruct() {
@@ -123,15 +137,15 @@ class Product extends Page {
     }
 
     private function processHighestBid() {
-        $highestPrice = $this->item->getStartPrice();
+        $highestPrice = number_format($this->item->getStartPrice(), 2, '.', '');
         if(count($this->item->getBids()) >= 1) {
-            $highestPrice = $this->item->getBids()[0]->getAmount();
+            $highestPrice = number_format($this->item->getBids()[0]->getAmount(), 2, '.', '');
         }
 
-        $minimalIncrement = $this->calculateMinimumBidIncrement($highestPrice);
+        $minimalIncrement = number_format($this->calculateMinimumBidIncrement($highestPrice), 2, '.', '');
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("highest-bid", $highestPrice);
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("minimal-increment", $minimalIncrement);
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("minimal-new-value", $highestPrice + $minimalIncrement);
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("minimal-new-value", number_format($highestPrice + $minimalIncrement, 2, '.', ''));
     }
 
     /**

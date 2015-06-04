@@ -1,14 +1,15 @@
 <div class="row">
     <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
         <div class="visible-sm visible-xs">
-            <button type="button" class="btn category-button maxWidth" data-toggle="collapse" data-target="#mainCategories">Categorie&#235;n</button>
+            <a class="btn category-button" style="width: 30%; float: right;" href="index.php?category=1"><span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></a>
+            <button type="button" class="btn category-button maxWidth" data-toggle="collapse" data-target="#mainCategories" style="width: 70%">Categorie&#235;n</button>
             <div id="mainCategories" class="collapse category-div">
                 #$(mobile-category)$#
             </div>
         </div>
 
         <div class="visible-lg visible-md maxWidth">
-            <div style="width: inherit; background-color: #68ADBF"><a href="index.php" style="width: inherit; background-color: #68ADBF; display: block; padding: 10px;"> Categori&#235;en</a></div>
+            <div style="width: inherit; background-color: #68ADBF"><a href="index.php?category=1" style="width: inherit; background-color: #68ADBF; display: block; padding: 10px;"> Categori&#235;en</a></div>
             <ul class="no-padding dropdown-menu-right" role="menu" aria-labelledby="dropdownMenu">
                 #$(desktop-category)$#
             </ul>
@@ -16,20 +17,23 @@
     </div>
     <div class="col-xs-12 col-sm-12 col-md-9 col-lg-9">
         <div class="row">
-            <form action="index.php" method="get" role="form" class="form-inline">
-                <div class="form-group col-xs-10 col-md-10 col-sm-10 col-lg-10">
-                    #$(previous-getters)$#
-                    <label for = "productsPerPage">Producten per pagina: </label>
-                    <select class="form-control" name="productsPerPage" id="productsPerPage" onchange="this.form.submit()">
-                        #$(options)$#
-                    </select>
+
+                <form action="index.php" method="get" role="form" class="form-inline" style="margin-bottom: 0">
+                    <div class="form-group col-xs-3 col-md-3 col-sm-3 col-lg-3">
+                        <label for = "productsPerPage">Producten per pagina: </label>
+                        <select class="form-control" name="productsPerPage" id="productsPerPage" onchange="this.form.submit()">
+                            #$(options)$#
+                        </select>
+                    </div>
+                </form>
+                <div class="col-xs-7 col-md-7 col-sm-7 col-lg-7 no-padding no-margin">
+                    <h3 class="no-padding no-margin"> #$(searched-for)$# #$(category-in)$#</h3>
                 </div>
-            </form>
-            <form method="get" class="form-inline col-xs-2 col-md-2 col-sm-2 col-lg-2">
-                #$(previous-getters)$#
-                <button type="submit" name="view" value="grid" class="noButton"><span class="glyphicon glyphicon-th" aria-hidden="true"></span></button>
-                <button type="submit" name="view" value="list" class="noButton"><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span></button>
-            </form>
+                <form method="get" class="form-inline col-xs-2 col-md-2 col-sm-2 col-lg-2" style="height:100%">
+                    <button type="submit" name="view" value="grid" class="noButton"><span class="glyphicon glyphicon-th" aria-hidden="true"></span></button>
+                    <button type="submit" name="view" value="list" class="noButton"><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span></button>
+                </form>
+            <hr style="position: relative; float: left; width:100%; border-color: #000000">
             <div class="text-center">
                 #$(products)$#
                 #$(categories-found)$#

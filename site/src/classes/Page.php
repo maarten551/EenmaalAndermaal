@@ -31,6 +31,8 @@ abstract class Page {
         $this->HTMLBuilder = new HTMLBuilder($templateFileName);
         $this->databaseHelper = new DatabaseHelper();
         $this->userHelper = new UserHelper($this->databaseHelper, $this->HTMLBuilder);
+        $this->handleRequestParameters();
+        $this->checkEmailSend();
 
         if($this->loggedInUser === null) {
             $this->loggedInUser = $this->userHelper->getLoggedInUser();
@@ -40,6 +42,15 @@ abstract class Page {
 
     protected function __destruct() {
         $this->databaseHelper->closeConnection();
+    }
+
+    protected function checkEmailSend(){
+        if (isset($_POST['email']))
+        {
+            $email = $_POST['email'] ;
+            $message = $_POST['message'] ;
+            mail("iproject16eenmaalandermaal@gmail.com", "Bericht van Gebruiker", $message, "From:" . $email);
+        }
     }
 
     protected function handleRequestParameters() {

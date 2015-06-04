@@ -17,17 +17,20 @@
             <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6"><!-- description of the product-->
 
                 <h4>Verkoper: <a> #$(seller)$#</a></h4>
+
                 <h3>Beschrijving:</h3>
                 #$(description)$#
             </div>
 
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no-padding"><!-- bid making div and previous bids -->
                 <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6"> <!-- bid making div-->
-
-                    <h3>Hoogste bod: #$(highest-bid)$#</h3>
-                    <h3>Minimale verhoging: #$(minimal-increment)$#</h3>
-
-                    <form class="form-inline" method="POST" action="#">
+                    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6 no-padding">
+                        <h3>Hoogste bod: &#8364; #$(highest-bid)$#</h3>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6 no-padding">
+                        <h3>Minimale verhoging: &#8364; #$(minimal-increment)$#</h3>
+                    </div>
+                    <form class="form-inline" method="POST" action="#" style="margin-bottom: 20px">
                         <div class="form-group maxWidth"> <!-- form group for better layout-->
                             <div class="col-xs-9 col-sm-9 col-md-9 col-lg-9 no-padding">
                                 <label class="sr-only" for="biedingBedrag">Geld (in euro's)</label>
@@ -43,14 +46,27 @@
                     </form>
 
                     <h3>#$(time-left)$#</h3>
-                    <h5>(veiling sluit op #$(auction-enddate)$#)</h5>
+                    <h4 style="margin-bottom: 15px; margin-top: 15px">(veiling sluit op #$(auction-enddate)$#)</h4>
+                    <h4>Betaalwijze: </h4>
+                    #$(payment-instruction)$#
+
+                    <h4>Bezorginstructies: </h4>
+
+                    #$(shipping-instruction)$#
+
+                    <div>
+                        <h4 style="position: relative; float: left">Bezorgkosten: </h4>
+                        <div style="position: relative; float: left">
+                            #$(shipping-cost)$#
+                        </div>
+                    </div>
 
                 </div>
                 <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6"><!-- previous bids -->
                     <h3>Vorige Biedingen:</h3>
-                    <table class="maxWidth" style="font-size: 1.4em">
-                        <tr>
-                            <td class="third">Gebruiker:</td><td class="third">Bedrag:</td><td class="third">Datum:</td>
+                    <table class="maxWidth" style="font-size: 1.4em; table-layout: fixed">
+                        <tr class="maxWidth" >
+                            <td>Gebruiker:</td><td>Bedrag:</td><td>Datum:</td>
                         </tr>
                     </table>
                     #$(bid-container)$#

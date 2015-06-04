@@ -29,12 +29,52 @@ class Index extends Page {
     private $mobileMenuTemplateHTML;
     private $desktopMenuTemplateHTML;
     private $desktopMenuChildrenTemplateHTML;
-    private $previousGetters;
 
     public function __construct() {
         parent::__construct("template.html");
 
         $this->imageHelper = new ImageHelper();
+
+        if (!isset($_SESSION["productsPerPage"])){
+            $_SESSION["productsPerPage"] = 6;
+        }
+        if (!isset($_SESSION["view"])) {
+            $_SESSION["view"] = "grid";
+        }
+        if (!isset($_SESSION["pageNumber"])) {
+            $_SESSION["pageNumber"] = 1;
+        }
+        if (!isset($_SESSION["search"])) {
+            $_SESSION["search"] = "";
+        }
+        if (!isset($_SESSION["category"])) {
+            $_SESSION["category"] = 1;
+        }
+
+
+        if (!empty($_GET["productsPerPage"])) {
+            $_SESSION["productsPerPage"] = $_GET["productsPerPage"];
+        }
+        if (!empty($_GET["view"])){
+            $_SESSION["view"] = $_GET["view"];
+        }
+        if (!empty($_GET["pageNumber"])){
+            if($_GET["pageNumber"] >=0){
+                $_SESSION["pageNumber"] = $_GET["pageNumber"];
+            } else{
+                $_SESSION["pageNumber"] = 0;
+            }
+        }
+        if (!empty($_GET["search"])){
+            $_SESSION["pageNumber"] = 1;
+            $_SESSION["search"] = $_GET["search"];
+        }
+        if (!empty($_GET["category"])){
+            $_SESSION["search"] = "";
+            $_SESSION["pageNumber"] = 1;
+            $_SESSION["category"] = $_GET["category"];
+        }
+
 
         /* Save all HTML files into memory, otherwise every time a new template is loaded, */
         $this->productTemplateHTML = $this->HTMLBuilder->loadHTMLFromFile("product\\product-item-list.html");
@@ -52,51 +92,16 @@ class Index extends Page {
         $content = new HTMLParameter($this->HTMLBuilder, "content\\content-homepage.html");
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("content", $content);
         /* check for every get if it has been set, and if no, give them a default value*/
-        if (empty($_GET["productsPerPage"])){
-            $productsPerPage = 6;
-        } else {
-            $productsPerPage = $_GET["productsPerPage"];
-            $_SESSION["productsPerPage"] = $_GET["productsPerPage"];
-        }
-        if (empty($_GET["view"])){
-            $view = "grid";
-        } else{
-            $view = $_GET["view"];
-            $_SESSION["view"] = $_GET["view"];
-        }
-        if (empty($_GET["pageNumber"]) || ($_GET["pageNumber"] <=0)){
-            $pageNumber = 1;
-        } else {
-            $pageNumber = $_GET["pageNumber"];
-            $_SESSION["pageNumber"] = $_GET["pageNumber"];
-        }
-        if (empty($_GET["category"])){
-            $category="";
-        } else {
-            $category = $_GET["category"];
-            $_SESSION["category"] = $_GET["category"];
-        }
-        if (empty($_GET["search"])){
-            $search = "";
-        } else {
-            $search = $_GET["search"];
-            $_SESSION["search"] = $_GET["search"];
-        }
-        $index = 0;
-        foreach($_SESSION as $key => $sessionValue){
-            if ($index >= 2) {
-                echo $key . ": " . $sessionValue . "</br>";
-            }
-            $index ++;
-        }
 
+        if ($_SESSION["search"] != "") {
+            $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("searched-for", "Resultaten voor: " . '"'.$_SESSION["search"].'"');
+        }
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("next-page", $_SESSION["pageNumber"] + 1);
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("previous-page", $_SESSION["pageNumber"] - 1);
 
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("next-page", $pageNumber + 1);
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("previous-page", $pageNumber - 1);
-
-        $this->createSelectValues($productsPerPage);
-        $this->createProducts($productsPerPage, $pageNumber, $category, $search);
-        $this->createPageNumbers($pageNumber);
+        $this->createSelectValues();
+        $this->createProducts();
+        $this->createPageNumbers();
         $this->generateRubricMenu();
         $this->generateLoginAndRegisterTemplates();
 
@@ -106,9 +111,9 @@ class Index extends Page {
     public function __destruct() {
         parent::__destruct();
     }
-
-    public function createPageNumbers($currentPageNumber){
+    public function createPageNumbers(){
         $numberTemplates = array();
+        $currentPageNumber = $_SESSION["pageNumber"];
         for($i = $currentPageNumber-5; $i<$currentPageNumber; $i++){/*go back 5 pages to show the 5 previous pages in pagination*/
             if ($i >0) {/*check if the number being made is more than 0, if so, don't create anything*/
                 $numberTemplates[] = $this->generatePageNumbers($i, $currentPageNumber);
@@ -131,7 +136,8 @@ class Index extends Page {
         return $numberTemplate;
     }
 
-    public function createSelectValues($productsPerPage){
+    public function createSelectValues(){
+        $productsPerPage = $_SESSION["productsPerPage"];
         $optionTemplates = array();
         for($i = 1; $i<6; $i++){/*creating 5 possible option to pick from which determines the amount of products per page*/
             $optionTemplates[] = $this->generateSelectValues($i*6, $productsPerPage);/* do this times 6 because everything multiplied with 6 looks good on different screen sizes and doesn't leave any open spaces*/
@@ -139,10 +145,10 @@ class Index extends Page {
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("options", $this->HTMLBuilder->joinHTMLParameters($optionTemplates));
     }
 
-    private function generateSelectValues($selectValue, $productsPerPage){
+    private function generateSelectValues($selectValue){
         $optionTemplate = new HTMLParameter($this->HTMLBuilder, "content\\indexAddons\\option.html");
         $optionTemplate->addTemplateParameterByString("value", $selectValue);
-        if ($productsPerPage == $selectValue) {/*if the current option being created already has been selected by the user, then the current option has to be selected*/
+        if ($selectValue == $_SESSION["productsPerPage"]) {/*if the current option being created already has been selected by the user, then the current option has to be selected*/
             $optionTemplate->addTemplateParameterByString("selected", "selected");
         } else {
             $optionTemplate->addTemplateParameterByString("selected", "");
@@ -150,16 +156,25 @@ class Index extends Page {
         return $optionTemplate;
     }
 
-    public function createProducts($productsPerPage, $pageNumber, $category, $search){
+    public function createProducts(){
         $pagination = new HTMLParameter($this->HTMLBuilder, "content\\indexAddons\\pagination.html");
-        $productPagination = new ProductPagination($productsPerPage);
-        $productPagination->setFindInTitleFilter($search);
-        $productPagination->setCurrentPageNumber($pageNumber);
+        $productPagination = new ProductPagination($_SESSION["productsPerPage"]);
+        $productPagination->setFindInTitleFilter($_SESSION["search"]);
+        $productPagination->setCurrentPageNumber($_SESSION["pageNumber"]);
 
-        if (!empty($category)) {
+        if (!empty($_SESSION["category"])) {
             $rubric = new Rubric($this->databaseHelper);
-            $rubric->setId($category);
+            $rubric->setId($_SESSION["category"]);
             $productPagination->setRubricFilter($rubric);
+            $name = $rubric->getName();
+            if ($rubric->getId() == 1){
+                $name = "Alle";
+            }
+            if ($_SESSION["search"] == "") {
+                $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("category-in", "Categorie: ".$name);
+            } else {
+                $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("category-in", "in de categorie: ".$name);
+            }
         }
 
         $products = $productPagination->getProducts($this->databaseHelper);
@@ -185,13 +200,8 @@ class Index extends Page {
      */
     private function generateProducts($product){
         $imageHelper = new ImageHelper();
-        if (empty($_GET["view"])){
-            $view = "grid";
-        } else {
-            $view = $_GET["view"];
-        }
-        if ($view === "grid") {
-            $productTemplate = new HTMLParameter($this->HTMLBuilder, $this->productGridTemplateHTML, true);
+        if ($_SESSION["view"] === "grid") {
+            $productTemplate = new HTMLParameter($this->HTMLBuilder, "product\\product-item-grid.html");
         } else {
             $productTemplate = new HTMLParameter($this->HTMLBuilder, $this->productListTemplateHTML, true);
         }
@@ -210,17 +220,21 @@ class Index extends Page {
         }
 
         $auctionEndDate = $product->getAuctionEndDateTime();
+
         $now = new \DateTime();
         $interval = $auctionEndDate->diff($now);
-        if ($product->getIsAuctionClosed()) {
-            $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("time-left", "Gesloten");
+        if ($interval->days == 1){
+            $productTemplate->addTemplateParameterByString("time-left","nog ".$interval->days." dag en ".$interval->h." uur.");
         } else {
-            $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("time-left", $interval->days." dagen ".$interval->h." uur");
+            $productTemplate->addTemplateParameterByString("time-left","nog ".$interval->days." dagen en ".$interval->h." uur.");
         }
 
         $productTemplate->addTemplateParameterByString("image-source", $imagePath);
-
-        $productTemplate->addTemplateParameterByString("price", number_format($product->getStartPrice(), 2, '.',''));
+        $highestPrice = $product->getStartPrice();
+        if(count($product->getBids()) >= 1) {
+            $highestPrice = $product->getBids()[0]->getAmount();
+        }
+        $productTemplate->addTemplateParameterByString("price", number_format($highestPrice, 2, '.',''));
         return $productTemplate;
     }
 

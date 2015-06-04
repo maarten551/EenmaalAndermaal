@@ -32,7 +32,7 @@
                     <span class="icon-bar"></span>
                 </button>
 
-                <a class="navbar-brand" href="index.php">
+                <a class="navbar-brand" href="index.php?category=1">
                     <img alt="Eenmaal Andermaal" class="img-responsive" src="src/img/logoEenmaalAndermaal.png" style="max-width:50px; margin-top: -15px;">
                 </a>
             </div>
@@ -41,11 +41,11 @@
                     #$(inloggen-modal)$#
                     #$(register-modal)$#
                 </ul>
-                <form class="navbar-form" action="index.php" method="get">
+                <form class="navbar-form" name="search" action="index.php" method="get">
                     <div class="form-group" style="display:inline;">
                         <div class="input-group" style="display:table;">
                             <input class="form-control" name="search" placeholder="Zoeken" autocomplete="off" autofocus="autofocus" type="text" onkeypress="searchKeyPress(event);">
-                            <span class="input-group-addon" style="width:1%;"> <span class="glyphicon glyphicon-search"> </span></span>
+                            <span class="input-group-addon btn" style="width:1%;" onclick="search.submit()"> <span class="glyphicon glyphicon-search"> </span></span>
                         </div>
                     </div>
                 </form>
@@ -54,10 +54,10 @@
     </div>
     #$(message-container)$#
     <div class="row" id = "menu">
-        <a href="index.php">    <div class="col-xs-12 col-sm-12 col-md-5ths menu">Home</div> </a>
+        <a href="index.php?category=1">    <div class="col-xs-12 col-sm-12 col-md-5ths menu">Home</div> </a>
         <a href="#">    <div class="col-xs-12 col-sm-6 col-md-5ths menu" >Mijn Veilingen</div> </a>
         <a href="#">    <div class="col-xs-12 col-sm-6 col-md-5ths menu" >Mijn Biedingen</div> </a>
-        <a href="#">    <div class="col-xs-12 col-sm-6 col-md-5ths menu" >Account</div> </a>
+        <a href="userInfo.php">    <div class="col-xs-12 col-sm-6 col-md-5ths menu" >Account</div> </a>
         <a href="#">    <div class="col-xs-12 col-sm-6 col-md-5ths menu" >Nieuwe Veiling</div> </a>
     </div>
     <div id="push">
@@ -67,24 +67,50 @@
         <div class="row">
             <div class="col-xs-12 col-sm-4 col-md-4">
                 <hr class="footer-line">
-                <h2>Help</h2>
+                <h2>Klantenservice</h2>
                 <hr class="footer-line">
-                <p> <h4>blablabla </h4>
-                <p> <h4>blablabla </h4>
-                <p> <h4>blablabla </h4>
+                <p> <h4><a href="faq.php"> Veelgestelde Vragen</a></h4>
+                <div style="max-width: 350px" class="center-block">
+                    <p> <h4>Mocht u ons een email willen sturen, dan kan dit hier. Ook kunt u ons bereiken op 0900-9999.</h4>
+                    <form method="post">
+                        <div class="form-group">
+                            <label class="control-label">E-mail:</label>
+                            <input required type="text" maxlength="50" class="form-control" name="email" placeholder="voor@beeld.nl">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label">Uw melding:</label>
+                            <textarea name="text" class="form-control" rows="3" placeholder="uw melding" maxlength="70"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-default">Verzenden</button>
+                    </form>
+                </div>
             </div>
             <div class="col-xs-12 col-sm-4 col-md-4">
                 <hr class="footer-line">
-                <h2>Contact</h2>
+                <h2>Over EenmaalAndermaal</h2>
                 <hr class="footer-line">
-                <p> <h4>blablabla </h4>
+                <div style="max-width: 350px" class="center-block">
+
+                    <p><h4>EenmaalAndermaal is een online veilingplatform waar producten en diensten door middel van online veilingen worden aangeboden en verkocht.</h4>
+                    <p><h4>Op de interactieve website vindt u een uitgebreid aanbod van de leukste producten die u door middel van een eigen tactiek, voor een kleine prijs kunt winnen.</h4>
+                    <p><h4>Om aan een online veiling op EenmaalAndermaal mee te doen, is registreren noodzakelijk. Hierdoor verkleinen we de kans op misbruik waardoor u altijd de beste ervaring ervaart.</h4>
+                    <p><h4>Dus wacht niet langer en meld u aan!</h4>
+
+                </div>
             </div>
             <div class="col-xs-12 col-sm-4 col-md-4">
                 <hr class="footer-line">
-                <h2>Info</h2>
+                <h2>Zakelijk</h2>
                 <hr class="footer-line">
-                <p> <h4>blablabla </h4>
-                <p> <h4>blablabla </h4>
+                <div style="max-width: 350px" class="center-block">
+                    <p> <h4>EenmaalAndermaal B.V.</h4>
+                    <p> <h4>Papenweg 100</h4>
+                    <p> <h4>6826 AS Arnhem</h4>
+                    <p> <h4>Nederland</h4>
+                    <p> <h4>Telefoonnummer:0909-9999</h4>
+                    <p> <h4>KvK-nummer: 12345678</h4>
+                </div>
             </div>
         </div>
     </footer>

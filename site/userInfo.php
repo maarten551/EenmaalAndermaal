@@ -21,9 +21,12 @@ class UserTemplate extends Page {
 
     public function createHTML()
     {
-        $content = new HTMLParameter($this->HTMLBuilder, "content\\template.html");
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("content", $content);
 
+        $content = new HTMLParameter($this->HTMLBuilder, "content\\content-user.html");
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("content", $content);
+        var_dump($this->loggedInUser);
+
+        $this->generateLoginAndRegisterTemplates();
         return $this->HTMLBuilder->getHTML();
     }
 

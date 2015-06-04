@@ -237,7 +237,6 @@ class Item extends Model {
                 $this->sellerObject = new Seller($this->databaseHelper, $user);
             };
         }
-
         return $this->sellerObject;
     }
 
