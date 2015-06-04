@@ -484,7 +484,7 @@ class Item extends Model {
      */
     public function getIsAuctionClosed()
     {
-        return $this->get("isAuctionClosed");
+        return ($this->get("isAuctionClosed") === 1) ? true : false;
     }
 
     /**
@@ -492,7 +492,7 @@ class Item extends Model {
      */
     public function setIsAuctionClosed($isAuctionClosed)
     {
-        $this->set("isAuctionClosed", $isAuctionClosed);
+        $this->set("isAuctionClosed", ($isAuctionClosed === true) ? 1 : 0);
     }
 
 

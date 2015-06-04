@@ -422,7 +422,7 @@ class User extends Model {
      */
     public function setIsSeller($isSeller)
     {
-        $this->set("isSeller", $isSeller);
+        $this->set("isSeller", ($isSeller === true) ? 1 : 0);
     }
 
     /**

@@ -46,6 +46,7 @@ class StartAuction extends Page {
     }
 
     public function handleRequestParameters() {
+        parent::handleRequestParameters();
         if(array_key_exists("start-auction", $_POST)) {
             $this->addAuction();
         }

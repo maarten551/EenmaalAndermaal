@@ -13,3 +13,4 @@ bin-release/
 
 MSSQLSettings.php
 DatabaseSettings.php
+site/src/html/cache/

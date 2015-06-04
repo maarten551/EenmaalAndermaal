@@ -31,7 +31,6 @@ abstract class Page {
         $this->HTMLBuilder = new HTMLBuilder($templateFileName);
         $this->databaseHelper = new DatabaseHelper();
         $this->userHelper = new UserHelper($this->databaseHelper, $this->HTMLBuilder);
-        $this->handleRequestParameters();
         $this->checkEmailSend();
 
         if($this->loggedInUser === null) {
@@ -58,6 +57,7 @@ abstract class Page {
             $this->loggedInUser = $this->userHelper->loginUser($_POST['login-username'], $_POST['login-password']);
         } else if (array_key_exists('logout', $_GET)) {
             $this->userHelper->logoutUser();
+            $this->loggedInUser = null;
         } else if (array_key_exists('register', $_POST)) {
             $this->userHelper->registerUser();
         }
@@ -111,7 +111,9 @@ abstract class Page {
     }
 
     protected function redirectToIndex() {
-        $redirectLink = substr("$_SERVER[REQUEST_URI]", 0, strpos($_SERVER["REQUEST_URI"], "/product.php"));
+        $pageName = strtolower(substr(get_class($this), 0, 1)).substr(get_class($this), 1);
+        $redirectLink = substr($_SERVER["REQUEST_URI"], 0, strpos($_SERVER["REQUEST_URI"], "/$pageName.php"));
+
         header("location: $redirectLink/index.php");
         die();
     }

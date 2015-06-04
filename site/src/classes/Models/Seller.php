@@ -22,20 +22,21 @@ class Seller extends Model {
      * @param DatabaseHelper $databaseHelper
      * @param $user User
      */
-    public function __construct(DatabaseHelper $databaseHelper, User $user) {
+    public function __construct(DatabaseHelper $databaseHelper, $user = null) {
         parent::__construct($databaseHelper);
+
+        $this->tableName = "Seller";
+        $this->primaryKeyName = "username";
+        $this->hasIdentity = false;
+        $this->databaseFields["required"]["username"] = "quote";
+        $this->databaseFields["required"]["controlOption"] = "quote";
+
+        $this->databaseFields["optional"]["bankName"] = "quote";
+        $this->databaseFields["optional"]["accountNumber"] = "quote";
+        $this->databaseFields["optional"]["creditcardNumber"] = "quote";
+        $this->databaseFields["optional"]["activationCode"] = "quote";
+
         if($user !== null && $user->getUsername() !== null && $user->isSeller() === true) {
-            $this->tableName = "Seller";
-            $this->primaryKeyName = "username";
-            $this->hasIdentity = false;
-            $this->databaseFields["required"]["username"] = "quote";
-            $this->databaseFields["required"]["controlOption"] = "quote";
-
-            $this->databaseFields["optional"]["bankName"] = "quote";
-            $this->databaseFields["optional"]["accountNumber"] = "quote";
-            $this->databaseFields["optional"]["creditcardNumber"] = "quote";
-            $this->databaseFields["optional"]["activationCode"] = "quote";
-
             $this->setUser($user);
         }
     }
@@ -47,6 +48,7 @@ class Seller extends Model {
         if($user !== null) {
             $this->username = $user->getUsername();
             $this->user = $user;
+            $this->user->isSeller(true);
         }
     }
 
@@ -67,6 +69,9 @@ class Seller extends Model {
      */
     public function setBankName($bankName)
     {
+        if(empty($bankName)) {
+            $bankName = null;
+        }
         $this->set("bankName", $bankName);
     }
 
@@ -83,6 +88,10 @@ class Seller extends Model {
      */
     public function setAccountNumber($accountNumber)
     {
+        if(empty($accountNumber)) {
+            $accountNumber = null;
+        }
+
         $this->set("accountNumber", $accountNumber);
     }
 
@@ -115,6 +124,10 @@ class Seller extends Model {
      */
     public function setCreditcardNumber($creditcardNumber)
     {
+        if(empty($creditcardNumber)) {
+            $creditcardNumber = null;
+        }
+
         $this->set("creditcardNumber", $creditcardNumber);
     }
 
