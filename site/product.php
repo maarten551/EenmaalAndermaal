@@ -72,7 +72,7 @@ class Product extends Page {
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("auction-enddate", $this->item->getAuctionStartDateTime()->format('Y-m-d H:i'));
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("payment-instruction", $this->item->getPaymentInstruction());
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("shipping-instruction", $this->item->getShippingInstruction());
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("shipping-cost", $this->item->getShippingCost());
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("shipping-cost", number_format((float)$this->item->getShippingCost(), 2, '.', ''));
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("bid-container", $this->generateBidTemplates());
 
 
@@ -131,7 +131,7 @@ class Product extends Page {
         foreach ($bids as $bid) {
             $bidTemplate = new HTMLParameter($this->HTMLBuilder, "product\\bid\\bid-item.html");
             $bidTemplate->addTemplateParameterByString("username", $bid->getUsername());
-            $bidTemplate->addTemplateParameterByString("amount", $bid->getAmount());
+            $bidTemplate->addTemplateParameterByString("amount", number_format((float)$bid->getAmount(), 2, '.', ''));
             $bidTemplate->addTemplateParameterByString("timeOfPlacement", $bid->getPlacementDateTime()->format("d-m-Y H:m:s"));
             $bidTemplates[] = $bidTemplate;
         }

@@ -1,28 +1,7 @@
-<div class="maxWidth">
-    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
-        <label class="control-label">Gebruikersnaam:</label>
-        <input  type="text" class="form-control" value="#$(username)$#" disabled>
-    </div>
-
-    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6" style="background-color: #ff0000; height: 200px"></div>
-
-    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
-        <label class="control-label">Type Gebruiker:</label>
-        <input  type="text" class="form-control" value="#$(is-seller)$#" disabled>
-    </div>
-
-    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
-        <label class="control-label">Product:</label>
-        <input  type="text" class="form-control" value="#$(title)$#" disabled>
-    </div>
-
-    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
-        <label class="control-label">Product:</label>
-        <input  type="text" class="form-control" value="#$(placement-date)$#" disabled>
-    </div>
-
-    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-        <label class="control-label">Feedback:</label>
-        <textarea  type="text" class="form-control" value="#$(feedback-text)$#" rows="5" disabled></textarea>
-    </div>
+<div class="well well-sm" style="overflow: auto; margin-bottom: 5px;">
+<div class="col-xs-12 col-sm-8 col-md-8 col-lg-8"><strong>Product:</strong> #$(title)$#</div>
+<div class="col-xs-12 col-sm-4 col-md-43 col-lg-4"><strong>Datum:</strong> #$(placement-date)$#</div>
+<div class="col-xs-12 col-sm-8 col-md-8 col-lg-8"><strong>Verkoper:</strong><a href="accountOverview.php?user=#$(username-feedbackgiver)$#"> #$(username-feedbackgiver)$#</a></div>
+<div class="col-xs-12 col-sm-4 col-md-4 col-lg-4"><strong>Type Verkoper:</strong> #$(is-seller)$#</div>
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><strong>Feedback:</strong> #$(feedback-text)$#</div>
 </div>
