@@ -1,52 +1,80 @@
-<form action="#" method="POST" enctype="multipart/form-data">
+<form action="#" method="POST" enctype="multipart/form-data" id="auctionForm">
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
         <label>Titel</label>
             <input required type="text" name="auction-title" class="form-control input-lg">
     </div>
 
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-        <label>Omschrijving*</label>
-        <textarea name="auction-description" class="form-control" maxlength="1500" rows = "5"></textarea>
+        <label>Omschrijving</label>
+        <textarea required name="auction-description" class="form-control" maxlength="1500" rows = "5"></textarea>
     </div>
 
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <label>Rubriek:</label>
+        <select required name="auction-rubric" class="selector-for-chosen form-control" form="auctionForm">
+            <option value=""></option>
+            #$(rubric-values)$#
+        </select>
+    </div>
 
-    Startprijs*
-    <input type="text" name="auction-start-price">
-    Tijdsduur van veiling*
+    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+        <label>Startprijs</label>
+        <input required type="number" name="auction-start-price" min="0.01" class="form-control" step="0.01" pattern="^\d+(?:\.\d{0,2})$">
+    </div>
 
-    <select name="auction-duration-days" class="selector-for-chosen">
-        <option value="1">1 dag</option>
-        <option value="3">3 dagen</option>
-        <option value="5">5 dagen</option>
-        <option value="7">7 dagen</option>
-        <option value="10">10 dagen</option>
-    </select>
-    Locatie
-    Stad/dorp*
-    <input type="text" name="auction-town">
-    Land*
-    <input type="text" name="auction-country">
-    Betalings informatie
-    Betaling methode*
-    <input type="text" name="auction-payment-method">
-    Betaling omschrijving
-    <textarea name="auction-payment-description" maxlength="500"></textarea>
-    Verzend informatie
-    Verzendskosten
-    <input type="text" name="auction-shipping-cost">
-    Betaling omschrijving
-    <textarea name="auction-shipping-instruction" maxlength="200"></textarea>
-    Afbeeldingen
-    Afbeelding 1 (thumbnail):
-    <input type="file" name="image-to-upload-1">
-    Afbeelding 2:
-    <input type="file" name="image-to-upload-2">
-    Afbeelding 3:
-    <input type="file" name="image-to-upload-3">
-    Rubriek*
-    <select name="auction-rubric" class="selector-for-chosen">
-        <option value=""></option>
-        #$(rubric-values)$#
-    </select>
-    <input type="submit" value="Veiling toevoegen" name="start-auction">
+    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+        <label>Tijdsduur van veiling</label>
+        <select required name="auction-duration-days" class="form-control">
+            <option value="1">1 dag</option>
+            <option value="3">3 dagen</option>
+            <option value="5">5 dagen</option>
+            <option value="7">7 dagen</option>
+            <option value="10">10 dagen</option>
+        </select>
+    </div>
+
+    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+        <label>Locatie (stad/dorp)</label>
+        <input required type="text" name="auction-town" class="form-control">
+    </div>
+
+    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+        <label>Land</label>
+        <input required type="text" name="auction-country" class="form-control">
+    </div>
+
+    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+        <label>Verzending omschrijving:</label>
+        <textarea type="text" name="auction-shipping-instruction" class="form-control" maxlength="200" rows="3"></textarea>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+        <label>Betaling omschrijving:</label>
+        <textarea type="text" name="auction-payment-description" class="form-control" maxlength="500" rows="3"></textarea>
+    </div>
+
+    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+        <label>Verzendingskosten:</label>
+        <input type="text" name="auction-shipping-cost" class="form-control">
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+        <label>Betalingsmethode:</label>
+        <input required type="text" name="auction-payment-method" class="form-control">
+    </div>
+
+    <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+        <label>Afbeelding 1 (thumbnail):</label>
+        <input type="file" name="image-to-upload-1" class="form-control">
+    </div>
+
+    <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+        <label>Afbeelding 2:</label>
+        <input type="file" name="image-to-upload-2" class="form-control">
+    </div>
+
+    <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+        <label>Afbeelding 3:</label>
+        <input type="file" name="image-to-upload-3" class="form-control">
+    </div>
+
+    <button type="submit" value="Veiling toevoegen" name="start-auction" class="btn btn-primary center-block" style="width:300px; bottom:-15px; position: relative">Veiling Aanmaken</button>
 </form>
