@@ -4,6 +4,7 @@ namespace src\classes\Models;
 
 use src\classes\DatabaseHelper;
 use src\classes\FeedbackCollection;
+use src\classes\ItemCollection;
 
 class User extends Model {
     protected $username;
@@ -43,6 +44,10 @@ class User extends Model {
      * @var FeedbackCollection
      */
     protected $feedbackCollection;
+    /**
+     * @var ItemCollection
+     */
+    protected $itemCollection;
 
     public function __construct(DatabaseHelper $databaseHelper, $primaryKeyValue = null) {
         parent::__construct($databaseHelper);
@@ -66,7 +71,46 @@ class User extends Model {
         $this->databaseFields["optional"]["secondAddress"] = "quote";
 
         $this->feedbackCollection = new FeedbackCollection();
+        $this->itemCollection = new ItemCollection();
         $this->setUsername($primaryKeyValue);
+    }
+
+    /**
+     * @param $item Item
+     * @param $itemRelationType
+     */
+    public function addItem($item, $itemRelationType)
+    {
+        $this->itemCollection->addItem($item, $itemRelationType);
+    }
+
+    /**
+     * @return ItemCollection
+     */
+    public function getItems() {
+        if(count($this->itemCollection->getAllItems()) <= 1 && $this->username !== null) {
+            $selectQuery = "SELECT *
+                        FROM [item]
+                        WHERE buyer = ? OR seller = ?";
+            $statement = sqlsrv_query($this->databaseHelper->getDatabaseConnection(), $selectQuery, array(&$this->username, &$this->username));
+            if ($statement === false) {
+                die(print_r(sqlsrv_errors()[0]["message"], true)); //Failed to update
+            }
+
+            while ($row = sqlsrv_fetch_array($statement, SQLSRV_FETCH_ASSOC)) {
+                $item = new Item($this->databaseHelper, $row["id"]);
+                $item->mergeQueryData($row);
+
+                if ($item->getSellerId() === $this->username) {
+                    $this->itemCollection->addItem($item, "seller");
+                }
+                if ($item->getBuyerId() === $this->username) {
+                    $this->itemCollection->addItem($item, "buyer");
+                }
+            }
+        }
+
+        return $this->itemCollection;
     }
 
     /**
