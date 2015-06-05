@@ -28,9 +28,13 @@ class Product extends Page {
     public function __construct() {
         parent::__construct("template.html");
 
-//        if(!array_key_exists("product", $_GET) || !is_numeric($_GET["product"]) || $this->item->getSeller() === null) {
-//            $this->redirectToIndex();
-//        }
+        if(!array_key_exists("product", $_GET) || !is_numeric($_GET["product"]) || $this->item->getSeller() === null) {
+            $this->redirectToIndex();
+        }
+    }
+
+    public function __destruct() {
+        parent::__destruct();
     }
 
     public function handleRequestParameters() {
@@ -88,29 +92,29 @@ class Product extends Page {
             $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("is-disabled", "disabled");
         }
 
-        //TODO add more information to the product view
-        foreach ($this->item->getImages() as $index => $image) {
-            $imagePath = $imageHelper->getImageLocation($image);
+        $images = $this->item->getImages();
+        if(count($images) >= 1) {
+            foreach ($images as $index => $image) {
+                $imagePath = $imageHelper->getImageLocation($image);
 
-            if($index == 0) {
-                $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("img-source", $imagePath);
-            }
-            if($index >= 1) {
-                if (strpos($imagePath,'pics') !== false) {
-                    $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("thumbnails", $thumbnail);
-                    $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("img-source-thumb", $imagePath);
+                if ($index == 0) {
+                    $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("img-source", $imagePath);
+                }
+                if ($index >= 1) {
+                    if (strpos($imagePath, 'pics') !== false) {
+                        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("thumbnails", $thumbnail);
+                        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("img-source-thumb", $imagePath);
+                    }
                 }
             }
+        } else {
+            $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("img-source", ImageHelper::$NO_FILE_FOUND_LOCATION);
         }
 
         $this->processHighestBid();
         $this->generateLoginAndRegisterTemplates();
         return $this->HTMLBuilder->getHTML();
         
-    }
-
-    public function __destruct() {
-        parent::__destruct();
     }
 
     /**

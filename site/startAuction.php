@@ -10,7 +10,6 @@ use src\classes\Models\File;
 use src\classes\Models\Item;
 use src\classes\Models\Rubric;
 use src\classes\Models\Seller;
-use src\classes\Models\User;
 use src\classes\Page;
 
 require_once "src/libraries/password.php"; //For password hashing functionality for PHP < 5.5, server is 5.4.35, source: https://github.com/ircmaxell/password_compat
@@ -25,11 +24,16 @@ session_start();
 date_default_timezone_set("Europe/Amsterdam");
 
 class StartAuction extends Page {
+    /**
+     * @var Seller
+     */
+    private $seller;
     public function __construct() {
         parent::__construct("template.html");
-//        if($this->loggedInUser === null || (new Seller($this->databaseHelper, $this->loggedInUser))->getUser() === null) {
-//            $this->redirectToIndex();
-//        }
+        $this->seller = new Seller($this->databaseHelper, $this->loggedInUser);
+        if($this->loggedInUser === null || $this->seller->getUser() === null || $this->seller->getActivationCode() !== null) {
+            $this->redirectToIndex();
+        }
     }
 
     public function __destruct() {

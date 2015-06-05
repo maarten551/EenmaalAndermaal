@@ -6,6 +6,7 @@ use src\classes\Models\File;
 class ImageHelper {
     public static $IMAGE_FOLDER_LOCATION = "src/img/product/";
     public static $EXTERNAL_IMAGE_LOCATION = "http://iproject16.icasites.nl/";
+    public static $NO_FILE_FOUND_LOCATION = "src/img/product/nopicture.png";
 
     /**
      * @param $file File

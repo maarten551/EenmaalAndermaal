@@ -100,9 +100,9 @@ class Index extends Page {
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("previous-page", $_SESSION["pageNumber"] - 1);
 
         $this->createSelectValues();
+        $this->generateRubricMenu();
         $this->createProducts();
         $this->createPageNumbers();
-        $this->generateRubricMenu();
         $this->generateLoginAndRegisterTemplates();
 
         return $this->HTMLBuilder->getHTML();
@@ -209,6 +209,7 @@ class Index extends Page {
         $productTemplate->addTemplateParameterByString("product-id", $product->getId());
 
         $images = $product->getImages();
+        $imagePath = "";
         foreach($images as $image){
             $imagePath = $this->imageHelper->getImageLocation($image);
             if (strpos($imagePath,'thumbnails') !== false) {
@@ -229,7 +230,7 @@ class Index extends Page {
             $productTemplate->addTemplateParameterByString("time-left","nog ".$interval->days." dagen en ".$interval->h." uur.");
         }
 
-        $productTemplate->addTemplateParameterByString("image-source", $imagePath);
+        $productTemplate->addTemplateParameterByString("image-source", ($imagePath !== "") ? $imagePath : ImageHelper::$NO_FILE_FOUND_LOCATION);
         $highestPrice = $product->getStartPrice();
         if(count($product->getBids()) >= 1) {
             $highestPrice = $product->getBids()[0]->getAmount();
