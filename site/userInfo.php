@@ -55,9 +55,12 @@ class UserInfo extends Page {
         $changePasswordModal = new HTMLParameter($this->HTMLBuilder, "content\\modal\\change-password-modal.html");
         $phoneNumberModal = new HTMLParameter($this->HTMLBuilder, "content\\modal\\phonenumber-modal.html");
 
+        if (!$this->loggedInUser->isSeller()) {
+            $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("activate-sellercode", $activateSellerCodeModal);
+            $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("create-seller", $createSellerModal);
+        }
+
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("content", $content);
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("activate-sellercode", $activateSellerCodeModal);
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("create-seller", $createSellerModal);
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("change-password", $changePasswordModal);
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("manage-phonenumbers", $phoneNumberModal);
 
@@ -87,9 +90,9 @@ class UserInfo extends Page {
             $seller->setActivationCode(null);
             $this->activateProducts($seller);
             $seller->save();
-            $this->HTMLBuilder->addMessage(new PositiveMessage($this->HTMLBuilder, "Verifiëren voltooid", "U heeft nu een verkoper status"));
+            $this->HTMLBuilder->addMessage(new PositiveMessage($this->HTMLBuilder, "Verifiï¿½ren voltooid", "U heeft nu een verkoper status"));
         } else {
-            $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Verifiëren mislukt", "De opgegeven code komt niet overeen met de benodigde code"));
+            $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Verifiï¿½ren mislukt", "De opgegeven code komt niet overeen met de benodigde code"));
         }
     }
 

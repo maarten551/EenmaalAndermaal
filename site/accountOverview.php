@@ -30,15 +30,14 @@ class accountoverview extends Page
         $feedbackTemplate = new HTMLParameter($this->HTMLBuilder, "content\\feedback\\feedback-template.html");
 
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("positive-feedback", $feedbackTemplate);
-
-
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("negative-feedback", $feedbackTemplate);
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("username", $this->user->getUsername());
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("country", $this->user->getCountry());
 
         $positiveFeedback = $this->createFeedbackTemplate($this->user->getFeedbacks()->getPositiveFeedback());
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("positive-feedback",$this->HTMLBuilder->joinHTMLParameters($positiveFeedback));
         $negativeFeedback = $this->createFeedbackTemplate($this->user->getFeedbacks()->getNegativeFeedback());
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("positive-feedback",$this->HTMLBuilder->joinHTMLParameters($negativeFeedback));
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("negative-feedback",$this->HTMLBuilder->joinHTMLParameters($negativeFeedback));
 
         $this->generateLoginAndRegisterTemplates();
         return $this->HTMLBuilder->getHTML();
@@ -62,11 +61,12 @@ class accountoverview extends Page
 
     private function generateFeedbackTemplate($feedback)
     {
+        $placementDate = $feedback->getPlacementDateTime();
         $feedbackTemplate = new HTMLParameter($this->HTMLBuilder, "content\\feedback\\feedback-template.html");
-        $feedbackTemplate->addTemplateParameterByString("username", $feedback->getUser()->getUsername());
+        $feedbackTemplate->addTemplateParameterByString("username-feedbackgiver", $feedback->getUser()->getUsername());
         $feedbackTemplate->addTemplateParameterByString("is-seller", $feedback->getKindOfUser());
         $feedbackTemplate->addTemplateParameterByString("title", $feedback->getItem()->getTitle());
-        $feedbackTemplate->addTemplateParameterByString("placement-date", $feedback->getPlacementDateTime());
+        $feedbackTemplate->addTemplateParameterByString("placement-date", $placementDate->format('Y-m-d'));
         $feedbackTemplate->addTemplateParameterByString("feedback-text", $feedback->getComment());
 
         return $feedbackTemplate;
