@@ -48,11 +48,9 @@ function activateFormCheckedCheckBox(){
     if(document.getElementById("changePasswordCheckbox").checked){
         document.getElementById("newPasswordInput").disabled = false;
         document.getElementById("newPasswordInputRepeat").disabled = false;
-        document.getElementById("oldPasswordInput").disabled = false;
     } else{
         document.getElementById("newPasswordInput").disabled = true;
         document.getElementById("newPasswordInputRepeat").disabled = true;
-        document.getElementById("oldPasswordInput").disabled = true;
     }
 
     if(document.getElementById("changeQuestionSelect").checked){
