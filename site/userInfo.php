@@ -32,7 +32,8 @@ class UserInfo extends Page {
 
     protected function handleRequestParameters() {
         parent::handleRequestParameters();
-
+        $seller = new Seller($this->databaseHelper, $this->loggedInUser);
+        $seller->getActivationCode();
         if(array_key_exists('become-seller-button', $_POST) && $this->loggedInUser->isSeller() === false) {
             $this->requestSellerStatus();
         } else if (array_key_exists('activate-seller-account', $_POST) && $this->loggedInUser->isSeller() === true && (new Seller($this->databaseHelper, $this->loggedInUser))->getActivationCode() !== null) {
@@ -230,11 +231,16 @@ class UserInfo extends Page {
             if(sqlsrv_has_rows($statement)) {
                 while($row = sqlsrv_fetch_array($statement, SQLSRV_FETCH_ASSOC)) {
                     $item = new Item($this->databaseHelper, $row["id"]);
+                    $item->mergeQueryData($row);
                     $item->setIsAuctionClosed(false);
                     $item->setAuctionStartDateTime(new \DateTime());
                     $startTimeWithAmountOfDaysDifference = clone $item->getAuctionStartDateTime();
                     $item->setAuctionEndDateTime($startTimeWithAmountOfDaysDifference->modify("+". $item->getAuctionDurationInDays() ." days"));
-                    $item->save();
+                    try {
+                        $item->save();
+                    } catch (Exception $e) {
+                        $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Veiling met id ". $item->getId() ." is niet toegevoegd", "Door een onbekende fout is het niet gelukt om uw veiling te vernieuwen"));
+                    }
                 }
             }
         }

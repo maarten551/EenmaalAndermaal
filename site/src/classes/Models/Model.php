@@ -137,7 +137,7 @@ abstract class Model
                     $statement = sqlsrv_prepare($this->databaseHelper->getDatabaseConnection(), $updateQuery);
 
                     if (!sqlsrv_execute($statement)) {
-                        die(print_r(sqlsrv_errors()[0]["message"], true)); //Failed to update
+                        throw new \Exception(sqlsrv_errors()[0]["message"]); //Failed to update
                     }
 
                     $this->isDirty = false;

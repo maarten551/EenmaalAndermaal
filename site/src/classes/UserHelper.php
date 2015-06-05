@@ -2,6 +2,7 @@
 namespace src\classes;
 
 use src\classes\Messages\Alert;
+use src\classes\Messages\PositiveMessage;
 use src\classes\Models\Question;
 use src\classes\Models\User;
 use src\classes\Models\UserPhoneNumber;
@@ -72,11 +73,7 @@ class UserHelper {
                 $_SESSION['loggedInUsername'] = $username;
                 return $user;
             } else {
-                $errorMessage = new Alert($this->HTMLBuilder);
-                $errorMessage->setTitle("Informatie incorrect");
-                $errorMessage->setMessage("De ingevulde inlognaam en/of wachtwoord is verkeerd ingevuld");
-                $this->HTMLBuilder->addMessage($errorMessage);
-
+                $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Informatie incorrect", "De ingevulde inlognaam en/of wachtwoord is verkeerd ingevuld"));
             }
         }
 
@@ -128,7 +125,7 @@ class UserHelper {
                     try {
                         $birthDate = \DateTime::createFromFormat("d/m/Y", $_POST['birthdate']);
                     } catch(\Exception $e) {
-                        $this->addError("Datum klopt niet", "De ingevulde datum is niet correct ingevuld.");
+                        $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Datum klopt niet", "De ingevulde datum is niet correct ingevuld."));
                     }
 
                     if($birthDate !== null) {
@@ -157,32 +154,25 @@ class UserHelper {
                                     $userPhoneNumber->setPhoneNumber($_POST['phoneNumber']);
                                     $userPhoneNumber->save();
                                 }
-                                $this->addError("Gebruiker aangemaakt", "Uw account is succesvol aangemaakt, u kunt nu inloggen met de gekozen informatie");
+                                $this->HTMLBuilder->addMessage(new PositiveMessage($this->HTMLBuilder, "Gebruiker aangemaakt", "Uw account is succesvol aangemaakt, u kunt nu inloggen met de gekozen informatie"));
                             } else {
-                                $this->addError("Probleem met het creëren van de gebruiker", "Er was een onbekende probleem met het creëren van de gebruiker.");
+                                $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Probleem met het creëren van de gebruiker", "Er was een onbekende probleem met het creëren van de gebruiker."));
                             }
                         } else {
-                            $this->addError("Gebruikersnaam bestaal al", "De ingevulde gebruikersnaam komt overeen met een al bestaande gebruiker.");
+                            $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Gebruikersnaam bestaal al", "De ingevulde gebruikersnaam komt overeen met een al bestaande gebruiker."));
                         }
                     }
                 } else {
-                    $this->addError("beveilingsvraag bestaat niet in databank", "De geselecteerde vraag komt niet overeen met wat in de database staat.");
+                    $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "beveilingsvraag bestaat niet in databank", "De geselecteerde vraag komt niet overeen met wat in de database staat."));
                 }
             } else {
-                $this->addError("Wachtwoorden niet gelijk", "De ingevulde wachtwoorden komen niet overeen.");
+                $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Wachtwoorden niet gelijk", "De ingevulde wachtwoorden komen niet overeen."));
             }
         } else {
-            $this->addError("Veld(en) niet ingevuld", "Er zijn één of meerdere velden niet ingevuld.");
+            $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Veld(en) niet ingevuld", "Er zijn één of meerdere velden niet ingevuld."));
         }
 
         return null;
-    }
-
-    private function addError($title, $message) {
-        $errorMessage = new Alert($this->HTMLBuilder);
-        $errorMessage->setTitle($title);
-        $errorMessage->setMessage($message);
-        $this->HTMLBuilder->addMessage($errorMessage);
     }
 
     public function checkAllRequiredFields($registerFields) {
