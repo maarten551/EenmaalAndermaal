@@ -96,15 +96,16 @@ class Index extends Page {
         if ($_SESSION["search"] != "") {
             $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("searched-for", "Resultaten voor: " . '"'.$_SESSION["search"].'"');
         }
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("next-page", $_SESSION["pageNumber"] + 1);
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("previous-page", $_SESSION["pageNumber"] - 1);
+
+
 
         $this->createSelectValues();
         $this->generateRubricMenu();
         $this->createProducts();
         $this->createPageNumbers();
         $this->generateLoginAndRegisterTemplates();
-
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("next-page", ($_SESSION["pageNumber"] + 1));
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("previous-page", ($_SESSION["pageNumber"] - 1));
         return $this->HTMLBuilder->getHTML();
     }
 
@@ -225,9 +226,9 @@ class Index extends Page {
         $now = new \DateTime();
         $interval = $auctionEndDate->diff($now);
         if ($interval->days == 1){
-            $productTemplate->addTemplateParameterByString("time-left","nog ".$interval->days." dag en ".$interval->h." uur.");
+            $productTemplate->addTemplateParameterByString("time-left",$interval->days." dag en ".$interval->h." uur.");
         } else {
-            $productTemplate->addTemplateParameterByString("time-left","nog ".$interval->days." dagen en ".$interval->h." uur.");
+            $productTemplate->addTemplateParameterByString("time-left",$interval->days." dagen en ".$interval->h." uur.");
         }
 
         $productTemplate->addTemplateParameterByString("image-source", ($imagePath !== "") ? $imagePath : ImageHelper::$NO_FILE_FOUND_LOCATION);

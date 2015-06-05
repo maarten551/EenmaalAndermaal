@@ -35,8 +35,12 @@ class accountoverview extends Page
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("country", $this->user->getCountry());
 
         $positiveFeedback = $this->createFeedbackTemplate($this->user->getFeedbacks()->getPositiveFeedback());
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("positive-feedback",$this->HTMLBuilder->joinHTMLParameters($positiveFeedback));
         $negativeFeedback = $this->createFeedbackTemplate($this->user->getFeedbacks()->getNegativeFeedback());
+
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("count-positive", sizeof($positiveFeedback));
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("count-negative", sizeof($negativeFeedback));
+
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("positive-feedback",$this->HTMLBuilder->joinHTMLParameters($positiveFeedback));
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("negative-feedback",$this->HTMLBuilder->joinHTMLParameters($negativeFeedback));
 
         $this->generateLoginAndRegisterTemplates();
