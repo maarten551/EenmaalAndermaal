@@ -72,7 +72,7 @@ class DatabaseHelper {
      */
     private function mssql_escape($data)
     {
-        if (is_numeric($data)) {
+        if (is_numeric($data) && substr($data, 0, 1) !== '0') {
             return $data;
         }
         $unpacked = unpack('H*hex', $data);

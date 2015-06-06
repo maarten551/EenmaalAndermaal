@@ -218,30 +218,11 @@ class UserInfo extends Page {
      */
     private function activateProducts(Seller $seller) {
         if($seller->getUser() !== null) {
-            $query = "SELECT t1.*
-            FROM [item] AS t1
-            INNER JOIN [user] AS t2
-              ON t2.username = t1.seller
-            WHERE t2.username = ?
-            AND t1.isAuctionClosed = 1";
             $username = $seller->getUser()->getUsername();
-            $statement = sqlsrv_prepare($this->databaseHelper->getDatabaseConnection(), $query, array(&$username));
-            sqlsrv_execute($statement);
+            $statement = sqlsrv_prepare($this->databaseHelper->getDatabaseConnection(), "{call sp_resetAuctionsBySeller (?) }", array(&$username));
 
-            if(sqlsrv_has_rows($statement)) {
-                while($row = sqlsrv_fetch_array($statement, SQLSRV_FETCH_ASSOC)) {
-                    $item = new Item($this->databaseHelper, $row["id"]);
-                    $item->mergeQueryData($row);
-                    $item->setIsAuctionClosed(false);
-                    $item->setAuctionStartDateTime(new \DateTime());
-                    $startTimeWithAmountOfDaysDifference = clone $item->getAuctionStartDateTime();
-                    $item->setAuctionEndDateTime($startTimeWithAmountOfDaysDifference->modify("+". $item->getAuctionDurationInDays() ." days"));
-                    try {
-                        $item->save();
-                    } catch (Exception $e) {
-                        $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Veiling met id ". $item->getId() ." is niet toegevoegd", "Door een onbekende fout is het niet gelukt om uw veiling te vernieuwen"));
-                    }
-                }
+            if(sqlsrv_execute($statement) === false) {
+                $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Producten niet gereset", "De al voor u ingevoerde producten zijn niet gestart vanwege een onbekende probleem"));
             }
         }
     }

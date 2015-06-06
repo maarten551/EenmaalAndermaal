@@ -85,7 +85,13 @@ class UserHelper {
      */
     public function getLoggedInUser() {
         if(isset($_SESSION['loggedInUsername'])) {
-            return new User($this->databaseHelper, $_SESSION['loggedInUsername']);
+            $user = new User($this->databaseHelper, $_SESSION['loggedInUsername']);
+            if($user->getFirstname() !== null) {
+                return $user;
+            } else {
+                unset($_SESSION['loggedInUsername']);
+                return null;
+            }
         }
 
         return null;

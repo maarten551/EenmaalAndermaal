@@ -40,9 +40,16 @@ class Product extends Page {
     public function handleRequestParameters() {
         parent::handleRequestParameters();
         $this->item = new Item($this->databaseHelper, $_GET["product"]);
-        $user = $this->userHelper->getLoggedInUser();
+
         if(array_key_exists("bid-on-product", $_POST)) {
-            if($user !== null) {
+            $this->bidOnItem();
+        }
+    }
+
+    private function bidOnItem() {
+        $user = $this->userHelper->getLoggedInUser();
+        if($user !== null) {
+            if($this->item->getSeller()->getUser()->getUsername() !== $user->getUsername()) {
                 $bid = new Bid($this->databaseHelper, $_POST['bid-amount'], $this->item->getId());
                 $bid->setUser($user);
                 if ($bid->save() === false) {
@@ -51,8 +58,10 @@ class Product extends Page {
                     $this->HTMLBuilder->addMessage(new PositiveMessage($this->HTMLBuilder, "Bieding geplaatst", "Uw bieding is geplaatst."));
                 }
             } else {
-                $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Bieding niet geplaatst", "U bent niet ingelogd."));
+                $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Bieding niet geplaatst", "U kunt niet op uw eigen veilingen bieden."));
             }
+        } else {
+            $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Bieding niet geplaatst", "U bent niet ingelogd."));
         }
     }
 
@@ -88,7 +97,7 @@ class Product extends Page {
             $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("is-disabled", "enabled");
         }
 
-        if(!$this->loggedInUser){
+        if(!$this->loggedInUser === null || $this->loggedInUser->getUsername() === $this->item->getSeller()->getUser()->getUsername()){
             $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("is-disabled", "disabled");
         }
 
