@@ -45,7 +45,6 @@ class UserInfo extends Page {
         } else if (array_key_exists("change-or-save", $_POST) && $_POST['change-or-save'] === "Opslaan") {
             $this->updateUser();
         }
-        //TODO: Change user information (Not really important, start other things first)
     }
 
     public function createHTML()
@@ -56,16 +55,16 @@ class UserInfo extends Page {
         $changePasswordModal = new HTMLParameter($this->HTMLBuilder, "content\\modal\\change-password-modal.html");
         $phoneNumberModal = new HTMLParameter($this->HTMLBuilder, "content\\modal\\phonenumber-modal.html");
 
-        if (!$this->loggedInUser->isSeller()) {
-            $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("activate-sellercode", $activateSellerCodeModal);
-            $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("create-seller", $createSellerModal);
-        }
-
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("content", $content);
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("change-password", $changePasswordModal);
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("manage-phonenumbers", $phoneNumberModal);
 
-        //$this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("username", $this->loggedInUser->getUsername());
+        if ($this->loggedInUser->isSeller() === false) {
+            $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("create-seller", $createSellerModal);
+        } else if ($this->loggedInUser->isSeller() === true && (new Seller($this->databaseHelper, $this->loggedInUser))->getActivationCode() !== null) {
+            $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("activate-sellercode", $activateSellerCodeModal);
+        }
+
         if ( $_SERVER['REQUEST_METHOD'] == 'POST' AND array_key_exists("disabled", $_POST) === true) {
             if ($_POST["disabled"] == "disabled"){
                 $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("disabled", "enabled");
@@ -91,9 +90,9 @@ class UserInfo extends Page {
             $seller->setActivationCode(null);
             $this->activateProducts($seller);
             $seller->save();
-            $this->HTMLBuilder->addMessage(new PositiveMessage($this->HTMLBuilder, "Verifiï¿½ren voltooid", "U heeft nu een verkoper status"));
+            $this->HTMLBuilder->addMessage(new PositiveMessage($this->HTMLBuilder, "Verifiëren voltooid", "U heeft nu een verkoper status"));
         } else {
-            $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Verifiï¿½ren mislukt", "De opgegeven code komt niet overeen met de benodigde code"));
+            $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Verifiëren mislukt", "De opgegeven code komt niet overeen met de benodigde code"));
         }
     }
 
@@ -193,6 +192,7 @@ class UserInfo extends Page {
                     $seller->setCreditcardNumber($_POST["become-seller-credit-card-number"]);
                 }
                 $seller->setControlOption($controlOption);
+                $seller->getUser()->setIsSeller(true);
                 if($_POST['become-seller-verification-method'] === "over-post") {
                     $seller->setActivationCode($this->userHelper->generateRandomPassword());
                     $this->loggedInUser->save();
