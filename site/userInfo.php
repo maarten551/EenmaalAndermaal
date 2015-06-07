@@ -5,6 +5,7 @@ use src\classes\HTMLBuilder\HTMLParameter;
 use src\classes\Messages\Alert;
 use src\classes\Messages\PositiveMessage;
 use src\classes\Models\Item;
+use src\classes\Models\Question;
 use src\classes\Models\Seller;
 use src\classes\Models\UserPhoneNumber;
 use src\classes\Page;
@@ -44,6 +45,8 @@ class UserInfo extends Page {
             $this->removePhoneNumber();
         } else if (array_key_exists("change-or-save", $_POST) && $_POST['change-or-save'] === "Opslaan") {
             $this->updateUser();
+        } else if(array_key_exists("change-password", $_POST)) {
+            $this->changePasswordAndSecurityQuestion();
         }
     }
 
@@ -79,9 +82,59 @@ class UserInfo extends Page {
         }
 
         $this->placeUserDataInForm($content);
+        $this->generateChangePasswordTemplate($changePasswordModal);
         $this->generatePhoneNumberTemplate($phoneNumberModal);
         $this->generateLoginAndRegisterTemplates();
         return $this->HTMLBuilder->getHTML();
+    }
+
+    private function changePasswordAndSecurityQuestion() {
+        if(array_key_exists("change-password-old-password", $_POST) && !empty($_POST["change-password-old-password"])) {
+            if(password_verify($_POST["change-password-old-password"], $this->loggedInUser->getPassword()) === true) {
+                if(array_key_exists("change-password-option-password", $_POST) && $_POST["change-password-option-password"] === "password") {
+                    if(array_key_exists("change-password-new-password", $_POST) && !empty($_POST["change-password-new-password"]) && array_key_exists("change-password-new-password-repeat", $_POST) && !empty($_POST["change-password-new-password-repeat"])) {
+                        if($_POST["change-password-new-password"] === $_POST["change-password-new-password-repeat"]) {
+                            $this->loggedInUser->setPassword($_POST["change-password-new-password"]);
+                            $this->userHelper->hashPassword($this->loggedInUser);
+                            try {
+                                $this->loggedInUser->save();
+                                $this->HTMLBuilder->addMessage(new PositiveMessage($this->HTMLBuilder, "Veranderen van wachtwoord geslaagd", "Uw wachtwoord is succesvol gewijzigd."));
+                            } catch(Exception $e) {
+                                $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Veranderen van wachtwoord mislukt", "Er is een onbekende fout voorgekomen tijdens het wijzigen van uw account."));
+                            }
+                        } else {
+                            $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Veranderen van wachtwacht mislukt", "De ingevulde nieuwe wachtwoord velden komen niet overeen."));
+                        }
+                    } else {
+                        $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Veranderen van wachtwacht mislukt", "Niet alle benodigde velden zijn ingevuld."));
+                    }
+                }
+
+                if(array_key_exists("change-password-option-security-question", $_POST) && $_POST["change-password-option-security-question"] === "security-question") {
+                    $question = Question::GET_BY_QUESTION_TEXT($this->databaseHelper, $_POST["change-password-question"]);
+                    if($question !== null) {
+                        if(array_key_exists("change-password-question-answer", $_POST) && !empty($_POST["change-password-question-answer"])) {
+                            $this->loggedInUser->setQuestion($question);
+                            $this->loggedInUser->setQuestionAnswer($_POST["change-password-question-answer"]);
+                            try {
+                                $this->loggedInUser->save();
+                                $this->HTMLBuilder->addMessage(new PositiveMessage($this->HTMLBuilder, "Veranderen van geheime vraag geslaagd", "Uw geheime vraag en antwoord zijn succesvol gewijzigd."));
+                            } catch(Exception $e) {
+                                $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Veranderen van geheime vraag mislukt", "Er is een onbekende fout voorgekomen tijdens het wijzigen van uw account."));
+                            }
+                        } else {
+                            $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Veranderen van geheime vraag mislukt", "U heeft een lege geheime vraag antwoord meegegeven."));
+                        }
+                    } else {
+                        $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Veranderen van geheime vraag mislukt", "De door u ingevulde vraag komt niet overeen met vraag in de databank."));
+                    }
+                }
+            } else {
+                $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Veranderen van wachtwacht/geheime vraag mislukt", "Uw ingevulde oude wachtwoord komt niet overeen met uw huidige wachtwoord."));
+            }
+        } else {
+            $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Veranderen van wachtwacht/geheime vraag mislukt", "U heeft niet uw oude wachtwoord opgegeven."));
+        }
     }
 
     private function activateSellerAccount() {
@@ -107,8 +160,19 @@ class UserInfo extends Page {
         } else {
             $modalTemplate->addTemplateParameterByString("delete-phone-number-is-disabled", "disabled");
         }
+    }
 
+    private function generateChangePasswordTemplate(HTMLParameter $modelTemplate) {
+        $questions = $this->getQuestions();
+        $questionTemplates = array();
+        foreach($questions as $question){
+            $questionTemplate = new HTMLParameter($this->HTMLBuilder, "content\\question.html");
+            $questionTemplate->addTemplateParameterByString("question-name", $question->getQuestionText());
+            $questionTemplate->addTemplateParameterByString("question-value", $question->getQuestionText());
+            $questionTemplates[] = $questionTemplate;
+        }
 
+        $modelTemplate->addTemplateParameterByString("questions",  $this->HTMLBuilder->joinHTMLParameters($questionTemplates));
     }
 
     private function placeUserDataInForm(HTMLParameter $template) {

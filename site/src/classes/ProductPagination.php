@@ -15,6 +15,7 @@ class ProductPagination {
      */
     private $rubricFilter;
     private $findInTitleFilter;
+    private $totalAmountOfProductsInCriteria = 0;
 
     /**
      * @param $amountOfProductsPerPage
@@ -31,7 +32,8 @@ class ProductPagination {
 
     /**
      * @param $databaseHelper
-     * @return Item[]
+     * @param $amountOfProducts
+     * @return Models\Item[]
      */
     public function getProducts($databaseHelper) {
         $storedProcedureParameters = array(
@@ -50,10 +52,14 @@ class ProductPagination {
             array(
                 $this->findInTitleFilter,
                 SQLSRV_PARAM_IN
+            ),
+            array(
+                &$this->totalAmountOfProductsInCriteria,
+                SQLSRV_PARAM_INOUT
             )
         );
 
-        $statement = sqlsrv_query($databaseHelper->getDatabaseConnection(), "{call sp_getItemsInRubric(?, ?, ?, ?) }", $storedProcedureParameters);
+        $statement = sqlsrv_query($databaseHelper->getDatabaseConnection(), "{call sp_getItemsInRubric(?, ?, ?, ?, ?) }", $storedProcedureParameters);
         if($statement === false) {
             echo "Error in executing statement 3.\n";
             die( print_r( sqlsrv_errors(), true));
@@ -68,8 +74,6 @@ class ProductPagination {
 
             return $items;
         }
-
-        return null;
     }
 
     /**
@@ -134,6 +138,22 @@ class ProductPagination {
     public function setRubricFilter($rubricFilter)
     {
         $this->rubricFilter = $rubricFilter;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTotalAmountOfProductsInCriteria()
+    {
+        return $this->totalAmountOfProductsInCriteria;
+    }
+
+    /**
+     * @param int $totalAmountOfProductsInCriteria
+     */
+    public function setTotalAmountOfProductsInCriteria($totalAmountOfProductsInCriteria)
+    {
+        $this->totalAmountOfProductsInCriteria = $totalAmountOfProductsInCriteria;
     }
 
 

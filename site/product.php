@@ -74,20 +74,25 @@ class Product extends Page {
 
     private function bidOnItem() {
         $user = $this->userHelper->getLoggedInUser();
-        if($user !== null) {
-            if($this->item->getSeller()->getUser()->getUsername() !== $user->getUsername()) {
-                $bid = new Bid($this->databaseHelper, $_POST['bid-amount'], $this->item->getId());
-                $bid->setUser($user);
-                if ($bid->save() === false) {
-                    $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Bieding niet geplaatst", "Bieding is niet hoog genoeg."));
+        $_POST['bid-amount'] = str_replace(",", ".", $_POST['bid-amount']);
+        if(is_numeric($_POST['bid-amount']) && floatval($_POST['bid-amount']) <= 2000000) {
+            if ($user !== null) {
+                if ($this->item->getSeller()->getUser()->getUsername() !== $user->getUsername()) {
+                    $bid = new Bid($this->databaseHelper, $_POST['bid-amount'], $this->item->getId());
+                    $bid->setUser($user);
+                    if ($bid->save() === false) {
+                        $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Bieding niet geplaatst", "Bieding is niet hoog genoeg."));
+                    } else {
+                        $this->HTMLBuilder->addMessage(new PositiveMessage($this->HTMLBuilder, "Bieding geplaatst", "Uw bieding is geplaatst."));
+                    }
                 } else {
-                    $this->HTMLBuilder->addMessage(new PositiveMessage($this->HTMLBuilder, "Bieding geplaatst", "Uw bieding is geplaatst."));
+                    $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Bieding niet geplaatst", "U kunt niet op uw eigen veilingen bieden."));
                 }
             } else {
-                $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Bieding niet geplaatst", "U kunt niet op uw eigen veilingen bieden."));
+                $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Bieding niet geplaatst", "U bent niet ingelogd."));
             }
         } else {
-            $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Bieding niet geplaatst", "U bent niet ingelogd."));
+            $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Bieding niet geplaatst", "De door uw ingevulde bieding is geen getal of is groter dan &euro;2.000.000."));
         }
     }
 
