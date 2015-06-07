@@ -495,5 +495,19 @@ class Item extends Model {
         $this->set("isAuctionClosed", ($isAuctionClosed === true) ? 1 : 0);
     }
 
+    /**
+     * @return mixed
+     */
+    public function getSellPrice()
+    {
+        return $this->get("sellPrice");
+    }
 
+    /**
+     * @param mixed $sellPrice
+     */
+    public function setSellPrice($sellPrice)
+    {
+        $this->set("sellPrice", $sellPrice);
+    }
 }

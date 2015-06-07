@@ -1,6 +1,8 @@
 <?php
 namespace src\classes;
 use src\classes\HTMLBuilder\HTMLParameter;
+use src\classes\Messages\Warning;
+use src\classes\Models\Item;
 use src\classes\Models\Question;
 use src\classes\Models\User;
 
@@ -35,6 +37,8 @@ abstract class Page {
         if($this->loggedInUser === null) {
             $this->loggedInUser = $this->userHelper->getLoggedInUser();
         }
+
+        $this->endExpiredAuctions($this->databaseHelper);
         $this->handleRequestParameters();
     }
 
@@ -106,5 +110,40 @@ abstract class Page {
 
         header("location: $redirectLink/index.php");
         die();
+    }
+
+    private function endExpiredAuctions(DatabaseHelper $databaseHelper) {
+        $getExpiredAuctionsQuery = "SELECT id FROM [item] WHERE isAuctionClosed = 0 AND auctionEndDateTime <= getDate()";
+        $statement = sqlsrv_query($this->databaseHelper->getDatabaseConnection(), $getExpiredAuctionsQuery);
+        if($statement !== false) {
+            /**
+             * @var $items Item[]
+             */
+            $items = array();
+            while($row = sqlsrv_fetch_array($statement, SQLSRV_FETCH_ASSOC)) {
+                $items[] = new Item($databaseHelper, $row['id']);
+            }
+            if(count($items) >= 1) {
+                sqlsrv_query($databaseHelper->getDatabaseConnection(), "{call sp_endAuctions}"); //Call stored procedure to end all the auctions
+                foreach ($items as $item) {
+                    if($item->getBuyer() !== null) {
+                        $alreadyMailed = array($item->getBuyer()->getUsername() => true); //So people who made multiple bids on a item only receive one item.
+                        mail($item->getSeller()->getUser()->getMailbox(), "Veiling verlopen", "Uw veiling met de titel '". $item->getTitle() ."' is verlopen, gebruiker '". $item->getBuyer()->getUsername() ."' heeft het hoogste bod geboden van &euro;". $item->getSellPrice());
+                        mail($item->getBuyer()->getMailbox(), "Veiling verlopen", "De veiling met de titel '". $item->getTitle() ."' is verlopen. Gefeliciteerd, u heeft het hoogste bod geboden van &euro;". $item->getSellPrice());
+                        $bids = $item->getBids();
+                        foreach ($bids as $bid) {
+                            if($bid->getUsername() !== $item->getBuyer()->getUsername() && array_key_exists($bid->getUsername(), $alreadyMailed) === false) {
+                                $alreadyMailed[$bid->getUsername()] = true;
+                                mail($bid->getUser()->getMailbox(), "Veiling verlopen", "De veiling met de titel '". $item->getTitle() ."' is verlopen. Helaas, u heeft niet het hoogste bod geboden. De veiling is gewonnen door ". $item->getBuyer()->getUsername() ." met een bedrag van &euro;". $item->getSellPrice());
+                            }
+                        }
+                    } else {
+                        mail($item->getSeller()->getUser()->getMailbox(), "Veiling verlopen", "Uw veiling met de titel '". $item->getTitle() ."' is verlopen, helaas heeft niemand op dit item geboden");
+                    }
+                }
+            }
+        } else {
+            $this->HTMLBuilder->addMessage(new Warning($this->HTMLBuilder, "Afhandelen van verlopen velingen mislukt", "Er is een onbekende fout voorgekomen tijdens het afhandelen van afgelopen veilingen"));
+        }
     }
 }
