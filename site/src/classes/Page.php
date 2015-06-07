@@ -128,13 +128,13 @@ abstract class Page {
                 foreach ($items as $item) {
                     if($item->getBuyer() !== null) {
                         $alreadyMailed = array($item->getBuyer()->getUsername() => true); //So people who made multiple bids on a item only receive one item.
-                        mail($item->getSeller()->getUser()->getMailbox(), "Veiling verlopen", "Uw veiling met de titel '". $item->getTitle() ."' is verlopen, gebruiker '". $item->getBuyer()->getUsername() ."' heeft het hoogste bod geboden van &euro;". $item->getSellPrice());
+                        mail($item->getSeller()->getUser()->getMailbox(), "Veiling verlopen", "Uw veiling met de titel '". $item->getTitle() ."' is verlopen, gebruiker '". $item->getBuyer()->getUsername() ."' heeft het hoogste bod geboden van ?". $item->getSellPrice());
                         mail($item->getBuyer()->getMailbox(), "Veiling verlopen", "De veiling met de titel '". $item->getTitle() ."' is verlopen. Gefeliciteerd, u heeft het hoogste bod geboden van &euro;". $item->getSellPrice());
                         $bids = $item->getBids();
                         foreach ($bids as $bid) {
                             if($bid->getUsername() !== $item->getBuyer()->getUsername() && array_key_exists($bid->getUsername(), $alreadyMailed) === false) {
                                 $alreadyMailed[$bid->getUsername()] = true;
-                                mail($bid->getUser()->getMailbox(), "Veiling verlopen", "De veiling met de titel '". $item->getTitle() ."' is verlopen. Helaas, u heeft niet het hoogste bod geboden. De veiling is gewonnen door ". $item->getBuyer()->getUsername() ." met een bedrag van &euro;". $item->getSellPrice());
+                                mail($bid->getUser()->getMailbox(), "Veiling verlopen", "De veiling met de titel '". $item->getTitle() ."' is verlopen. Helaas, u heeft niet het hoogste bod geboden. De veiling is gewonnen door ". $item->getBuyer()->getUsername() ." met een bedrag van ?". $item->getSellPrice());
                             }
                         }
                     } else {

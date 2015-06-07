@@ -175,7 +175,7 @@ class Item extends Model {
      */
     public function getBuyerId()
     {
-        $this->get("buyer");
+        return $this->get("buyer");
     }
 
     /**
