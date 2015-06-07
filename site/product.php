@@ -67,8 +67,8 @@ class Product extends Page {
             }
 
             $feedbackType = $_POST["feedbackKind"];
-            $feedback->setKindOfUser(Feedback::$KIND_OF_USERS_TYPES["seller"]);
-            $feedback->setFeedbackKind(Feedback::$KIND_OF_FEEDBACK_TYPES["positive"]);
+            $feedback->setKindOfUser(Feedback::$KIND_OF_USERS_TYPES[$kindOfUser]);
+            $feedback->setFeedbackKind(Feedback::$KIND_OF_FEEDBACK_TYPES[$feedbackType]);
 
             $feedback->save();
             $this->item->addFeedback($feedback);
@@ -108,8 +108,7 @@ class Product extends Page {
 
         $content = new HTMLParameter($this->HTMLBuilder, "content\\content-productoverzicht.html");
         $thumbnail = new HTMLParameter($this->HTMLBuilder, "product\\product-thumbnail.html");
-        $feedback = new HTMLParameter($this->HTMLBuilder, "product\\product-feedback.html");
-        $enterFeedback = new HTMLParameter($this->HTMLBuilder, "product\\enter-feedback.html");
+        $feedbackTemplate = new HTMLParameter($this->HTMLBuilder, "product\\product-feedback.html");
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("content", $content);
 
         //getting all information from the product
@@ -122,29 +121,12 @@ class Product extends Page {
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("shipping-instruction", $this->item->getShippingInstruction());
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("shipping-cost", number_format((float)$this->item->getShippingCost(), 2, '.', ''));
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("bid-container", $this->generateBidTemplates());
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("product-feedback", $feedback);
-
-        //if ($this->item->getIsAuctionClosed()) {
-        $feedbacks = $this->item->getFeedbacks()->getAllFeedback();
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("feedback-buyer", $enterFeedback);
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("feedback-seller", "<h4>de verkoper heeft nog geen feedback gegeven</h4>");
-        foreach ($feedbacks as $customerFeedback) {
-            if (($customerFeedback !== null) && ($this->loggedInUser!== null)) {
-                if($this->loggedInUser->getUsername() == $this->item->getSellerId()){
-                    $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("feedback-seller", $enterFeedback);
-                }
-                if($this->loggedInUser->getUsername() == $this->item->getBuyerId()){
-                    $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("feedback-buyer", $enterFeedback);
-                }
-            }
-        }
-        //}
-
-
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("product-feedback", $feedbackTemplate);
 
 
 
         if ($this->item->getIsAuctionClosed()){
+            $this->createFeedbackTemplates();
             $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("time-left", "Deze veiling is gesloten, u kunt niet meer bieden");
             $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("is-disabled", "disabled");
         } else {
@@ -156,10 +138,7 @@ class Product extends Page {
             $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("is-disabled", "enabled");
         }
 
-        if(!$this->loggedInUser === null){
-            if ($this->loggedInUser->getUsername() === $this->item->getSeller()->getUser()->getUsername()){
-                $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("is-disabled", "disabled");
-            }
+        if($this->loggedInUser === null || $this->loggedInUser->getUsername() === $this->item->getSellerId()){
             $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("is-disabled", "disabled");
         }
 
@@ -186,6 +165,47 @@ class Product extends Page {
         $this->generateLoginAndRegisterTemplates();
         return $this->HTMLBuilder->getHTML();
         
+    }
+
+    private function createFeedbackTemplates(){
+        $enterFeedback = new HTMLParameter($this->HTMLBuilder, "product\\enter-feedback.html");
+        if ($this->loggedInUser !== null) {
+            if ($this->item->getSellerId() === $this->loggedInUser->getUsername()) {
+                $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("feedback-seller", $enterFeedback);
+            } else if ($this->item->getBuyerId() === $this->loggedInUser->getUsername()) {
+                $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("feedback-buyer", $enterFeedback);
+            }
+        }
+
+
+        $feedbacks = $this->item->getFeedbacks()->getAllFeedback();
+        foreach($feedbacks as $feedback){
+            if (!empty($feedback)) {
+                if ($feedback->getItem()->getSellerId() === $feedback->getUser()->getUser()->getUsername()) {
+                    $feedbackTemplate = new HTMLParameter($this->HTMLBuilder, "product\\product-feedback-template.html");
+                    $feedbackTemplate->addTemplateParameterByString("placement-date", $feedback->getPlacementDateTime()->format('Y-m-d'));
+                    $feedbackTemplate->addTemplateParameterByString("customer-feedback", $feedback->getComment());
+                    $feedbackTemplate->addTemplateParameterByString("feedback-user", $feedback->getUser()->getUser()->getUsername());
+                    if ($feedback->getFeedbackKind() == "positive"){
+                        $feedbackTemplate->addTemplateParameterByString("feedback-kind", "<text style='color: green'>Positief</text>");
+                    } else {
+                        $feedbackTemplate->addTemplateParameterByString("feedback-kind", "<text style='color: red'>Negatief</text>");
+                    }
+                    $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("feedback-seller", $feedbackTemplate);
+                } else {
+                    $feedbackTemplate = new HTMLParameter($this->HTMLBuilder, "product\\product-feedback-template.html");
+                    $feedbackTemplate->addTemplateParameterByString("placement-date", $feedback->getPlacementDateTime()->format('Y-m-d'));
+                    $feedbackTemplate->addTemplateParameterByString("customer-feedback", $feedback->getComment());
+                    $feedbackTemplate->addTemplateParameterByString("feedback-user", $feedback->getUser()->getUser()->getUsername());
+                    if ($feedback->getFeedbackKind() == "positive"){
+                        $feedbackTemplate->addTemplateParameterByString("feedback-kind", "<text style='color: green'>Positief</text>");
+                    } else {
+                        $feedbackTemplate->addTemplateParameterByString("feedback-kind", "<text style='color: red'>Negatief</text>");
+                    }
+                    $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("feedback-buyer", $feedbackTemplate);
+                }
+            }
+        }
     }
 
     /**

@@ -35,6 +35,7 @@ class MyAuctions extends Page {
         $content = new HTMLParameter($this->HTMLBuilder, "content\\content-user-auctions.html");
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("content", $content);
 
+        $this->generateLoginAndRegisterTemplates();
         $this->createAuctions();
         return $this->HTMLBuilder->getHTML();
     }
