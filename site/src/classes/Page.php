@@ -115,6 +115,10 @@ abstract class Page {
     private function endExpiredAuctions(DatabaseHelper $databaseHelper) {
         $getExpiredAuctionsQuery = "SELECT id FROM [item] WHERE isAuctionClosed = 0 AND auctionEndDateTime <= getDate()";
         $statement = sqlsrv_query($this->databaseHelper->getDatabaseConnection(), $getExpiredAuctionsQuery);
+        $emailHeaders = 'MIME-Version: 1.0' . "\r\n" .
+            'Content-type: text/html; charset=iso-8859-1' . "\r\n" .
+            'From: noreply@eenmaalandermaal.nl' . "\r\n" .
+            'X-Mailer: PHP/' . phpversion();
         if($statement !== false) {
             /**
              * @var $items Item[]
@@ -128,17 +132,17 @@ abstract class Page {
                 foreach ($items as $item) {
                     if($item->getBuyer() !== null) {
                         $alreadyMailed = array($item->getBuyer()->getUsername() => true); //So people who made multiple bids on a item only receive one item.
-                        mail($item->getSeller()->getUser()->getMailbox(), "Veiling verlopen", "Uw veiling met de titel '". $item->getTitle() ."' is verlopen, gebruiker '". $item->getBuyer()->getUsername() ."' heeft het hoogste bod geboden van ?". $item->getSellPrice());
-                        mail($item->getBuyer()->getMailbox(), "Veiling verlopen", "De veiling met de titel '". $item->getTitle() ."' is verlopen. Gefeliciteerd, u heeft het hoogste bod geboden van &euro;". $item->getSellPrice());
+                        mail($item->getSeller()->getUser()->getMailbox(), "Veiling verlopen", "Uw veiling met de titel '". $item->getTitle() ."' is verlopen, gebruiker '". $item->getBuyer()->getUsername() ."' heeft het hoogste bod geboden van ?". $item->getSellPrice(), $emailHeaders);
+                        mail($item->getBuyer()->getMailbox(), "Veiling verlopen", "De veiling met de titel '". $item->getTitle() ."' is verlopen. Gefeliciteerd, u heeft het hoogste bod geboden van &euro;". $item->getSellPrice(), $emailHeaders);
                         $bids = $item->getBids();
                         foreach ($bids as $bid) {
                             if($bid->getUsername() !== $item->getBuyer()->getUsername() && array_key_exists($bid->getUsername(), $alreadyMailed) === false) {
                                 $alreadyMailed[$bid->getUsername()] = true;
-                                mail($bid->getUser()->getMailbox(), "Veiling verlopen", "De veiling met de titel '". $item->getTitle() ."' is verlopen. Helaas, u heeft niet het hoogste bod geboden. De veiling is gewonnen door ". $item->getBuyer()->getUsername() ." met een bedrag van ?". $item->getSellPrice());
+                                mail($bid->getUser()->getMailbox(), "Veiling verlopen", "De veiling met de titel '". $item->getTitle() ."' is verlopen. Helaas, u heeft niet het hoogste bod geboden. De veiling is gewonnen door ". $item->getBuyer()->getUsername() ." met een bedrag van ?". $item->getSellPrice(), $emailHeaders);
                             }
                         }
                     } else {
-                        mail($item->getSeller()->getUser()->getMailbox(), "Veiling verlopen", "Uw veiling met de titel '". $item->getTitle() ."' is verlopen, helaas heeft niemand op dit item geboden");
+                        mail($item->getSeller()->getUser()->getMailbox(), "Veiling verlopen", "Uw veiling met de titel '". $item->getTitle() ."' is verlopen, helaas heeft niemand op dit item geboden", $emailHeaders);
                     }
                 }
             }
