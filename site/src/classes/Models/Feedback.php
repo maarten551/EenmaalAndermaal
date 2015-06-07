@@ -117,7 +117,9 @@ class Feedback extends Model {
      */
     public function setKindOfUser($kindOfUser)
     {
-        $this->set("kindOfUser", $kindOfUser);
+        if(array_key_exists($kindOfUser, $this::$KIND_OF_USERS_TYPES)) {
+            $this->set("kindOfUser", $kindOfUser);
+        }
     }
 
     /**
@@ -149,7 +151,7 @@ class Feedback extends Model {
      */
     public function setFeedbackKind($feedbackKind)
     {
-        if (array_key_exists($feedbackKind, Feedback::$KIND_OF_USERS_TYPES)) {
+        if (array_key_exists($feedbackKind, $this::$KIND_OF_FEEDBACK_TYPES)) {
             $this->set("feedbackKind", $feedbackKind);
         }
     }

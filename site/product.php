@@ -35,28 +35,6 @@ class Product extends Page {
         if(!array_key_exists("product", $_GET) || !is_numeric($_GET["product"]) || $this->item->getSeller() === null) {
             $this->redirectToIndex();
         }
-        if (!empty($_POST["feedbackKind"])){
-            if ($this->item->getSellerId() === $this->loggedInUser->getUsername()){
-                $kindOfUser = "seller";
-            } else {
-                $kindOfUser = "buyer";
-            }
-
-
-            $feedback = new Feedback($this->databaseHelper, $kindOfUser, $this->item->getId());
-            if (!empty($_POST["feedbackText"])) {
-                $feedback->setComment($_POST["feedbackText"]);
-            }
-
-            $feedbackType= $_POST["feedbackKind"];
-            $feedback->setKindOfUser(Feedback::$KIND_OF_USERS_TYPES["seller"]);
-            $feedback->setFeedbackKind(Feedback::$KIND_OF_FEEDBACK_TYPES["positive"]);
-
-            var_dump($feedback);
-            $feedback->save();
-            $this->item->addFeedback($feedback);
-
-        }
     }
 
     public function __destruct() {
@@ -69,6 +47,33 @@ class Product extends Page {
 
         if(array_key_exists("bid-on-product", $_POST)) {
             $this->bidOnItem();
+        } else if(array_key_exists("feedbackKind", $_POST)) {
+            $this->addFeedback();
+        }
+    }
+
+    private function addFeedback() {
+        if (!empty($_POST["feedbackKind"])) {
+            if ($this->item->getSellerId() === $this->loggedInUser->getUsername()) {
+                $kindOfUser = "seller";
+            } else {
+                $kindOfUser = "buyer";
+            }
+
+
+            $feedback = new Feedback($this->databaseHelper, $kindOfUser, $this->item->getId());
+            if (!empty($_POST["feedbackText"])) {
+                $feedback->setComment($_POST["feedbackText"]);
+            }
+
+            $feedbackType = $_POST["feedbackKind"];
+            $feedback->setKindOfUser(Feedback::$KIND_OF_USERS_TYPES["seller"]);
+            $feedback->setFeedbackKind(Feedback::$KIND_OF_FEEDBACK_TYPES["positive"]);
+
+            $feedback->save();
+            $this->item->addFeedback($feedback);
+        } else {
+            //TODO: show error
         }
     }
 
@@ -121,7 +126,7 @@ class Product extends Page {
 
         //if ($this->item->getIsAuctionClosed()) {
         $feedbacks = $this->item->getFeedbacks()->getAllFeedback();
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("feedback-buyer", "<h4>de koper heeft nog geen feedback gegeven</h4>");
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("feedback-buyer", $enterFeedback);
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("feedback-seller", "<h4>de verkoper heeft nog geen feedback gegeven</h4>");
         foreach ($feedbacks as $customerFeedback) {
             if (($customerFeedback !== null) && ($this->loggedInUser!== null)) {
