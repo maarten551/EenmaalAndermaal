@@ -47,18 +47,21 @@
 
                     <h3>#$(time-left)$#</h3>
                     <h4 style="margin-bottom: 15px; margin-top: 15px">(veiling sluit op #$(auction-enddate)$#)</h4>
-                    <h4>Betaalwijze: </h4>
-                    #$(payment-instruction)$#
-
-                    <h4>Bezorginstructies: </h4>
-
-                    #$(shipping-instruction)$#
-
-                    <div>
-                        <h4 style="position: relative; float: left">Bezorgkosten: </h4>
-                        <div style="position: relative; float: left">
-                            &#8364; #$(shipping-cost)$#
-                        </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                        <h4>Betaalinstructies: </h4>
+                        #$(payment-instruction)$#
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                        <h4>Betaalmethode:</h4>
+                        #$(payment-method)$#
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                        <h4>Bezorginstructies: </h4>
+                        #$(shipping-instruction)$#
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                        <h4>Bezorgkosten: </h4>
+                        &#8364; #$(shipping-cost)$#
                     </div>
 
                 </div>
@@ -71,6 +74,7 @@
                     </table>
                     #$(bid-container)$#
                 </div>
+                #$(product-feedback)$#
             </div>
         </div>
     </div>

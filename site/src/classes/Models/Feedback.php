@@ -9,6 +9,7 @@ use src\classes\DatabaseHelper;
 class Feedback extends Model {
     public static $KIND_OF_USERS_TYPES = array("buyer" => "buyer", "seller" => "seller");
     public static $KIND_OF_FEEDBACK_TYPES = array("positive" => "positive", "negative" => "negative");
+
     protected $kindOfUser;
     protected $itemId;
     /**

@@ -97,8 +97,6 @@ class Index extends Page {
             $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("searched-for", "Resultaten voor: " . '"'.$_SESSION["search"].'"');
         }
 
-
-
         $this->createSelectValues();
         $this->generateRubricMenu();
         $this->createProducts();
@@ -188,7 +186,7 @@ class Index extends Page {
 
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("products", $this->HTMLBuilder->joinHTMLParameters($productTemplates));
         if ($index == 0){
-            $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("categories-found", "<h3>Helaas, er zijn geen producten gevonden die aan de criteria voldoen.</h3>");
+            $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("categories-found", "<h3 style='position: relative; float: right; width: 100%'>Helaas, er zijn geen producten gevonden die aan de criteria voldoen.</h3>");
         } else {
             $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("products", $this->HTMLBuilder->joinHTMLParameters($productTemplates));
             $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("pagination", $pagination);

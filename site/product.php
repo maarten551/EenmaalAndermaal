@@ -5,6 +5,7 @@ use src\classes\HTMLBuilder\HTMLParameter;
 use src\classes\Messages\Alert;
 use src\classes\Messages\PositiveMessage;
 use src\classes\Models\Bid;
+use src\classes\Models\Feedback;
 use src\classes\Page;
 use src\classes\Models\File;
 use src\classes\Models\Item;
@@ -25,11 +26,36 @@ class Product extends Page {
      */
     private $item = null;
 
+    /**
+     *
+     */
     public function __construct() {
         parent::__construct("template.html");
 
         if(!array_key_exists("product", $_GET) || !is_numeric($_GET["product"]) || $this->item->getSeller() === null) {
             $this->redirectToIndex();
+        }
+        if (!empty($_POST["feedbackKind"])){
+            if ($this->item->getSellerId() === $this->loggedInUser->getUsername()){
+                $kindOfUser = "seller";
+            } else {
+                $kindOfUser = "buyer";
+            }
+
+
+            $feedback = new Feedback($this->databaseHelper, $kindOfUser, $this->item->getId());
+            if (!empty($_POST["feedbackText"])) {
+                $feedback->setComment($_POST["feedbackText"]);
+            }
+
+            $feedbackType= $_POST["feedbackKind"];
+            $feedback->setKindOfUser(Feedback::$KIND_OF_USERS_TYPES["seller"]);
+            $feedback->setFeedbackKind(Feedback::$KIND_OF_FEEDBACK_TYPES["positive"]);
+
+            var_dump($feedback);
+            $feedback->save();
+            $this->item->addFeedback($feedback);
+
         }
     }
 
@@ -72,6 +98,8 @@ class Product extends Page {
 
         $content = new HTMLParameter($this->HTMLBuilder, "content\\content-productoverzicht.html");
         $thumbnail = new HTMLParameter($this->HTMLBuilder, "product\\product-thumbnail.html");
+        $feedback = new HTMLParameter($this->HTMLBuilder, "product\\product-feedback.html");
+        $enterFeedback = new HTMLParameter($this->HTMLBuilder, "product\\enter-feedback.html");
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("content", $content);
 
         //getting all information from the product
@@ -80,9 +108,30 @@ class Product extends Page {
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("seller", $this->item->getSellerId());
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("auction-enddate", $this->item->getAuctionStartDateTime()->format('Y-m-d H:i'));
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("payment-instruction", $this->item->getPaymentInstruction());
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("payment-method", $this->item->getPaymentMethod());
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("shipping-instruction", $this->item->getShippingInstruction());
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("shipping-cost", number_format((float)$this->item->getShippingCost(), 2, '.', ''));
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("bid-container", $this->generateBidTemplates());
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("product-feedback", $feedback);
+
+        //if ($this->item->getIsAuctionClosed()) {
+        $feedbacks = $this->item->getFeedbacks()->getAllFeedback();
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("feedback-buyer", "<h4>de koper heeft nog geen feedback gegeven</h4>");
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("feedback-seller", "<h4>de verkoper heeft nog geen feedback gegeven</h4>");
+        foreach ($feedbacks as $customerFeedback) {
+            if (($customerFeedback !== null) && ($this->loggedInUser!== null)) {
+                if($this->loggedInUser->getUsername() == $this->item->getSellerId()){
+                    $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("feedback-seller", $enterFeedback);
+                }
+                if($this->loggedInUser->getUsername() == $this->item->getBuyerId()){
+                    $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("feedback-buyer", $enterFeedback);
+                }
+            }
+        }
+        //}
+
+
+
 
 
         if ($this->item->getIsAuctionClosed()){
@@ -97,7 +146,10 @@ class Product extends Page {
             $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("is-disabled", "enabled");
         }
 
-        if(!$this->loggedInUser === null || $this->loggedInUser->getUsername() === $this->item->getSeller()->getUser()->getUsername()){
+        if(!$this->loggedInUser === null){
+            if ($this->loggedInUser->getUsername() === $this->item->getSeller()->getUser()->getUsername()){
+                $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("is-disabled", "disabled");
+            }
             $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("is-disabled", "disabled");
         }
 
@@ -158,7 +210,7 @@ class Product extends Page {
         $minimalIncrement = number_format($this->calculateMinimumBidIncrement($highestPrice), 2, '.', '');
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("highest-bid", $highestPrice);
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("minimal-increment", $minimalIncrement);
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("minimal-new-value", number_format($highestPrice + $minimalIncrement, 2, '.', ''));
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("minimal-new-value", number_format(($highestPrice + $minimalIncrement), 2, '.', ''));
     }
 
     /**
