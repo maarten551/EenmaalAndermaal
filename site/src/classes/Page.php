@@ -94,7 +94,7 @@ abstract class Page {
     /**
      * @return Question[]
      */
-    private function getQuestions(){
+    protected function getQuestions(){
         $statement = sqlsrv_query($this->databaseHelper->getDatabaseConnection(), "select questionText from question");
         if($statement === false) {
             echo "Error in executing statement.\n";

@@ -23,6 +23,7 @@ session_start();
 date_default_timezone_set("Europe/Amsterdam");
 
 class Index extends Page {
+    public static $MAXIMUM_AMOUNT_PAGE_NUMBERS = 7;
     private $imageHelper;
     private $productGridTemplateHTML;
     private $productListTemplateHTML;
@@ -32,7 +33,6 @@ class Index extends Page {
 
     public function __construct() {
         parent::__construct("template.html");
-
         $this->imageHelper = new ImageHelper();
 
         if (!isset($_SESSION["productsPerPage"])){
@@ -89,6 +89,7 @@ class Index extends Page {
 
     public function createHTML()
     {
+        $productPagination = new ProductPagination($_SESSION["productsPerPage"]);
         $content = new HTMLParameter($this->HTMLBuilder, "content\\content-homepage.html");
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("content", $content);
         /* check for every get if it has been set, and if no, give them a default value*/
@@ -101,27 +102,30 @@ class Index extends Page {
 
         $this->createSelectValues();
         $this->generateRubricMenu();
-        $this->createProducts();
-        $this->createPageNumbers();
+        $this->createProducts($productPagination);
+        $this->createPageNumbers($productPagination);
         $this->generateLoginAndRegisterTemplates();
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("next-page", ($_SESSION["pageNumber"] + 1));
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("previous-page", ($_SESSION["pageNumber"] - 1));
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("last-page", ceil($productPagination->getTotalAmountOfProductsInCriteria() / $productPagination->getAmountOfProductsPerPage()));
         return $this->HTMLBuilder->getHTML();
     }
 
     public function __destruct() {
         parent::__destruct();
     }
-    public function createPageNumbers(){
+    public function createPageNumbers(ProductPagination $productPagination){
         $numberTemplates = array();
         $currentPageNumber = $_SESSION["pageNumber"];
+
         for($i = $currentPageNumber-5; $i<$currentPageNumber; $i++){/*go back 5 pages to show the 5 previous pages in pagination*/
-            if ($i >0) {/*check if the number being made is more than 0, if so, don't create anything*/
+            if ($i > 0) {/*check if the number being made is more than 0, if so, don't create anything*/
                 $numberTemplates[] = $this->generatePageNumbers($i, $currentPageNumber);
             }
         }
         for($i = $currentPageNumber; $i<$currentPageNumber+6; $i++){/*go forward 5 pages, the +1 added is because the current page doesn't count*/
-            $numberTemplates[] = $this->generatePageNumbers($i, $currentPageNumber);
+            if($i < ceil($productPagination->getTotalAmountOfProductsInCriteria() / $productPagination->getAmountOfProductsPerPage())+1) {
+                $numberTemplates[] = $this->generatePageNumbers($i, $currentPageNumber);
+            }
+
         }
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("page-numbers", $this->HTMLBuilder->joinHTMLParameters($numberTemplates));
     }
@@ -157,9 +161,8 @@ class Index extends Page {
         return $optionTemplate;
     }
 
-    public function createProducts(){
+    public function createProducts(ProductPagination $productPagination){
         $pagination = new HTMLParameter($this->HTMLBuilder, "content\\indexAddons\\pagination.html");
-        $productPagination = new ProductPagination($_SESSION["productsPerPage"]);
         $productPagination->setFindInTitleFilter($_SESSION["search"]);
         $productPagination->setCurrentPageNumber($_SESSION["pageNumber"]);
 
@@ -178,7 +181,8 @@ class Index extends Page {
             }
         }
 
-        $products = $productPagination->getProducts($this->databaseHelper);
+        $amountOfProducts = 0; //Reference is send in the function so it gets updated
+        $products = $productPagination->getProducts($this->databaseHelper, $amountOfProducts);
         $productTemplates = array();
         $index = 0;
         foreach($products as $product){

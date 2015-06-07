@@ -72,41 +72,47 @@ class StartAuction extends Page {
         );
 
         if($this->checkAllRequiredFields($registerFields)) {
-            $rubric = new Rubric($this->databaseHelper, $_POST['auction-rubric']);
-            if($rubric->getName() !== null) {
-                if (in_array($_POST['auction-duration-days'], array(1, 3, 5, 7, 10))) {
-                    $item = new Item($this->databaseHelper);
-                    $item->setSeller(new Seller($this->databaseHelper, $this->loggedInUser));
-                    $item->setTitle($_POST['auction-title']);
-                    $item->setDescription($_POST['auction-description']);
-                    $item->setStartPrice($_POST['auction-start-price']);
-                    $item->setAuctionDurationInDays($_POST['auction-duration-days']);
-                    $item->setTown($_POST['auction-town']);
-                    $item->setCountry($_POST['auction-country']);
-                    $item->setPaymentMethod($_POST['auction-payment-method']);
-                    $item->setPaymentInstruction($_POST['auction-payment-description']);
-                    $item->setShippingCost($_POST['auction-shipping-cost']);
-                    $item->setShippingInstruction($_POST['auction-shipping-instruction']);
-                    $item->setAuctionStartDateTime(new \DateTime());
-                    $item->setAuctionEndDateTime((new \DateTime())->modify("+". $item->getAuctionDurationInDays() ." days"));
-                    $item->save();
+            $_POST['auction-start-price'] = str_replace(",", ".", $_POST['auction-start-price']);
+            $_POST['auction-shipping-cost'] = str_replace(",", ".", $_POST['auction-start-price']);
+            if(is_numeric($_POST['auction-start-price']) && floatval($_POST['auction-start-price']) <= 1000000 && floatval($_POST['auction-start-price']) >= 0.50) {
+                $rubric = new Rubric($this->databaseHelper, $_POST['auction-rubric']);
+                if ($rubric->getName() !== null) {
+                    if (in_array($_POST['auction-duration-days'], array(1, 3, 5, 7, 10))) {
+                        $item = new Item($this->databaseHelper);
+                        $item->setSeller(new Seller($this->databaseHelper, $this->loggedInUser));
+                        $item->setTitle($_POST['auction-title']);
+                        $item->setDescription($_POST['auction-description']);
+                        $item->setStartPrice($_POST['auction-start-price']);
+                        $item->setAuctionDurationInDays($_POST['auction-duration-days']);
+                        $item->setTown($_POST['auction-town']);
+                        $item->setCountry($_POST['auction-country']);
+                        $item->setPaymentMethod($_POST['auction-payment-method']);
+                        $item->setPaymentInstruction($_POST['auction-payment-description']);
+                        $item->setShippingCost($_POST['auction-shipping-cost']);
+                        $item->setShippingInstruction($_POST['auction-shipping-instruction']);
+                        $item->setAuctionStartDateTime(new \DateTime());
+                        $item->setAuctionEndDateTime((new \DateTime())->modify("+" . $item->getAuctionDurationInDays() . " days"));
+                        $item->save();
 
-                    if ($item->getId() !== null) {
-                        $this->addImagesToAuction($item);
-                        $this->saveRubricRelation($item, $rubric);
+                        if ($item->getId() !== null) {
+                            $this->addImagesToAuction($item);
+                            $this->saveRubricRelation($item, $rubric);
 
-                        $this->HTMLBuilder->addMessage(new PositiveMessage($this->HTMLBuilder, "Veiling is toegevoegd", "De veiling van het product is begonnen"));
+                            $this->HTMLBuilder->addMessage(new PositiveMessage($this->HTMLBuilder, "Veiling is toegevoegd", "De veiling van het product is begonnen."));
+                        } else {
+                            $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Veiling niet toegevoegd", "Er is een onbekent probleem voorgekomen."));
+                        }
                     } else {
-                        $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Veiling niet toegevoegd", "Er is een onbekent probleem voorgekomen"));
+                        $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Veiling niet toegevoegd", "Er is een niet correct aantal dagen meegegeven."));
                     }
                 } else {
-                    $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Veiling niet toegevoegd", "Er is een niet correct aantal dagen meegegeven"));
+                    $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Veiling niet toegevoegd", "Een niet bestaande rubric is meegegeven."));
                 }
             } else {
-                $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Veiling niet toegevoegd", "Een niet bestaande rubric is meegegeven"));
+                $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Veiling niet toegevoegd", "De veiling prijs is geen numeriek getal, het getal is boven &euro;1,000,000 of het getal is lager dan &euro;0.50."));
             }
         } else {
-            $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Veiling niet toegevoegd", "Niet alle velden zijn correct ingevuld"));
+            $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Veiling niet toegevoegd", "Niet alle velden zijn correct ingevuld."));
         }
     }
 
