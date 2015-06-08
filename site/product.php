@@ -84,6 +84,8 @@ class Product extends Page {
             if ($user !== null) {
                 if ($this->item->getSeller()->getUser()->getUsername() !== $user->getUsername()) {
                     $bid = new Bid($this->databaseHelper, $_POST['bid-amount'], $this->item->getId());
+                    $bid->getItem(false)->getBids(); //To get all the updates before an unsaved bid is added to the item
+                    $bid->getItem()->addBid($bid);
                     $bid->setUser($user);
                     if ($bid->save() === false) {
                         $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Bieding niet geplaatst", "Bieding is niet hoog genoeg."));
@@ -109,8 +111,17 @@ class Product extends Page {
             'X-Mailer: PHP/' . phpversion();
         mail($bid->getItem()->getSeller()->getUser()->getMailbox(), "Bieding geplaatst", "
         Er is een bieding geplaatst op het product <a href='http://iproject16.icasites.nl/product.php?product=". $bid->getItemId() ."'>'". $bid->getItem()->getTitle() ."'</a>.<br/>
-        Bieding bedrag: ?". $bid->getAmount() ."<br />
+        Bieding bedrag: &euro;". $bid->getAmount() ."<br />
         Bieder: <a href='http://iproject16.icasites.nl/accountOverview.php?user=". $bid->getUsername() ."'>". $bid->getUsername() ."</a>", $emailHeaders);
+        if(count($bid->getItem()->getBids()) >= 2) {
+            $previousHighestBid = $bid->getItem()->getBids()[0];
+            if($previousHighestBid->getUsername() !== $this->loggedInUser->getUsername()) {
+                mail($bid->getUser()->getMailbox(), "Bieding overboden", "
+                    Uw bieding is overboden op het product <a href='http://iproject16.icasites.nl/product.php?product=". $bid->getItemId() ."'>'". $bid->getItem()->getTitle() ."'</a>.<br/>
+                    Bieding bedrag: &euro;". $bid->getAmount() ."<br />
+                    Bieder: <a href='http://iproject16.icasites.nl/accountOverview.php?user=". $bid->getUsername() ."'>". $bid->getUsername() ."</a>", $emailHeaders);
+            }
+        }
     }
 
     public function createHTML()

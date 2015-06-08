@@ -59,14 +59,17 @@ class Bid extends Model {
     }
 
     /**
+     * @param bool $addBidToItem
      * @return Item
      */
-    public function getItem()
+    public function getItem($addBidToItem = true)
     {
         $itemId = $this->get("itemId");
         if($this->item === null && $itemId !== null) {
             $this->item = new Item($this->databaseHelper, $itemId);
-            $this->item->addBid($this);
+            if($addBidToItem === true) {
+                $this->item->addBid($this);
+            }
         }
 
         return $this->item;

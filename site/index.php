@@ -212,16 +212,19 @@ class Index extends Page {
         $productTemplate->addTemplateParameterByString("product-id", $product->getId());
 
         $images = $product->getImages();
-        $imagePath = "";
+        $thumbnail = "";
+        $selectedImagePath = "";
         foreach($images as $image){
             $imagePath = $this->imageHelper->getImageLocation($image);
             if (strpos($imagePath,'thumbnails') !== false) {
-                $productTemplate->addTemplateParameterByString("thumbnail-source", $imagePath);
+                $thumbnail = $imagePath;
+            } else {
+                $selectedImagePath = $imageHelper->getImageLocation($image);
                 break;
             }
-            $imagePath = $imageHelper->getImageLocation($image);
-            $productTemplate->addTemplateParameterByString("image-source", $imagePath);
         }
+
+        $selectedImagePath = ($selectedImagePath === "") ? $thumbnail : $selectedImagePath;
 
         $auctionEndDate = $product->getAuctionEndDateTime();
 
@@ -233,7 +236,7 @@ class Index extends Page {
             $productTemplate->addTemplateParameterByString("time-left",$interval->days." dagen en ".$interval->h." uur.");
         }
 
-        $productTemplate->addTemplateParameterByString("image-source", ($imagePath !== "") ? $imagePath : ImageHelper::$NO_FILE_FOUND_LOCATION);
+        $productTemplate->addTemplateParameterByString("image-source", ($selectedImagePath !== "") ? $selectedImagePath : ImageHelper::$NO_FILE_FOUND_LOCATION);
         $highestPrice = $product->getStartPrice();
         if(count($product->getBids()) >= 1) {
             $highestPrice = $product->getBids()[0]->getAmount();
