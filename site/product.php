@@ -201,32 +201,25 @@ class Product extends Page {
             }
         }
 
-
         $feedbacks = $this->item->getFeedbacks()->getAllFeedback();
         foreach($feedbacks as $feedback){
             if (!empty($feedback)) {
-                if ($feedback->getItem()->getSellerId() === $feedback->getUser()->getUser()->getUsername()) {
-                    $feedbackTemplate = new HTMLParameter($this->HTMLBuilder, "product\\product-feedback-template.html");
-                    $feedbackTemplate->addTemplateParameterByString("placement-date", $feedback->getPlacementDateTime()->format('Y-m-d'));
-                    $feedbackTemplate->addTemplateParameterByString("customer-feedback", $feedback->getComment());
-                    $feedbackTemplate->addTemplateParameterByString("feedback-user", $feedback->getUser()->getUser()->getUsername());
-                    if ($feedback->getFeedbackKind() == "positive"){
-                        $feedbackTemplate->addTemplateParameterByString("feedback-kind", "<text style='color: green'>Positief</text>");
-                    } else {
-                        $feedbackTemplate->addTemplateParameterByString("feedback-kind", "<text style='color: red'>Negatief</text>");
-                    }
-                    $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("feedback-seller", $feedbackTemplate);
+                $user = $feedback->getUser();
+                $feedbackTemplate = new HTMLParameter($this->HTMLBuilder, "product\\product-feedback-template.html");
+                $feedbackTemplate->addTemplateParameterByString("placement-date", $feedback->getPlacementDateTime()->format('Y-m-d'));
+                $feedbackTemplate->addTemplateParameterByString("customer-feedback", $feedback->getComment());
+                if ($feedback->getFeedbackKind() == "positive"){
+                    $feedbackTemplate->addTemplateParameterByString("feedback-kind", "<text style='color: green'>Positief</text>");
                 } else {
-                    $feedbackTemplate = new HTMLParameter($this->HTMLBuilder, "product\\product-feedback-template.html");
-                    $feedbackTemplate->addTemplateParameterByString("placement-date", $feedback->getPlacementDateTime()->format('Y-m-d'));
-                    $feedbackTemplate->addTemplateParameterByString("customer-feedback", $feedback->getComment());
-                    $feedbackTemplate->addTemplateParameterByString("feedback-user", $feedback->getUser()->getUser()->getUsername());
-                    if ($feedback->getFeedbackKind() == "positive"){
-                        $feedbackTemplate->addTemplateParameterByString("feedback-kind", "<text style='color: green'>Positief</text>");
-                    } else {
-                        $feedbackTemplate->addTemplateParameterByString("feedback-kind", "<text style='color: red'>Negatief</text>");
-                    }
+                    $feedbackTemplate->addTemplateParameterByString("feedback-kind", "<text style='color: red'>Negatief</text>");
+                }
+
+                if ($user instanceof \src\classes\Models\Seller) {
+                    $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("feedback-seller", $feedbackTemplate);
+                    $feedbackTemplate->addTemplateParameterByString("feedback-user", $user->getUser()->getUsername());
+                } else {
                     $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("feedback-buyer", $feedbackTemplate);
+                    $feedbackTemplate->addTemplateParameterByString("feedback-user", $user->getUsername());
                 }
             }
         }
