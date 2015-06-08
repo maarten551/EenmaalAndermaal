@@ -45,16 +45,16 @@
 
     <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
         <label>Verzending omschrijving:</label>
-        <textarea type="text" name="auction-shipping-instruction" class="form-control" maxlength="200" rows="3"></textarea>
+        <textarea name="auction-shipping-instruction" class="form-control" maxlength="200" rows="3"></textarea>
     </div>
     <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
         <label>Betaling omschrijving:</label>
-        <textarea type="text" name="auction-payment-description" class="form-control" maxlength="500" rows="3"></textarea>
+        <textarea name="auction-payment-description" class="form-control" maxlength="500" rows="3"></textarea>
     </div>
 
     <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
         <label>Verzendingskosten:</label>
-        <input type="number" name="auction-shipping-cost" class="form-control">
+        <input type="number" name="auction-shipping-cost" min="0.01" class="form-control" step="0.01" pattern="^\d+(?:\.\d{0,2})$">
     </div>
     <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
         <label>Betalingsmethode:</label>

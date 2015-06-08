@@ -131,7 +131,7 @@ class Product extends Page {
         $interval = $this->item->getAuctionEndDateTime()->diff(new DateTime());
 
         $content = new HTMLParameter($this->HTMLBuilder, "content\\content-productoverzicht.html");
-        $thumbnail = new HTMLParameter($this->HTMLBuilder, "product\\product-thumbnail.html");
+
         $feedbackTemplate = new HTMLParameter($this->HTMLBuilder, "product\\product-feedback.html");
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("content", $content);
 
@@ -168,19 +168,19 @@ class Product extends Page {
 
         $images = $this->item->getImages();
         if(count($images) >= 1) {
+            $thumbnailTemplates = array();
             foreach ($images as $index => $image) {
                 $imagePath = $imageHelper->getImageLocation($image);
-
                 if ($index == 0) {
                     $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("img-source", $imagePath);
-                }
-                if ($index >= 1) {
-                    if (strpos($imagePath, 'pics') !== false) {
-                        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("thumbnails", $thumbnail);
-                        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("img-source-thumb", $imagePath);
-                    }
+                } else
+                {
+                    $imageTemplate = new HTMLParameter($this->HTMLBuilder, "content\\product-side-image.html");
+                    $imageTemplate->addTemplateParameterByString("img-source", $imagePath);
+                    $thumbnailTemplates[] = $imageTemplate;
                 }
             }
+            $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("thumbnails",$this->HTMLBuilder->joinHTMLParameters($thumbnailTemplates));
         } else {
             $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("img-source", ImageHelper::$NO_FILE_FOUND_LOCATION);
         }
