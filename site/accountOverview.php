@@ -50,7 +50,7 @@ class AccountOverview extends Page
         $givenFeedback = $this->createGivenFeedbackTemplate($this->user->getFeedbacks()->getAllFeedback());
         $receivedFeedback = $this->createReceivedFeedbackTemplate($this->user->getFeedbacks()->getAllFeedback());
 
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("count-given", sizeof($givenFeedback));
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("count-given", count($givenFeedback));
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("count-received", sizeof($receivedFeedback));
 
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("given-feedback",$this->HTMLBuilder->joinHTMLParameters($givenFeedback));
