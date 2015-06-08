@@ -60,7 +60,6 @@ class Product extends Page {
                 $kindOfUser = "buyer";
             }
 
-
             $feedback = new Feedback($this->databaseHelper, $kindOfUser, $this->item->getId());
             if (!empty($_POST["feedbackText"])) {
                 $feedback->setComment($_POST["feedbackText"]);
@@ -72,6 +71,8 @@ class Product extends Page {
 
             $feedback->save();
             $this->item->addFeedback($feedback);
+            $redirectProduct = $_GET["product"];
+            header("Location: product.php?product=".$redirectProduct);
         } else {
             //TODO: show error
         }

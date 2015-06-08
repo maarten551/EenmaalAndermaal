@@ -47,28 +47,32 @@
 
                     <h3>#$(time-left)$#</h3>
                     <h4 style="margin-bottom: 15px; margin-top: 15px">(veiling sluit op #$(auction-enddate)$#)</h4>
-                    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
-                        <h4>Betaalinstructies: </h4>
-                        #$(payment-instruction)$#
+                    <div style="overflow: auto">
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                            <h4>Betaalinstructies: </h4>
+                            #$(payment-instruction)$#
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                            <h4>Betaalmethode:</h4>
+                            #$(payment-method)$#
+                        </div>
                     </div>
-                    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
-                        <h4>Betaalmethode:</h4>
-                        #$(payment-method)$#
-                    </div>
-                    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
-                        <h4>Bezorginstructies: </h4>
-                        #$(shipping-instruction)$#
-                    </div>
-                    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
-                        <h4>Bezorgkosten: </h4>
-                        &#8364; #$(shipping-cost)$#
+                    <div style="overflow: auto">
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                            <h4>Bezorginstructies: </h4>
+                            #$(shipping-instruction)$#
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                            <h4>Verzendkosten: </h4>
+                            &#8364; #$(shipping-cost)$#
+                        </div>
                     </div>
 
                 </div>
                 <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6"><!-- previous bids -->
                     <h3>Vorige Biedingen:</h3>
                     <table class="maxWidth" style="font-size: 1.4em; table-layout: fixed">
-                        <tr class="maxWidth" >
+                        <tr class="maxWidth">
                             <td>Gebruiker:</td><td>Bedrag:</td><td>Datum:</td>
                         </tr>
                     </table>

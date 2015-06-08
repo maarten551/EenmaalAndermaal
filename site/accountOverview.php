@@ -25,6 +25,7 @@ class accountoverview extends Page
     public function createHTML()
     {
         $this->user = new User($this->databaseHelper, $_GET["user"]);
+
         $content = new HTMLParameter($this->HTMLBuilder, "content\\content-account-overview.html");
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("content", $content);
         $feedbackTemplate = new HTMLParameter($this->HTMLBuilder, "content\\feedback\\feedback-template.html");
@@ -34,14 +35,14 @@ class accountoverview extends Page
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("username", $this->user->getUsername());
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("country", $this->user->getCountry());
 
-        $positiveFeedback = $this->createFeedbackTemplate($this->user->getFeedbacks()->getPositiveFeedback());
-        $negativeFeedback = $this->createFeedbackTemplate($this->user->getFeedbacks()->getNegativeFeedback());
+        $givenFeedback = $this->createGivenFeedbackTemplate($this->user->getFeedbacks()->getAllFeedback());
+        $receivedFeedback = $this->createReceivedFeedbackTemplate($this->user->getFeedbacks()->getAllFeedback());
 
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("count-positive", sizeof($positiveFeedback));
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("count-negative", sizeof($negativeFeedback));
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("count-given", sizeof($givenFeedback));
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("count-received", sizeof($receivedFeedback));
 
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("positive-feedback",$this->HTMLBuilder->joinHTMLParameters($positiveFeedback));
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("negative-feedback",$this->HTMLBuilder->joinHTMLParameters($negativeFeedback));
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("given-feedback",$this->HTMLBuilder->joinHTMLParameters($givenFeedback));
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("received-feedback",$this->HTMLBuilder->joinHTMLParameters($receivedFeedback));
 
         $this->generateLoginAndRegisterTemplates();
         return $this->HTMLBuilder->getHTML();
@@ -54,24 +55,42 @@ class accountoverview extends Page
     }
 
 
-    public function createFeedbackTemplate($feedbackKind)
+    public function createReceivedFeedbackTemplate($feedbackKind)
     {
         $feedbackTemplates = array();
         foreach ($feedbackKind as $feedback) {
-            $feedbackTemplates[] = $this->generateFeedbackTemplate($feedback);
+            if ($feedback->getUser()->getUsername() !== $this->user->getUsername()) {
+                $feedbackTemplates[] = $this->generateFeedbackTemplate($feedback);
+            }
+        }
+        return $feedbackTemplates;
+    }
+
+    public function createGivenFeedbackTemplate($feedbackKind)
+    {
+        $feedbackTemplates = array();
+        foreach ($feedbackKind as $feedback) {
+            if ($feedback->getUser()->getUsername() === $this->user->getUsername()) {
+                $feedbackTemplates[] = $this->generateFeedbackTemplate($feedback);
+            }
         }
         return $feedbackTemplates;
     }
 
     private function generateFeedbackTemplate($feedback)
     {
-        $placementDate = $feedback->getPlacementDateTime();
         $feedbackTemplate = new HTMLParameter($this->HTMLBuilder, "content\\feedback\\feedback-template.html");
+        $placementDate = $feedback->getPlacementDateTime();
         $feedbackTemplate->addTemplateParameterByString("username-feedbackgiver", $feedback->getUser()->getUsername());
         $feedbackTemplate->addTemplateParameterByString("is-seller", $feedback->getKindOfUser());
         $feedbackTemplate->addTemplateParameterByString("title", $feedback->getItem()->getTitle());
         $feedbackTemplate->addTemplateParameterByString("placement-date", $placementDate->format('Y-m-d'));
         $feedbackTemplate->addTemplateParameterByString("feedback-text", $feedback->getComment());
+        if($feedback->getFeedbackKind() == "positive") {
+            $feedbackTemplate->addTemplateParameterByString("feedback-type", '<text style="color: green">Positief</text>');
+        } else {
+            $feedbackTemplate->addTemplateParameterByString("feedback-type", '<text style="color: red">Negatief</text>');
+        }
 
         return $feedbackTemplate;
     }

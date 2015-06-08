@@ -78,9 +78,13 @@ class MyAuctions extends Page {
         $auctionTemplate->addTemplateParameterByString("number-of-bids", $numberOfBids);
         $auctionTemplate->addTemplateParameterByString("highest-bid", number_format($highestPrice, 2, '.',''));
 
-        $auctionTemplate->addTemplateParameterByString("start-date", $item->getAuctionStartDateTime()->format('Y-m-d H:i'));
-        $auctionTemplate->addTemplateParameterByString("end-date", $item->getAuctionEndDateTime()->format('Y-m-d H:i'));
-        $auctionTemplate->addTemplateParameterByString("time-left",$interval->days." dagen ".$interval->h." uur en ".$interval->i."minuten");
+        if ($item->getIsAuctionClosed()){
+            $auctionTemplate->addTemplateParameterByString("start-date", "De veiling is gesloten");
+        } else {
+            $auctionTemplate->addTemplateParameterByString("start-date", $item->getAuctionStartDateTime()->format('Y-m-d H:i'));
+            $auctionTemplate->addTemplateParameterByString("end-date", "<strong>Einddatum: </strong>".$item->getAuctionEndDateTime()->format('Y-m-d H:i'));
+            $auctionTemplate->addTemplateParameterByString("time-left", "<strong>Tijd over: </strong>".$interval->days . " dagen " . $interval->h . " uur en " . $interval->i . "minuten");
+        }
 
         return $auctionTemplate;
     }
