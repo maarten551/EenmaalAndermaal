@@ -118,7 +118,7 @@ class User extends Model {
      */
     public function addFeedback($feedback)
     {
-        if ($feedback->getUser() !== $this) {
+        if ($feedback->getUser() === NULL && $feedback->getUser() !== $this) {
             $feedback->setUser($this);
         }
         $this->feedbackCollection->addFeedback($feedback);
@@ -128,7 +128,7 @@ class User extends Model {
      * @return FeedbackCollection
      */
     public function getFeedbacks() {
-        if(count($this->feedbackCollection->getAllFeedback()) <= 1 && $this->username !== null) {
+        if(count($this->feedbackCollection->getAllFeedback()) < 1 && $this->username !== null) {
             $selectQuery = "SELECT t3.kindOfUser, t3.itemId, t3.feedbackKind, t3.placementDateTime, t3.comment
                             FROM [user] AS t1
                             INNER JOIN [item] AS t2

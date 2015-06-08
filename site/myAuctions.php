@@ -25,11 +25,10 @@ class MyAuctions extends Page {
             $this->user = new User($this->databaseHelper, $this->loggedInUser->getUsername());
             $this->seller = new Seller($this->databaseHelper, $this->user);
         }
+
         if($this->loggedInUser === null || $this->seller->getUser() === null || $this->seller->getActivationCode() !== null) {
             $this->redirectToIndex();
         }
-
-
     }
 
     public function createHTML()

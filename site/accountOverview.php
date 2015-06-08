@@ -2,6 +2,8 @@
 use src\classes\DatabaseHelper;
 use src\classes\HTMLBuilder;
 use src\classes\HTMLBuilder\HTMLParameter;
+use src\classes\Models\Feedback;
+use src\classes\Models\Seller;
 use src\classes\Models\User;
 use src\classes\Page;
 require_once "src/libraries/password.php"; //For password hashing functionality for PHP < 5.5, server is 5.4.35, source: https://github.com/ircmaxell/password_compat
@@ -10,15 +12,31 @@ function __autoload($class_name) { //PHP will use this function if a class file 
 }
 session_start();
 date_default_timezone_set("Europe/Amsterdam");
-class accountoverview extends Page
+
+class AccountOverview extends Page
 {
+    /**
+     * @var User
+     */
+    private $user;
     public function __construct()
     {
         parent::__construct("template.html");
+        if(array_key_exists('user', $_GET)) {
+            $this->user = new User($this->databaseHelper, $_GET['user']);
+        }
+        if($this->user === null || $this->user->getFirstname() === null) {
+            $this->redirectToIndex();
+        }
     }
+
+    public function __destruct()
+    {
+        parent::__destruct();
+    }
+
     public function createHTML()
     {
-        $this->user = new User($this->databaseHelper, $_GET["user"]);
         $content = new HTMLParameter($this->HTMLBuilder, "content\\content-account-overview.html");
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("content", $content);
         $feedbackTemplate = new HTMLParameter($this->HTMLBuilder, "content\\feedback\\feedback-template.html");
@@ -41,33 +59,45 @@ class accountoverview extends Page
         $this->generateLoginAndRegisterTemplates();
         return $this->HTMLBuilder->getHTML();
     }
-    public function __destruct()
-    {
-        parent::__destruct();
-    }
-    public function createReceivedFeedbackTemplate($feedbackKind){
+
+    /**
+     * @param $feedbacks Feedback[]
+     * @return HTMLParameter[]
+     */
+    public function createReceivedFeedbackTemplate($feedbacks){
         $feedbackTemplates = array();
-        foreach ($feedbackKind as $feedback) {
-            if ($feedback->getUser() === $this->user) {
+        $user = null;
+        foreach ($feedbacks as $feedback) {
+            $user = ($feedback->getUser() instanceof Seller) ? $feedback->getUser()->getUser() : $feedback->getUser();
+            if ($user->getUsername() !== $this->user->getUsername()) {
                 $feedbackTemplates[] = $this->generateFeedbackTemplate($feedback);
             }
         }
         return $feedbackTemplates;
     }
-    public function createGivenFeedbackTemplate($feedbackKind){
+
+    /**
+     * @param $feedbacks Feedback[]
+     * @return HTMLParameter[]
+     */
+    public function createGivenFeedbackTemplate($feedbacks){
         $feedbackTemplates = array();
-        foreach ($feedbackKind as $feedback) {
-            if ($feedback->getUser() !== $this->user) {
+        $user = null;
+        foreach ($feedbacks as $feedback) {
+            $user = ($feedback->getUser() instanceof Seller) ? $feedback->getUser()->getUser() : $feedback->getUser();
+            if ($user->getUsername() === $this->user->getUsername()) {
                 $feedbackTemplates[] = $this->generateFeedbackTemplate($feedback);
             }
         }
         return $feedbackTemplates;
     }
-    private function generateFeedbackTemplate($feedback)
+
+    private function generateFeedbackTemplate(Feedback $feedback)
     {
+        $item = ($feedback->getUser() instanceof Seller) ? $feedback->getUser()->getUser() : $feedback->getUser();
         $feedbackTemplate = new HTMLParameter($this->HTMLBuilder, "content\\feedback\\feedback-template.html");
         $placementDate = $feedback->getPlacementDateTime();
-        $feedbackTemplate->addTemplateParameterByString("username-feedbackgiver", $feedback->getUser()->getUsername());
+        $feedbackTemplate->addTemplateParameterByString("username-feedbackgiver", $item->getUsername());
         $feedbackTemplate->addTemplateParameterByString("is-seller", $feedback->getKindOfUser());
         $feedbackTemplate->addTemplateParameterByString("title", $feedback->getItem()->getTitle());
         $feedbackTemplate->addTemplateParameterByString("placement-date", $placementDate->format('Y-m-d'));
@@ -80,5 +110,5 @@ class accountoverview extends Page
         return $feedbackTemplate;
     }
 }
-$page = new accountOverview();
+$page = new AccountOverview();
 echo $page->createHTML();
