@@ -88,6 +88,7 @@ class Product extends Page {
                     if ($bid->save() === false) {
                         $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Bieding niet geplaatst", "Bieding is niet hoog genoeg."));
                     } else {
+                        $this->sendBidMail($bid);
                         $this->HTMLBuilder->addMessage(new PositiveMessage($this->HTMLBuilder, "Bieding geplaatst", "Uw bieding is geplaatst."));
                     }
                 } else {
@@ -99,6 +100,17 @@ class Product extends Page {
         } else {
             $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Bieding niet geplaatst", "De door uw ingevulde bieding is geen getal of is groter dan &euro;2.000.000."));
         }
+    }
+
+    private function sendBidMail(Bid $bid) {
+        $emailHeaders = 'MIME-Version: 1.0' . "\r\n" .
+            'Content-type: text/html; charset=iso-8859-1' . "\r\n" .
+            'From: noreply@eenmaalandermaal.nl' . "\r\n" .
+            'X-Mailer: PHP/' . phpversion();
+        mail($bid->getItem()->getSeller()->getUser()->getMailbox(), "Bieding geplaatst", "
+        Er is een bieding geplaatst op het product <a href='http://iproject16.icasites.nl/product.php?product=". $bid->getItemId() ."'>'". $bid->getItem()->getTitle() ."'</a>.<br/>
+        Bieding bedrag: ?". $bid->getAmount() ."<br />
+        Bieder: <a href='http://iproject16.icasites.nl/accountOverview.php?user=". $bid->getUsername() ."'>". $bid->getUsername() ."</a>", $emailHeaders);
     }
 
     public function createHTML()

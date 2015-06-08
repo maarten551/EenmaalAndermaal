@@ -65,11 +65,11 @@ class Bid extends Model {
     {
         $itemId = $this->get("itemId");
         if($this->item === null && $itemId !== null) {
-            $this->item = new User($this->databaseHelper, $itemId);
+            $this->item = new Item($this->databaseHelper, $itemId);
             $this->item->addBid($this);
         }
 
-        return $this->user;
+        return $this->item;
     }
 
     /**
