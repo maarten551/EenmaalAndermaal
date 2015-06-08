@@ -1,6 +1,8 @@
 <?php
 namespace src\classes;
 use src\classes\HTMLBuilder\HTMLParameter;
+use src\classes\Messages\Alert;
+use src\classes\Messages\PositiveMessage;
 use src\classes\Messages\Warning;
 use src\classes\Models\Item;
 use src\classes\Models\Question;
@@ -49,11 +51,47 @@ abstract class Page {
     protected function handleRequestParameters() {
         if(array_key_exists('login', $_POST)) {
             $this->loggedInUser = $this->userHelper->loginUser($_POST['login-username'], $_POST['login-password']);
+        } else if (array_key_exists('forgot-password-button', $_POST)) {
+            $this->handleForgottenPassword();
         } else if (array_key_exists('logout', $_GET)) {
             $this->userHelper->logoutUser();
             $this->loggedInUser = null;
         } else if (array_key_exists('register', $_POST)) {
             $this->userHelper->registerUser();
+        }
+    }
+
+    private function handleForgottenPassword() {
+        if(array_key_exists('forgot-password-username', $_POST) && !empty($_POST['forgot-password-username'])) {
+            if (array_key_exists('forgot-password-password', $_POST) && !empty($_POST['forgot-password-password']) && array_key_exists('forgot-password-password-repeat', $_POST) && $_POST['forgot-password-password-repeat'] === $_POST['forgot-password-password']) {
+                if (array_key_exists('forgot-password-question', $_POST) && !empty($_POST['forgot-password-question'])) {
+                    $success = false;
+                    $question = Question::GET_BY_QUESTION_TEXT($this->databaseHelper, $_POST['forgot-password-question']);
+                    $user = new User($this->databaseHelper, $_POST['forgot-password-username']);
+
+                    if ($user !== null && $question !== null) {
+                        if ($user->getQuestionId() === $question->getId()) {
+                            if ($user->getQuestionAnswer() === $_POST['forgot-password-question-answer']) {
+                                $success = true;
+                                $user->setPassword($_POST['forgot-password-password']);
+                                $this->userHelper->hashPassword($user);
+                                $user->save();
+                                $this->HTMLBuilder->addMessage(new PositiveMessage($this->HTMLBuilder, "Wachtwoord veranderen gelukt", "Uw wachtwoord is veranderd, gebruik het meegegeven wachtwoord om voortaan in te loggen."));
+                            }
+                        }
+                    }
+
+                    if ($success === false) {
+                        $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Wachtwoord veranderen mislukt", "De meegegeven informatie komt niet overeen met de gekozen gebruiker."));
+                    }
+                } else {
+                    $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Wachtwoord veranderen mislukt", "Er is geen vraag meegegeven."));
+                }
+            } else {
+                $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Wachtwoord veranderen mislukt", "Een wachtwoord veld is niet ingevuld of de wachtwoord velden komen niet overeen, de wachtwoord zal later gebruikt worden om weer in te loggen."));
+            }
+        } else {
+            $this->HTMLBuilder->addMessage(new Alert($this->HTMLBuilder, "Wachtwoord veranderen mislukt", "Er is geen gebruikersnaam meegegeven."));
         }
     }
 

@@ -25,20 +25,28 @@
                         <p>Bent u uw wachtwoord vergeten? vul dan hieronder uw gebruikersnaam en geheime vraag in, hierna wordt er een email naar u gestuurd met een nieuw wachtwoord</p>
                         <form id="forgotPassForm" method="post">
                             <div class="form-group">
+                                <label>Gebruikersnaam:</label>
+                                <input required maxlength="100" type="text" class="form-control" name="forgot-password-username">
+                            </div>
+                            <div class="form-group">
+                                <label>Nieuws wachtwoord:</label>
+                                <input required maxlength="100" type="password" class="form-control" name="forgot-password-password">
+                            </div>
+                            <div class="form-group">
+                                <label>Herhaal wachtwoord:</label>
+                                <input required maxlength="100" type="password" class="form-control" name="forgot-password-password-repeat">
+                            </div>
+                            <div class="form-group">
                                 <label>Geheime vraag:</label>
-                                <select required class="form-control">
+                                <select required class="form-control" name="forgot-password-question">
                                     #$(questions)$#
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label>Antwoord:</label>
-                                <input required maxlength="100" type="text" class="form-control">
+                                <input required maxlength="100" type="text" class="form-control" name="forgot-password-question-answer">
                             </div>
-                            <div class="form-group">
-                                <label>Email:</label>
-                                <input required maxlength="50" type="text" class="form-control">
-                            </div>
-                            <button type="submit" class="btn btn-default">Versturen</button>
+                            <button type="submit" class="btn btn-default" name="forgot-password-button">Versturen</button>
                         </form>
                     </div>
 
