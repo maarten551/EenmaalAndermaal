@@ -35,12 +35,12 @@
 
     <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
         <label>Locatie (stad/dorp)</label>
-        <input required type="text" name="auction-town" class="form-control">
+        <input required type="text" max="37" name="auction-town" class="form-control">
     </div>
 
     <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
         <label>Land</label>
-        <input required type="text" name="auction-country" class="form-control">
+        <input required type="text" max="37" name="auction-country" class="form-control">
     </div>
 
     <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
@@ -54,7 +54,7 @@
 
     <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
         <label>Verzendingskosten:</label>
-        <input type="number" name="auction-shipping-cost" min="0.01" class="form-control" step="0.01" pattern="^\d+(?:\.\d{0,2})$">
+        <input type="number" name="auction-shipping-cost" class="form-control" step="0.01" pattern="^\d+(?:\.\d{0,2})$">
     </div>
     <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
         <label>Betalingsmethode:</label>
