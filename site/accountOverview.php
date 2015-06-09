@@ -64,7 +64,8 @@ class AccountOverview extends Page
      * @param $feedbacks Feedback[]
      * @return HTMLParameter[]
      */
-    public function createReceivedFeedbackTemplate($feedbacks){
+    public function createReceivedFeedbackTemplate($feedbacks)
+    {
         $feedbackTemplates = array();
         $user = null;
         $totalPositive = 0;
@@ -74,14 +75,16 @@ class AccountOverview extends Page
             if ($user->getUsername() !== $this->user->getUsername()) {
                 $feedbackTemplates[] = $this->generateFeedbackTemplate($feedback);
                 $totalFeedback++;
-                if ($feedback->getFeedbackKind() == "positive"){
+                if ($feedback->getFeedbackKind() == "positive") {
                     $totalPositive++;
                 }
             }
         }
-        $percentPositive = ($totalPositive / ($totalFeedback) * 100);
-        $percentNegative = 100 - $percentPositive;
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("received-percentage", "Positief: <text style='color:green'>".$percentPositive."&#37; </text>  Negatief: <text style='color:red'>".$percentNegative."&#37; </text>");
+        if ($totalFeedback>0) {
+            $percentPositive = ($totalPositive / ($totalFeedback) * 100);
+            $percentNegative = 100 - $percentPositive;
+            $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("received-percentage", "Positief: <text style='color:green'>" . $percentPositive . "&#37; </text>  Negatief: <text style='color:red'>" . $percentNegative . "&#37; </text>");
+        }
         return $feedbackTemplates;
     }
 
@@ -104,9 +107,11 @@ class AccountOverview extends Page
                 }
             }
         }
-        $percentPositive = ($totalPositive / ($totalFeedback) * 100);
-        $percentNegative = 100 - $percentPositive;
-        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("given-percentage", "Positief: <text style='color:green'>".$percentPositive."&#37; </text>  Negatief: <text style='color:red'>".$percentNegative."&#37; </text>");
+        if($totalFeedback>0) {
+            $percentPositive = ($totalPositive / ($totalFeedback) * 100);
+            $percentNegative = 100 - $percentPositive;
+            $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("given-percentage", "Positief: <text style='color:green'>" . $percentPositive . "&#37; </text>  Negatief: <text style='color:red'>" . $percentNegative . "&#37; </text>");
+        }
         return $feedbackTemplates;
     }
 
