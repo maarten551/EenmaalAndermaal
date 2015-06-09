@@ -157,7 +157,7 @@ class Product extends Page {
             $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("time-left", "Deze veiling is gesloten, u kunt niet meer bieden");
             $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("is-disabled", "disabled");
         } else {
-            if ($interval->days > 1){
+            if ($interval->days !== 1){
                 $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("time-left", "U heeft nog ".$interval->days." dagen ".$interval->h." uur en ".$interval->i." minuten over om te bieden");
             } else {
                 $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("time-left", "U heeft nog ".$interval->days." dag ".$interval->h." uur en ".$interval->i." minuten over om te bieden");

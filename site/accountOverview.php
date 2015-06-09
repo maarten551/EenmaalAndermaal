@@ -81,9 +81,9 @@ class AccountOverview extends Page
             }
         }
         if ($totalFeedback>0) {
-            $percentPositive = round(($totalPositive / ($totalFeedback) * 100), PHP_ROUND_HALF_EVEN);
+            $percentPositive = ($totalPositive / ($totalFeedback) * 100);
             $percentNegative = 100 - $percentPositive;
-            $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("received-percentage", "Positief: <text style='color:green'>" . $percentPositive . "&#37; </text>  Negatief: <text style='color:red'>" . $percentNegative . "&#37; </text>");
+            $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("received-percentage", "Positief: <text style='color:green'>" . number_format($percentPositive) . "&#37; </text>  Negatief: <text style='color:red'>" . number_format($percentNegative) . "&#37; </text>");
         }
         return $feedbackTemplates;
     }
@@ -108,9 +108,9 @@ class AccountOverview extends Page
             }
         }
         if($totalFeedback>0) {
-            $percentPositive = round(($totalPositive / ($totalFeedback) * 100), PHP_ROUND_HALF_EVEN);
+            $percentPositive = ($totalPositive / ($totalFeedback) * 100);
             $percentNegative = 100 - $percentPositive;
-            $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("given-percentage", "Positief: <text style='color:green'>" . $percentPositive . "&#37; </text>  Negatief: <text style='color:red'>" . $percentNegative . "&#37; </text>");
+            $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("given-percentage", "Positief: <text style='color:green'>" . number_format($percentPositive) . "&#37; </text>  Negatief: <text style='color:red'>" . number_format($percentNegative) . "&#37; </text>");
         }
         return $feedbackTemplates;
     }
