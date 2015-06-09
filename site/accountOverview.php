@@ -67,12 +67,21 @@ class AccountOverview extends Page
     public function createReceivedFeedbackTemplate($feedbacks){
         $feedbackTemplates = array();
         $user = null;
+        $totalPositive = 0;
+        $totalFeedback = 0;
         foreach ($feedbacks as $feedback) {
             $user = ($feedback->getUser() instanceof Seller) ? $feedback->getUser()->getUser() : $feedback->getUser();
             if ($user->getUsername() !== $this->user->getUsername()) {
                 $feedbackTemplates[] = $this->generateFeedbackTemplate($feedback);
+                $totalFeedback++;
+                if ($feedback->getFeedbackKind() == "positive"){
+                    $totalPositive++;
+                }
             }
         }
+        $percentPositive = ($totalPositive / ($totalFeedback) * 100);
+        $percentNegative = 100 - $percentPositive;
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("received-percentage", "Positief: <text style='color:green'>".$percentPositive."&#37; </text>  Negatief: <text style='color:red'>".$percentNegative."&#37; </text>");
         return $feedbackTemplates;
     }
 
@@ -83,12 +92,21 @@ class AccountOverview extends Page
     public function createGivenFeedbackTemplate($feedbacks){
         $feedbackTemplates = array();
         $user = null;
-        foreach ($feedbacks as $feedback) {
+        $totalPositive = 0;
+        $totalFeedback = 0;
+        foreach ($feedbacks as$feedback) {
             $user = ($feedback->getUser() instanceof Seller) ? $feedback->getUser()->getUser() : $feedback->getUser();
             if ($user->getUsername() === $this->user->getUsername()) {
                 $feedbackTemplates[] = $this->generateFeedbackTemplate($feedback);
+                $totalFeedback++;
+                if ($feedback->getFeedbackKind() == "positive"){
+                    $totalPositive++;
+                }
             }
         }
+        $percentPositive = ($totalPositive / ($totalFeedback) * 100);
+        $percentNegative = 100 - $percentPositive;
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("given-percentage", "Positief: <text style='color:green'>".$percentPositive."&#37; </text>  Negatief: <text style='color:red'>".$percentNegative."&#37; </text>");
         return $feedbackTemplates;
     }
 
@@ -98,6 +116,7 @@ class AccountOverview extends Page
         $feedbackTemplate = new HTMLParameter($this->HTMLBuilder, "content\\feedback\\feedback-template.html");
         $placementDate = $feedback->getPlacementDateTime();
         $feedbackTemplate->addTemplateParameterByString("username-feedbackgiver", $item->getUsername());
+        $feedbackTemplate->addTemplateParameterByString("product-id", $feedback->getItem()->getId());
         $feedbackTemplate->addTemplateParameterByString("is-seller", $feedback->getKindOfUser());
         $feedbackTemplate->addTemplateParameterByString("title", $feedback->getItem()->getTitle());
         $feedbackTemplate->addTemplateParameterByString("placement-date", $placementDate->format('Y-m-d'));

@@ -143,6 +143,9 @@ class Product extends Page {
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("payment-instruction", $this->item->getPaymentInstruction());
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("payment-method", $this->item->getPaymentMethod());
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("shipping-instruction", $this->item->getShippingInstruction());
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("town", $this->item->getTown());
+        $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("country", $this->item->getCountry());
+
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByString("shipping-cost", number_format((float)$this->item->getShippingCost(), 2, '.', ''));
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("bid-container", $this->generateBidTemplates());
         $this->HTMLBuilder->mainHTMLParameter->addTemplateParameterByParameter("product-feedback", $feedbackTemplate);
